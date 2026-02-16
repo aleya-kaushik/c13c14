@@ -1,0 +1,403 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!Defined Phenology Based on User-Defined Stage Lengths
+!   Number Of Stages = npstg 
+!   1:            Planting (prior to emergence)
+!   2:            Emergence (transfer of carbon from seed)
+!   3-??:         Growth and Development
+!   ??-(npstg-1): Browning and Drying
+!   npstg:        Harvest/Dormant
+!
+!   Stages are determined based on either:
+!    - Growing Degree Days (GDD)
+!    - Days After Planting Date (DAPD)
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+subroutine phen_defined( &
+    subpt, subl, ipft, pnum, &
+    phencont, poolcont, &
+    lai, tmdf, phent, pooldt, &
+    poollt, physcont)
+
+use kinds
+use module_pftinfo, only: &
+     pft_c4c, pft_mze, pft_soy, &
+     pft_wwt, pft_ref
+use module_poolinfo, only: &
+    pool_indx_lay, pool_name
+use module_pparams, only: &
+    mwc, month_names, tffrz, &
+    rpoolinitc3, rpoolinitc4
+use module_io, only: &
+    npbp, pbp_gref, pbp_pref
+use module_param, only: &
+    phen_param, pool_param, &
+    phys_param
+use module_sib, only: &
+    phen_type, poold_type, &
+    pooll_type
+use module_sibconst, only: &
+    cornsoy_switch, &
+    print_harvest, print_stop, &
+    npoolpft, ntpool, &
+    subset, sublonsib, sublatsib, subpref
+use module_time, only: &
+     doy, day, month, year, &
+     steps_per_day, dtisib, dtsib
+!use module_phosib, only: c4
+
+implicit none
+
+!...parameters
+integer(i4), parameter :: igrowstg=2
+
+!...input variables
+integer(i4), intent(in) :: subpt, subl, pnum
+integer(i4), intent(inout) :: ipft
+type(phen_param), intent(in) :: phencont
+type(pool_param), intent(in) :: poolcont
+real(r8), intent(in) :: lai, tmdf
+type(phen_type), intent(inout) :: phent
+type(poold_type), intent(inout) :: pooldt
+type(pooll_type), intent(inout) :: poollt
+type(phys_param), intent(in) :: physcont
+
+!...local variables
+integer(i4) :: i, k, m, mref, p, kref, tcref
+integer(i4) :: ips, icount
+real(r8) :: deltac, hrvstc, hrvstc13, tempc, tempc13
+real(r8) :: hrvstt, hrvsttc13, ratio, ratioc13
+real(r8) :: tempc14, ratioc14, hrvstc14, hrvsttc14
+real(r8) :: c4_flag
+
+!------set C4 flag------------
+c4_flag = dble(physcont%c4flag)
+
+!------------------------------
+!Reset variables
+poollt%gain_seed = dzero
+pooldt%gain_hrvst_lay = dzero
+poollt%loss_hrvst_lay = dzero
+poollt%resp_hrvst = dzero
+poollt%resp_hrvstc13 = dzero
+poollt%rmvd_hrvst = dzero
+poollt%rmvd_hrvstc13 = dzero
+phent%phen_istage = phencont%npstg
+
+if ((phent%phenflag_gsspass) .and. &
+    (phent%phenflag_precip) .and. &
+    (phent%ipd .eq. izero)) then
+    phent%ipd = doy
+    phent%seed_pool = phencont%seed_carbon
+endif
+
+!Only set phenology stage index when planted
+IF (phent%ipd .le. izero) RETURN
+
+!Increment days after planting date
+phent%dapd = phent%dapd + ione
+IF (tmdf .gt. phencont%gdd_tbase) &
+!IF (tmdf .gt. tffrz) &
+   phent%dapdaf = phent%dapdaf + ione
+
+!Increment growing degree days
+IF (tmdf .ge. phencont%gdd_tmax) THEN
+   phent%gdd = phent%gdd + (phencont%gdd_tmax - phencont%gdd_tbase)
+ELSEIF (tmdf .ge. phencont%gdd_tbase) THEN
+    phent%gdd = phent%gdd + (tmdf - phencont%gdd_tbase)
+ENDIF
+
+!Choose between using GDD or DAPD for phenology
+if (phencont%gdd_or_pd .eq. 1) then
+    phent%phen_pi = phent%gdd
+elseif (phencont%gdd_or_pd .eq. 2) then
+    phent%phen_pi = phent%dapd
+elseif (phencont%gdd_or_pd .eq. 3) then
+    phent%phen_pi = phent%dapdaf
+else
+    print*,'Unexpected Metric For GDD Phenology: ',phencont%gdd_or_pd
+    print*,'Expecting 1 (GDD) or 2 (DAPD).'
+    print*,'Stopping.'
+    stop
+endif
+
+!Set Phenology Stage
+ips = izero
+icount = 1
+do while (ips .eq. izero)
+   if (phent%phen_pi .lt. phencont%threshp(icount)) then
+       ips = icount
+   else
+       icount = icount + ione
+   endif
+
+   if (icount .eq. phencont%npstg) then
+       ips = icount
+   endif
+enddo
+phent%phen_istage = ips
+
+!Ensure Ample Emergence and Initial Growth Stages
+IF ((pnum .eq. pft_mze) .or. (pnum .eq. pft_c4c)) THEN
+   IF ((phent%phen_istage .GT. 2) .AND. &
+        (phent%gdd .LT. phencont%threshp(3)) .AND. &
+        (lai .LT. 0.8)) THEN
+         phent%gdd = phencont%threshp(2)
+         phent%phen_pi = phent%gdd
+         phent%phen_istage = 2
+    ELSEIF ((phent%phen_istage .GT. 3) .AND. &
+         (phent%gdd .LT. phencont%threshp(4)) .AND. &
+         (lai .LT. 2.2)) THEN
+         phent%gdd = phencont%threshp(3)
+         phent%phen_pi = phent%gdd
+         phent%phen_istage = 3
+    ENDIF
+ENDIF
+
+IF (pnum .eq. pft_wwt) THEN
+   IF ((phent%phen_istage .GT. 3) .AND. &
+       (phent%dapdaf .LT. phencont%threshp(4)) .AND. &
+       (lai .LT. 1.8)) THEN
+      phent%dapdaf = phent%dapdaf - ione
+      phent%phen_pi = phent%dapdaf
+      phent%phen_istage = 3
+   ENDIF
+ENDIF
+     
+
+!--------Specialty Pool Transfers---------!
+!----Harvest----
+if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
+    (phent%dapd .ge. phencont%gslmax)) then
+    !...calculate harvested carbon and
+    !.....remove from pools
+    hrvstc = dzero
+    do p=1,npoolpft/3 !1,5 npoolpft (npoolpft=15 with C14)
+       do k=1,pool_indx_lay(p) !pool_indx_lay(1,5) either 1 or 10
+          tempc = poollt%poolpft_lay(p,k) &
+               - poolcont%poolpft_min(p) &
+               + poollt%poolpft_dgain(p,k) &
+               - poollt%poolpft_dloss(p,k)
+          hrvstc = hrvstc + tempc
+          poollt%loss_hrvst_lay(p,k) = tempc
+        enddo
+     enddo
+    !... same as above but for C-13 pools
+    hrvstc13 = dzero
+    do p=npoolpft/3+1,2*(npoolpft/3) !6,10 npoolpft
+       tcref=p
+       kref=p+npoolpft/3+1 !12,16 ntpool pool_indx_lay(12,16) 1 or 10
+       do k=1,pool_indx_lay(kref)
+          tempc = poollt%poolpft_lay(tcref,k) &
+               - poolcont%poolpft_min(tcref) &
+               + poollt%poolpft_dgain(tcref,k) &
+               - poollt%poolpft_dloss(tcref,k)
+          !tempc13 = fract%rcpoolfac*tempc
+          tempc13 = poollt%rcpoolpft_lay(p,k)*tempc
+          hrvstc13 = hrvstc13 + tempc13
+          poollt%loss_hrvst_lay(p,k) = tempc13
+    !... same as above but for C-14 pools
+    hrvstc14 = dzero
+    do p=2*(npoolpft/3)+1,npoolpft !11,15 npoolpft
+       tcref=p
+       kref=p+npoolpft/3+1 !17,22 ntpool pool_indx_lay(12,16) 1 or 10
+       do k=1,pool_indx_lay(kref)
+          tempc = poollt%poolpft_lay(tcref,k) &
+               - poolcont%poolpft_min(tcref) &
+               + poollt%poolpft_dgain(tcref,k) &
+               - poollt%poolpft_dloss(tcref,k)
+          !tempc13 = fract%rcpoolfac*tempc
+          tempc14 = poollt%rcpoolpft_lay(p,k)*tempc
+          hrvstc14 = hrvstc14 + tempc14
+          poollt%loss_hrvst_lay(p,k) = tempc14
+
+
+!if ((poollt%rcpoolpft_lay(p,k) .gt. 1.)) then
+if ( (poollt%poolpft_dloss(p,k) .gt. 10.) .or. &
+     (poollt%poolpft_dloss(p,k) .lt. -10.) ) then
+    print*,' '
+    print*,'code: phen_defined'
+    print*,'p,k: ',p,k
+    print*,'poolpft_dloss(p,k-1/k/k+1):',&
+        poollt%poolpft_dloss(p,k-1),poollt%poolpft_dloss(p,k),poollt%poolpft_dloss(p,k+1)
+    print*,'poolpft_lay(p,k-1/k/k+1) :',&
+        poollt%poolpft_lay(p,k-1),poollt%poolpft_lay(p,k),poollt%poolpft_lay(p,k+1)
+    print*,' '
+endif
+
+
+        enddo
+     enddo
+
+
+     poollt%poolpft_dloss = poollt%poolpft_dloss + &
+          poollt%loss_hrvst_lay
+     poollt%loss_hrvst_lay = poollt%loss_hrvst_lay*dtisib
+
+     !...set carbon respired from harvest
+     poollt%resp_hrvst = hrvstc * poolcont%harvest_trans(1) * dtisib
+     poollt%resp_hrvstc13 = hrvstc13 * poolcont%harvest_trans(1) * dtisib
+
+     !...set carbon removed from harvest
+     poollt%rmvd_hrvst = hrvstc * poolcont%harvest_trans(2)
+     poollt%rmvd_hrvstc13 = hrvstc13 * poolcont%harvest_trans(2)
+
+     !...transfer harvested carbon to dead pools
+     do m=npoolpft/2+1,ntpool/2 ! goes from (6,11) ntpool, 1-6 dead pools
+        mref = m - npoolpft/2 ! (m-5, i.e. 1-6 dead pools, with npoolpft=10)
+        if (poolcont%harvest_trans(mref+2) .gt. rzero) then !3,8
+           do k=1,pool_indx_lay(m) !6,11 ntpool
+              pooldt%gain_hrvst_lay(mref,k) = hrvstc &
+                        * poolcont%harvest_trans(mref+2) &
+                        * pooldt%poollu_flay(mref,k)
+              pooldt%poollu_dgain(mref,k) = pooldt%poollu_dgain(mref,k) &
+                        + pooldt%gain_hrvst_lay(mref,k)
+           enddo
+        endif
+     enddo
+     do m=npoolpft+2+npoolpft/2,ntpool ! goes from (17,22) ntpool,7-12 dead pools
+        mref = m - npoolpft ! (m-10, 7-12 dead pools, with npoolpft=10)
+        if (poolcont%harvest_trans(mref+2) .gt. rzero) then !9,14
+           do k=1,pool_indx_lay(m) !17,22 ntpool
+              pooldt%gain_hrvst_lay(mref,k) = hrvstc13 &
+                        * poolcont%harvest_trans(mref+2) &
+                        * pooldt%poollu_flay(mref,k)
+              pooldt%poollu_dgain(mref,k) = pooldt%poollu_dgain(mref,k) &
+                        + pooldt%gain_hrvst_lay(mref,k)
+           enddo
+        endif
+     enddo
+
+     hrvstt = hrvstc * sum(poolcont%harvest_trans(3:8))
+     if (sum(pooldt%gain_hrvst_lay(1:6,:)) .gt. dzero) then
+       ratio = hrvstt/sum(pooldt%gain_hrvst_lay(1:6,:))
+     endif
+     hrvsttc13 = hrvstc13 * sum(poolcont%harvest_trans(9:14))
+     if (sum(pooldt%gain_hrvst_lay(7:12,:)) .gt. dzero) then
+       ratioc13 = hrvsttc13/sum(pooldt%gain_hrvst_lay(7:12,:))
+     endif
+
+     pooldt%gain_hrvst_lay(1:6,:) = pooldt%gain_hrvst_lay(1:6,:)*ratio      
+     pooldt%gain_hrvst_lay(1:6,:) = pooldt%gain_hrvst_lay(1:6,:)*dtisib
+     pooldt%gain_hrvst_lay(7:12,:) = pooldt%gain_hrvst_lay(7:12,:)*ratioc13
+     pooldt%gain_hrvst_lay(7:12,:) = pooldt%gain_hrvst_lay(7:12,:)*dtisib
+
+     !...reset growing season variables
+     phent%nd_gs = dzero
+     phent%nd_stg(:) = dzero
+
+     phent%ipd = izero
+     phent%dapd = izero
+     phent%dapdaf = izero
+     phent%gdd = dzero
+     phent%phen_pi = dzero
+
+     !...switch crops if requested
+     if (cornsoy_switch) then
+        IF (pnum == pft_mze) THEN
+           ipft = pft_ref(pft_soy)
+           subpref(subpt,subl) = pft_ref(pft_soy)
+
+           do i=1,npbp
+              if (pbp_gref(i) .eq. subpt) then
+                 pbp_pref(i,subl) = pft_ref(pft_soy)
+             endif
+           enddo
+        ELSEIF (pnum == pft_soy) THEN
+           ipft = pft_ref(pft_mze)
+           subpref(subpt,subl) = pft_ref(pft_mze)
+           do i=1,npbp
+              if (pbp_gref(i) .eq. subpt) then
+                 pbp_pref(i,subl) = pft_ref(pft_mze)
+              endif
+           enddo
+        ENDIF !mze/soy pfts
+    endif !switch corn and soybeans
+
+    !--------Print Info---------!
+    if (print_harvest) then
+       print('(a)'), '---Harvesting---'
+       print('(a,a,i3,a,i4)'), &
+             'DATE: ', trim(month_names(month)), day, ', ', year
+       print('(a,i6,2f8.3,i3)'), &
+           '   SiB Point/Lon/Lat/PFT: ', &
+            subset(subpt), sublonsib(subpt), &
+            sublatsib(subpt), pft_ref(pnum)
+       print('(a,f14.4)'), '  Carbon Harvested (g C/m2): ', &
+          hrvstc*mwc
+       do p=1,npoolpft/2
+          print('(3a,f7.3)'),'      ',pool_name(p),': ', &
+             sum(poollt%loss_hrvst_lay(p,:))*mwc*dtsib
+       enddo
+
+       print('(a,f14.4)'), '  Carbon Moved (g C/m2): ', &
+          (poollt%rmvd_hrvst + poollt%resp_hrvst*dtsib &
+            + sum(pooldt%gain_hrvst_lay(1:6,:)))*mwc*dtsib
+       print('(a,f14.4)'), '      Respired   : ',poollt%resp_hrvst*dtsib*mwc
+       print('(a,f14.4)'), '      Removed    : ',poollt%rmvd_hrvst*mwc
+       print('(a,f14.4)'), '      Transferred: ', &
+            sum(pooldt%gain_hrvst_lay(1:6,:))*mwc*dtsib
+   
+   if (print_stop) stop
+endif
+
+endif !harvest
+
+
+!----Seed Growth----
+!....beginning growth after emergence
+deltac = dzero
+IF ((phent%seed_pool .gt. dzero) .and. &
+    (ips .ge. igrowstg)) then
+
+    !...calculate carbon to add
+    deltac = phencont%seed_release 
+    if (phent%seed_pool .le. deltac) then
+       deltac = phent%seed_pool
+       phent%seed_pool = dzero
+    else
+       phent%seed_pool = phent%seed_pool - deltac
+    endif
+
+    !...add seed carbon to pools
+    do p=1, npoolpft/2 !1,5 npoolpft
+       poollt%gain_seed(p) = deltac*phencont%allocp(p,ips)
+       do k=1,pool_indx_lay(p) !1,5 ntpool
+          poollt%poolpft_dgain(p,k) = poollt%poolpft_dgain(p,k) &
+              + poollt%gain_seed(p) * poollt%poolpft_flay(p,k)
+       enddo
+    enddo
+
+    do p=npoolpft/2+1, npoolpft !6,10 npoolpft
+       kref=p+npoolpft/2+1 !12,16 ntpool      
+       if (c4_flag .EQ. dzero) then
+         !if (poollt%rcpoolpft(p) .gt. dzero) then
+           !poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips) 
+         if (poollt%rcpoolpft(p) .gt. dzero) then
+           poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips) 
+           !poollt%gain_seed(p) = fract%rcpoolfac*deltac*phencont%allocp(p,ips) 
+           !poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips) 
+         else 
+           poollt%gain_seed(p) = rpoolinitc3*deltac*phencont%allocp(p,ips) !based on d13c=-26
+         endif
+       else !c4 plants
+         !if (poollt%rcpoolpft(p) .gt. dzero) then
+           !poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
+         if (poollt%rcpoolpft(p) .gt. dzero) then
+           poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)           
+           !poollt%gain_seed(p) = fract%rcpoolfac*deltac*phencont%allocp(p,ips)
+         else
+           poollt%gain_seed(p) = rpoolinitc4*deltac*phencont%allocp(p,ips) !based on d13c=-12.4              
+         endif
+       endif
+
+       do k=1,pool_indx_lay(kref) !12,16 ntpool
+          poollt%poolpft_dgain(p,k) = poollt%poolpft_dgain(p,k) &
+              + poollt%gain_seed(p) * poollt%poolpft_flay(p,k)
+       enddo
+
+    enddo
+    poollt%gain_seed = poollt%gain_seed / dble(steps_per_day) * dtisib
+ENDIF
+
+
+end subroutine phen_defined
