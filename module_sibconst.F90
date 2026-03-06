@@ -81,8 +81,8 @@ module module_sibconst
     logical  :: tm5mr_switch     !flag: use tm5 COS mole fraction
     logical  :: soilogee_switch  !flag: use COS soil from Ogee et al., 2016
     logical  :: varco2_switch    !flag: use variable CO2 mole fraction
-    logical  :: varc13_switch    !flag: use variable kiecps/d13cca C13 mole fraction    
-    logical  :: varc13m_switch    !flag: use variable atm C13 mole fraction
+    logical  :: varciso_switch    !flag: use variable kiecps/d13cca C13 mole fraction    
+    logical  :: varcisom_switch    !flag: use variable atm C13 and C14 mole fraction
     !-----------------------
     !...Lat/Lon Information
     logical :: single_pt

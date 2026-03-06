@@ -18,6 +18,7 @@ module module_fractsib
     real(r8) :: kiecps     ! fractionation during photosynthesis
     real(r8) :: kiecps_nog ! fractionation during photosynthesis, no gamma term
     real(r8) :: rcassim    ! isotope ratio value of assimilation 
+    real(r8) :: rcassimfac
     real(r8) :: d13cassim   ! delta value of assimilation
     real(r8) :: d13cassim_nog   ! delta value of assimilation, no gamma term
     real(r8) :: c13assim    ! recently assimilated carbon-13 (mol C/m2/s)
@@ -37,10 +38,14 @@ module module_fractsib
     real(r8) :: d14cm     ! 
     real(r8) :: c14ca     !
     real(r8) :: c14cm     !
+    real(r8) :: rcassimc14    ! isotope ratio value of assimilation 
+    real(r8) :: rcassimfacc14
     real(r8) :: d14cassim   ! delta value of assimilation
     real(r8) :: c14assim    ! recently assimilated carbon-13 (mol C/m2/s)
     real(r8) :: c14assimd   ! daily (24-hour running mean) assimilated carbon-14 (mol C/m2/s)
     real(r8) :: c14resptot    ! recently respired carbon-13 (mol C/m2/s)
+
+    real(r8) :: c14alpha  ! 14alpha_ph = (13alpha_ph)^2, alpha_ab = 1 + wtkiecps/1000.
 
     !...pool variables
     real(r8) :: d13cpool_leafc13 
@@ -94,7 +99,18 @@ module module_fractsib
     real(r8) :: d14cresp_soilc14
     real(r8) :: d14cresp_totc14
 
+    !...met varaibles
+
     real(r8) :: co2m_cfrax
     real(r8) :: press_cfrax
+    real(r8) :: press_cfraxps
+
+    !...fire variables
+
+    real(r8) :: rcpoolfire
+    real(r8) :: rcpoolfirec14
+    real(r8) :: poolemistotC
+    real(r8) :: poolemisc13
+    real(r8) :: poolemisc14
 
 end module module_fractsib

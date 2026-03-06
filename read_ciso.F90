@@ -19,7 +19,7 @@ logical :: iscomment1, iscomment2
 !integer(i4), intent(in) :: nisodatayr
 real(r8), dimension(171) :: &
    isoyrtmp, nhc14tmp, tropc14tmp, &
-   shc14tmp, globc13tmp
+   shc14tmp, globc13tmp, globc14tmp
 !real(r8), intent(in) :: &
 !   isoyr, nhc14, tropc14, shc14, globc13
 !CHARACTER(LEN=30), PARAMETER :: FMT1 = "(F5.2,F5,2,F5.2,F5.2,F5.2)"
@@ -74,7 +74,7 @@ read(cisoid,*) trash
 do i=1,nisodatayr
    read(cisoid,*) isoyrtmp(i), nhc14tmp(i), &
                   tropc14tmp(i), shc14tmp(i), &
-                  globc13tmp(i)
+                  globc13tmp(i), globc14tmp(i)
    !print*,''
    !print('(a,f4.2,f4.2)'),'ciso_file isoyr: ', isoyrtmp(i),globc13tmp(i)
    !write(*,*) isoyrtmp(i),globc13tmp(i)
@@ -88,5 +88,6 @@ nhc14=nhc14tmp
 tropc14=tropc14tmp
 shc14=shc14tmp 
 globc13=globc13tmp
+globc14=globc14tmp
 
 end subroutine read_ciso

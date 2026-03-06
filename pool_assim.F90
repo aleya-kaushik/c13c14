@@ -40,10 +40,12 @@ poollt%resp_grow = dzero
 poollt%resp_growc13 = dzero
 poollt%resp_nveg = dzero
 poollt%resp_nvegc13 = dzero
+poollt%resp_nvegc14 = dzero
 poollt%gain_assim = dzero
 poollt%loss_gresp = dzero
 poollt%resp_nveg_tmp = dzero
 poollt%resp_nvegc13_tmp = dzero
+poollt%resp_nvegc14_tmp = dzero
 
 !Check for assimilation to allocate
 IF (assim .le. dzero) RETURN
@@ -60,6 +62,7 @@ IF (ialloc .ne. ione) THEN ! first 5 are total C, next 5 are C-13 live pools
   !poollt%resp_nveg = sum(poollt%resp_nveg_tmp)
   poollt%resp_nveg = assim
   poollt%resp_nvegc13 = c13assim
+  poollt%resp_nvegc14 = c14assim
   RETURN
 ENDIF
 !IF (iallocc13 .ne. ione) THEN

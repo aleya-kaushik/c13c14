@@ -26,7 +26,7 @@ use module_poolinfo, only: &
     pool_indx_lay, pool_name
 use module_pparams, only: &
     mwc, month_names, tffrz, &
-    rpoolinitc3, rpoolinitc4
+    rc13poolinitc3, rc13poolinitc4
 use module_io, only: &
     npbp, pbp_gref, pbp_pref
 use module_param, only: &
@@ -184,7 +184,7 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
     !... same as above but for C-13 pools
     hrvstc13 = dzero
     do p=npoolpft/3+1,2*(npoolpft/3) !6,10 npoolpft
-       tcref=p
+       tcref=p-npoolpft/3 !(p-5) index the original totC pools and apply rc factor to convert to c13
        kref=p+npoolpft/3+1 !12,16 ntpool pool_indx_lay(12,16) 1 or 10
        do k=1,pool_indx_lay(kref)
           tempc = poollt%poolpft_lay(tcref,k) &
@@ -198,7 +198,7 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
     !... same as above but for C-14 pools
     hrvstc14 = dzero
     do p=2*(npoolpft/3)+1,npoolpft !11,15 npoolpft
-       tcref=p
+       tcref=p-(2*npoolpft/3) !(p-10)
        kref=p+npoolpft/3+1 !17,22 ntpool pool_indx_lay(12,16) 1 or 10
        do k=1,pool_indx_lay(kref)
           tempc = poollt%poolpft_lay(tcref,k) &
@@ -236,14 +236,16 @@ endif
      !...set carbon respired from harvest
      poollt%resp_hrvst = hrvstc * poolcont%harvest_trans(1) * dtisib
      poollt%resp_hrvstc13 = hrvstc13 * poolcont%harvest_trans(1) * dtisib
+     poollt%resp_hrvstc14 = hrvstc14 * poolcont%harvest_trans(1) * dtisib
 
      !...set carbon removed from harvest
      poollt%rmvd_hrvst = hrvstc * poolcont%harvest_trans(2)
      poollt%rmvd_hrvstc13 = hrvstc13 * poolcont%harvest_trans(2)
+     poollt%rmvd_hrvstc14 = hrvstc14 * poolcont%harvest_trans(2)
 
      !...transfer harvested carbon to dead pools
-     do m=npoolpft/2+1,ntpool/2 ! goes from (6,11) ntpool, 1-6 dead pools
-        mref = m - npoolpft/2 ! (m-5, i.e. 1-6 dead pools, with npoolpft=10)
+     do m=npoolpft/3+1,ntpool/3 ! goes from (6,11) ntpool to 1-6 dead pools
+        mref = m - npoolpft/3 ! (m-5, i.e. 1-6 dead pools, with npoolpft=15)
         if (poolcont%harvest_trans(mref+2) .gt. rzero) then !3,8
            do k=1,pool_indx_lay(m) !6,11 ntpool
               pooldt%gain_hrvst_lay(mref,k) = hrvstc &
@@ -254,8 +256,9 @@ endif
            enddo
         endif
      enddo
-     do m=npoolpft+2+npoolpft/2,ntpool ! goes from (17,22) ntpool,7-12 dead pools
-        mref = m - npoolpft ! (m-10, 7-12 dead pools, with npoolpft=10)
+     ! same as above but for C13
+     do m=npoolpft+2,2*ntpool/3 ! goes from (17,22) ntpool to 7-12 dead pools
+        mref = m - 2*npoolpft/3 ! (m-10, 7-12 dead pools, with npoolpft=15)
         if (poolcont%harvest_trans(mref+2) .gt. rzero) then !9,14
            do k=1,pool_indx_lay(m) !17,22 ntpool
               pooldt%gain_hrvst_lay(mref,k) = hrvstc13 &
@@ -266,6 +269,20 @@ endif
            enddo
         endif
      enddo
+     ! same as above but for C14
+     do m=5*npoolpft/3+3,ntpool ! goes from (28,33) ntpool to 13-18 dead pools
+        mref = m - npoolpft ! (m-15, 13-18 dead pools, with npoolpft=15)
+        if (poolcont%harvest_trans(mref+2) .gt. rzero) then !15,20
+           do k=1,pool_indx_lay(m) !28,33 ntpool
+              pooldt%gain_hrvst_lay(mref,k) = hrvstc14 &
+                        * poolcont%harvest_trans(mref+2) &
+                        * pooldt%poollu_flay(mref,k)
+              pooldt%poollu_dgain(mref,k) = pooldt%poollu_dgain(mref,k) &
+                        + pooldt%gain_hrvst_lay(mref,k)
+           enddo
+        endif
+     enddo
+
 
      hrvstt = hrvstc * sum(poolcont%harvest_trans(3:8))
      if (sum(pooldt%gain_hrvst_lay(1:6,:)) .gt. dzero) then
@@ -275,11 +292,18 @@ endif
      if (sum(pooldt%gain_hrvst_lay(7:12,:)) .gt. dzero) then
        ratioc13 = hrvsttc13/sum(pooldt%gain_hrvst_lay(7:12,:))
      endif
+     hrvsttc14 = hrvstc14 * sum(poolcont%harvest_trans(15:20))
+     if (sum(pooldt%gain_hrvst_lay(15:20,:)) .gt. dzero) then
+       ratioc14 = hrvsttc14/sum(pooldt%gain_hrvst_lay(15:20,:))
+     endif
+
 
      pooldt%gain_hrvst_lay(1:6,:) = pooldt%gain_hrvst_lay(1:6,:)*ratio      
      pooldt%gain_hrvst_lay(1:6,:) = pooldt%gain_hrvst_lay(1:6,:)*dtisib
      pooldt%gain_hrvst_lay(7:12,:) = pooldt%gain_hrvst_lay(7:12,:)*ratioc13
      pooldt%gain_hrvst_lay(7:12,:) = pooldt%gain_hrvst_lay(7:12,:)*dtisib
+     pooldt%gain_hrvst_lay(13:18,:) = pooldt%gain_hrvst_lay(13:18,:)*ratioc14
+     pooldt%gain_hrvst_lay(13:18,:) = pooldt%gain_hrvst_lay(13:18,:)*dtisib
 
      !...reset growing season variables
      phent%nd_gs = dzero
@@ -324,7 +348,7 @@ endif
             sublatsib(subpt), pft_ref(pnum)
        print('(a,f14.4)'), '  Carbon Harvested (g C/m2): ', &
           hrvstc*mwc
-       do p=1,npoolpft/2
+       do p=1,npoolpft/3
           print('(3a,f7.3)'),'      ',pool_name(p),': ', &
              sum(poollt%loss_hrvst_lay(p,:))*mwc*dtsib
        enddo
@@ -367,35 +391,52 @@ IF ((phent%seed_pool .gt. dzero) .and. &
        enddo
     enddo
 
-    do p=npoolpft/2+1, npoolpft !6,10 npoolpft
-       kref=p+npoolpft/2+1 !12,16 ntpool      
-       if (c4_flag .EQ. dzero) then
-         !if (poollt%rcpoolpft(p) .gt. dzero) then
-           !poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips) 
-         if (poollt%rcpoolpft(p) .gt. dzero) then
-           poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips) 
-           !poollt%gain_seed(p) = fract%rcpoolfac*deltac*phencont%allocp(p,ips) 
-           !poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips) 
-         else 
-           poollt%gain_seed(p) = rpoolinitc3*deltac*phencont%allocp(p,ips) !based on d13c=-26
-         endif
+    !...add seed carbon to C13 pools
+    do p=npoolpft/3+1, 2*npoolpft/3 !6,10 npoolpft with npoolpft=15
+       kref=p+npoolpft/3+1 !12,16 ntpool
+       if (c4_flag .EQ. dzero) then !c3 plants
+          if (poollt%rcpoolpft(p) .gt. dzero) then
+             poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
+          else
+             poollt%gain_seed(p) = rc13poolinitc3*deltac*phencont%allocp(p,ips) !based on d13c=-26
+          endif
        else !c4 plants
-         !if (poollt%rcpoolpft(p) .gt. dzero) then
-           !poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
-         if (poollt%rcpoolpft(p) .gt. dzero) then
-           poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)           
-           !poollt%gain_seed(p) = fract%rcpoolfac*deltac*phencont%allocp(p,ips)
-         else
-           poollt%gain_seed(p) = rpoolinitc4*deltac*phencont%allocp(p,ips) !based on d13c=-12.4              
-         endif
+          if (poollt%rcpoolpft(p) .gt. dzero) then
+             poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
+          else
+             poollt%gain_seed(p) = rc13poolinitc4*deltac*phencont%allocp(p,ips) !based on d13c=-12.4              
+          endif
        endif
 
        do k=1,pool_indx_lay(kref) !12,16 ntpool
           poollt%poolpft_dgain(p,k) = poollt%poolpft_dgain(p,k) &
               + poollt%gain_seed(p) * poollt%poolpft_flay(p,k)
        enddo
+    enddo    
 
+    !...add seed carbon to C14 pools
+    do p=2*npoolpft/3+1, npoolpft !11,15 npoolpft with npoolpft=15
+       kref=p+2*npoolpft/3+2 !23,27 ntpool
+       if (c4_flag .EQ. dzero) then !c3 plants
+          if (poollt%rcpoolpft(p) .gt. dzero) then
+             poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
+          else
+             poollt%gain_seed(p) = rc14poolinitc3*deltac*phencont%allocp(p,ips) !based on d14c=???
+          endif
+       else !c4 plants
+          if (poollt%rcpoolpft(p) .gt. dzero) then
+             poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
+          else
+             poollt%gain_seed(p) = rc14poolinitc4*deltac*phencont%allocp(p,ips) !based on d14c=???              
+          endif
+       endif
+
+       do k=1,pool_indx_lay(kref) !23,27 ntpool
+          poollt%poolpft_dgain(p,k) = poollt%poolpft_dgain(p,k) &
+              + poollt%gain_seed(p) * poollt%poolpft_flay(p,k)
+       enddo
     enddo
+
     poollt%gain_seed = poollt%gain_seed / dble(steps_per_day) * dtisib
 ENDIF
 

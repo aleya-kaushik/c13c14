@@ -29,14 +29,14 @@ use module_phosib, only: &
 use module_sib, only: &
     gprog_type, fract_type, &
     co2_type, flux_type
-use module_time, only: &
-    wt_daily, year, startyear, &
-    month, hour, day
+use module_time!, only: &
+    !dtsib, wt_daily, year, &
+    !month, hour, day
 use module_sibconst, only: &
     nisodatayr, varcisom_switch, &
     varciso_switch, varco2_switch
 use module_isodata, only: &
-    isoyr, globc13, globc14
+    isoyr, globc13
 
 implicit none
 
@@ -82,7 +82,7 @@ fract%press_cfraxps = dble(gprogt%ps)
 !..reset this value
 !fract%d13cassimxassim = dzero
 
-if (varcisom_switch) then ! update the c13 values from input file
+if (varcisom_switch) then
    !..Update d13cm from isodata input
    yrnow=year
    !idx=findloc(isoyrtmp,yrnow+0.5)
@@ -93,16 +93,8 @@ if (varcisom_switch) then ! update the c13 values from input file
      endif
    enddo
   fract%d13cm = dble(globc13(loc))
-  fract%d14cm = dble(globc14(loc))
-else ! use the startyear to find loc
-   do i=1,nisodatayr
-     if (floor(isoyr(i)) .eq. startyear) then
-      loc=i
-      exit
-     endif
-   enddo
-  fract%d13cm = dble(globc13(loc))
-  fract%d14cm = dble(globc14(loc))
+else
+  fract%d13cm = -7.6
 endif
 
 !d13cca=-8.0
@@ -117,16 +109,8 @@ if (varciso_switch .or. varco2_switch) then
    !print*,'d13cca: ',fract%d13cca
    ! below to turn off recyling for isotopes as well
    fract%d13cca = fract%d13cm
-   fract%d14cca = fract%d14cm
-else !use the startyear to find values
-   do i=1,nisodatayr
-     if (floor(isoyr(i)) .eq. startyear) then
-      loc=i
-      exit
-     endif
-   enddo
-  fract%d13cca = dble(globc13(loc))
-  fract%d14cca = dble(globc14(loc))
+else
+   fract%d13cca = -7.6
 endif
 
 !fract%d13cca = d13cca
@@ -251,16 +235,8 @@ if (co2t%assim .GT. nzero) then
     else      !C4 plants given constant KIE = 4.4per mil  
         fract%kiecps = dble(kiecstom)
         fract%kiecps_nog = dble(kiecstom)
-
         !fract%kiecpsxassim = fract%kiecps * co2t%assim
     endif !plant type selection based on c4
-
-    !! C14 calculation
-    !c13alpha = 1.+fract%kiecps/1000.
-    !c14alpha = c13alpha^2
-    fract%c14alpha = (1.0D0+fract%kiecps/1000.0D0)**2.
-
-
     !!!else
     !
     ! We need values for when Assimn < 0.0, i.e. nighttime.  We revert
@@ -293,8 +269,6 @@ if (co2t%assim .GT. nzero) then
 !if(co2t%assim .GT. dzero) then
     !kiecps=-18.1451612903
 !    rcassim=0.0109450328
-
-    !C13 assim cals
     fract%rcassim   =  rca*((fract%kiecps / &
                        1000.0D0) + 1.0D0)
     fract%rcassim_nog   =  rca*((fract%kiecps_nog / &
@@ -315,14 +289,6 @@ if (co2t%assim .GT. nzero) then
     fract%c13assim  =  (fract%rcassim * co2t%assim)/ &
                         (fract%rcassim+1.0D0)
     fract%c12assim  =  co2t%assim / (fract%rcassim +1.0D0)
-
-    !mostly same as above but for C14
-    
-    fract%rcassimc14 = rca*fract%c14alpha
-    fract%rcassimfacc14 = fract%rcassimc14/(fract%rcassimc14+1.0D0)
-    fract%c14assim  =  (fract%rcassimc14 * co2t%assim)/ &
-                        (fract%rcassimc14+1.0D0)
-
 
     if (fract%d13cca .lt. -1000. .or. fract%d13cassim .lt. -400.) then ! &
        ! fract%d13cca .gt. 10. .or. fract%d13cassim .lt. -400.) then
@@ -358,7 +324,7 @@ else !co2_assim = dzero
    fract%c13assim_nog=dzero
    fract%c13assim=dzero
    fract%c12assim=dzero
-   fract%c14assim=dzero
+   
 endif
 
 !fract%rcassim = rcassim
@@ -368,8 +334,6 @@ endif
 fract%c13assimd = dble(fract%c13assim*(1.0D0 - wt_daily) &
                    + fract%c13assim*wt_daily)
 
-fract%c14assimd = dble(fract%c14assim*(1.0D0 - wt_daily) &
-                   + fract%c14assim*wt_daily)
     !
     ! Canopy concentrations at time n+1 is calculated using an implicit
     ! scheme.

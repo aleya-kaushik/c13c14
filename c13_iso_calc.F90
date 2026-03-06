@@ -18,7 +18,7 @@ use module_time, only: &
 use module_poolinfo
 use module_sibconst, only: &
     npoolpft, nsoil, npoollu, &
-    varc13_switch, varco2_switch
+    varciso_switch, varco2_switch
 !    npoollu, &
 !    npoolsfc, npoolsoil, &
 !    npoolsfcc13, npoolsoilc13
@@ -264,12 +264,12 @@ endif
 !!.. Update d13cca
 !!.. following similar calculation in phosib for CO2
 
-!if (varc13_switch .or. varco2_switch) then
+!if (varciso_switch .or. varco2_switch) then
 
 resp_casc13 = poollt%resp_autoc13 + pooldt%resp_hetc13
-resp_casc12 = resp_cas - resp_casc13
+!resp_casc12 = resp_cas - resp_casc13
 
-poollt%resp_leafc12 = poollt%resp_leaf-poollt%resp_leafc13
+!poollt%resp_leafc12 = poollt%resp_leaf-poollt%resp_leafc13
 
 !if ((resp_casc13 .gt. nzero) .and. (resp_casc12 .gt. nzero)) then
 !!  fract%c13cca = dble(fract%c13ca + dble(dtsib / co2cap) * dble(resp_casc13 - &
@@ -307,7 +307,7 @@ poollt%resp_leafc12 = poollt%resp_leaf-poollt%resp_leafc13
 !...Calculate rcpool for each pool/layer
 !...uses tmpval to check for mass in total pools first
 
-do n=npoolpft/2+1,npoolpft !(6,10) C13 pools
+do n=npoolpft/2+1,npoolpft !(6,10) C13 live pools
    tcref=n-5 !(1,5) totC live pools
    !tsref=n-5 !ntpool for totC live pools
    sref=n+npoolpft/2+1 !12,16 ntpool
@@ -468,7 +468,7 @@ endif
 !fract%d13cpstwdxpstwd = fract%d13cpool_stwdc13 * poollt%curpoolpft(wp)
 !fract%d13cpprodxpprod = fract%d13cpool_prodc13 * poollt%curpoolpft(pp)
 
-do n=npoollu/2+1,npoollu !(7,12) C13 pools
+do n=npoollu/2+1,npoollu !(7,12) C13 dead pools
    tcref=n-6 !(1,6) totC dead pools
    !tsref=n !ntpool for totC dead pools
    sref=n+npoolpft !17,22 ntpool
@@ -587,7 +587,7 @@ endif
 !...Update poolpft_min for the isotope pools
 tmpmin = nzero
 !...Update poolpft_min for isotope pools based on current pool sizes
-do n=npoolpft/2+1,npoolpft !(6,10)
+do n=npoolpft/2+1,npoolpft !(6,10 live pools)
    tcref=n-5
    if (poollt%rcpoolpft(n) .gt. nzero) then
      tmpmin = (poollt%rcpoolpft(n)) * poolcont%poolpft_min(tcref)

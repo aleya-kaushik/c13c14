@@ -193,7 +193,7 @@ type, public :: fract_type
 
     !...carbon isotopes
     real(r8) :: d13cca   ! isotope effects
-    real(r8) :: d13cca_updated ! updated for varco2varc13 runs in c13_iso_calc
+    real(r8) :: d13cca_updated ! updated for varco2,varciso runs in c13_iso_calc
     real(r8) :: d13cm     ! 
     real(r8) :: c13ca     ! updated in cfrax
     real(r8) :: c12ca     ! updated in cfrax
@@ -204,6 +204,7 @@ type, public :: fract_type
     real(r8) :: kiecps    ! fractionation
     real(r8) :: kiecps_nog    ! fractionation, no gamma term
     real(r8) :: rcassim    ! isotope ratio value of assimilation 
+    real(r8) :: rcassimfac
     real(r8) :: rcassim_nog    ! isotope ratio value of assimilation, no gamma term 
     real(r8) :: d13cassim   ! delta value of assimilation
     real(r8) :: d13cassim_nog   ! delta value of assimilation, no gamma term
@@ -227,10 +228,15 @@ type, public :: fract_type
     real(r8) :: d14cm     ! 
     real(r8) :: c14ca     !
     real(r8) :: c14cm     !
+    
+    real(r8) :: rcassimc14    ! isotope ratio value of assimilation 
+    real(r8) :: rcassimfacc14
     real(r8) :: d14cassim   ! delta value of assimilation
     real(r8) :: c14assim    ! recently assimilated carbon-13 (mol C/m2/s)
     real(r8) :: c14assimd   ! daily (24-hour running mean) assimilated carbon-14 (mol C/m2/s)
     real(r8) :: c14resptot 
+
+    real(r8) :: c14alpha  ! 14alpha_ph = (13alpha_ph)^2, alpha_ab = 1 + wtkiecps/1000.
 
     !...pool variables
     real(r8) :: d13cpool_leafc13
@@ -286,13 +292,14 @@ type, public :: fract_type
     real(r8) :: d14cresp_soilc14
     real(r8) :: d14cresp_totc14
 
+    !...met variables
     real(r8) :: co2m_cfrax
     real(r8) :: press_cfrax
     real(r8) :: press_cfraxps
 
-    real(r8) :: rcassimfac
-
+    !...fire variables
     real(r8) :: rcpoolfire !pool ratio for (lp+wp+cdb+metl+strl) for fire
+    real(r8) :: rcpoolfirec14
     real(r8) :: poolemistotC !pool sum for totC for (lp+wp+cdb+metl+strl) 
     real(r8) :: poolemisc13 !pool sum for C13 for (lp+wp+cdb+metl+strl) 
     real(r8) :: poolemisc14
@@ -834,9 +841,9 @@ type, public :: poold_type
      !---------------
      !Isotope pool-related variables
      real(r8), dimension(:,:), allocatable ::  & !(npoollu,nsoil)
-          rcpoollu_lay   !C13 pool ratio based on pool size, per layer
+          rcpoollu_lay   !C13 or C14 pool ratio based on pool size, per layer
      real(r8), dimension(:), allocatable ::  & !(npoollu)
-          rcpoollu       !C13 pool ratio based on pool size
+          rcpoollu       !C13 or C14 pool ratio based on pool size
      real(r8), dimension(:), allocatable :: &
           curpoollu      !current pool size computed in c13_iso_calc
 
@@ -1057,9 +1064,9 @@ type, public :: pooll_type
           isofactorp   !min poolpft updated (mol C/m2)
 
      real(r8), dimension(:,:), allocatable ::  & !(npoolpft,nsoil)
-          rcpoolpft_lay   !C13 pool ratio based on pool size, per layer
+          rcpoolpft_lay   !C13 or C14 pool ratio based on pool size, per layer
      real(r8), dimension(:), allocatable ::  & !(npoolpft)
-          rcpoolpft       !C13 pool ratio based on pool size
+          rcpoolpft       !C13 or C14 pool ratio based on pool size
      !real(r8) :: rcpoolfire !pool ratio for (lp+wp+cdb+metl+strl) for fire
      !real(r8) :: poolemistotC !pool sum for totC for (lp+wp+cdb+metl+strl) 
      !real(r8) :: poolemisc13 !pool sum for C13 for (lp+wp+cdb+metl+strl) 

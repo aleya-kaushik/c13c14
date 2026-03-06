@@ -48,7 +48,7 @@ namelist /PRINT_LIST_SIBDRV/ & ! USER SELECTED PRINTING OPTIONS
 namelist /SWITCH_LIST_SIBDRV/ & ! USER SELECTED SWITCHES
     cornsoy_switch, fire_switch, grazing_switch, green_switch, &
     eqclear_switch, leapyr_switch, updatelst_switch, tm5mr_switch, &
-    soilogee_switch, varco2_switch, varc13_switch, varc13m_switch
+    soilogee_switch, varco2_switch, varciso_switch, varcisom_switch
 
 !print*,'icfile:',icfile
     !-----------------------------------------------------------------------

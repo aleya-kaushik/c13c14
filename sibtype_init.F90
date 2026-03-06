@@ -12,6 +12,10 @@ use module_pftinfo, only: &
 use module_sib
 use module_sibconst
 use module_sibvs
+use module_time, only: &
+    startyear
+use module_isodata, only: &
+    isoyr, globc13, globc14
 
 implicit none
 
@@ -342,8 +346,19 @@ implicit none
 !...input variables
 type(fract_type), intent(inout) :: fract
 
+!.. Local variables
+integer(i4) :: yrnow, i, loc
+
+    do i=1,nisodatayr
+      if (floor(isoyr(i)) .eq. startyear) then
+       loc=i
+       exit
+      endif
+    enddo
+    fract%d13cm = dble(globc13(loc))
+    fract%d14cm = dble(globc14(loc))
+
     fract%d13cca = dzero
-    fract%d13cm = -7.6
     fract%c13ca = dzero
     fract%c12ca = dzero
     fract%c13cca = dzero
@@ -352,6 +367,7 @@ type(fract_type), intent(inout) :: fract
     fract%c12cm = dzero
     fract%kiecps = dzero
     fract%rcassim = dzero
+    fract%rcassimfac = dzero
     fract%d13cassim = dzero
     fract%c13assim = dzero
     fract%kiecps_nog = dzero
@@ -367,13 +383,16 @@ type(fract_type), intent(inout) :: fract
     fract%c13assimn = dzero
 
     fract%d14cca = dzero
-    fract%d14cm = -7.6
     fract%c14ca = dzero
     fract%c14cm = dzero
+    fract%rcassimc14 = dzero
+    fract%rcassimfacc14 = dzero
     fract%d14cassim = dzero
     fract%c14assim = dzero
     fract%c14assimd = dzero
     fract%c14resptot = dzero
+
+    fract%c14alpha = dzero
 
     fract%kiecps_k1 = dzero
     fract%kiecps_k2 = dzero
@@ -437,11 +456,11 @@ type(fract_type), intent(inout) :: fract
     fract%press_cfrax = dzero
     fract%press_cfraxps = dzero
 
-    fract%rcassimfac = dzero
-
     fract%rcpoolfire = dzero
+    fract%rcpoolfirec14 = dzero
     fract%poolemistotC = dzero
     fract%poolemisc13 = dzero
+    fract%poolemisc14 = dzero
     !fract%d13cassimxassim = dzero
     !fract%kiecpsxassim = dzero
     !fract%kiecpsk1xassim = dzero
@@ -1062,11 +1081,11 @@ type(pooll_type), intent(inout) :: poollt
      poollt%resp_mntn = dzero
      poollt%resp_nveg = dzero
      poollt%resp_root = dzero
-     allocate(poollt%resp_nveg_tmp(npoolpft))
+     allocate(poollt%resp_nveg_tmp(npoolpft/3)) !5 lives pools for each C, based on npoolpft=15
      poollt%resp_nveg_tmp(:) = dzero
-     allocate(poollt%resp_nvegc13_tmp(npoolpft))
+     allocate(poollt%resp_nvegc13_tmp(npoolpft/3))
      poollt%resp_nvegc13_tmp(:) = dzero
-     allocate(poollt%resp_nvegc14_tmp(npoolpft))
+     allocate(poollt%resp_nvegc14_tmp(npoolpft/3))
      poollt%resp_nvegc14_tmp(:) = dzero
 
      poollt%resp_autoc13 = dzero

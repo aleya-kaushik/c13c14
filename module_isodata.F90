@@ -14,5 +14,6 @@ module module_isodata
     real(r8), dimension(:), allocatable :: tropc14
     real(r8), dimension(:), allocatable :: shc14
     real(r8), dimension(:), allocatable :: globc13
+    real(r8), dimension(:), allocatable :: globc14
 
 end module module_isodata

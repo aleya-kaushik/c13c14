@@ -141,6 +141,10 @@ do l=1,sibg%g_nlu
        call c13_iso_calc(poolcon(pnum),sibg%l(l)%poollt, &
             sibg%l(l)%pooldt, sibg%l(l)%fract)
 
+       !...C14 isotope signature calculations
+       call c14_iso_calc(poolcon(pnum),sibg%l(l)%poollt, &
+            sibg%l(l)%pooldt, sibg%l(l)%fract)
+
        !...Save diagnostics
        call diagnostic_save_lall(gnum, l, pnum, &
             sibg%l(l)%soilt, &

@@ -12,7 +12,7 @@ use module_io, only: &
 use module_pparams, only: &
     secs_per_day, days_per_year, &
     drytoc, mwc, &
-    rpoolinitc3, rpoolinitc4
+    rc13poolinitc3, rc13poolinitc4
 use module_pftinfo, only: &
     clen,npft_gdd, &
     pft_mze, pft_soy, &
@@ -314,9 +314,9 @@ do i=1,npft
      poolcon(i)%poolpft_min(lp) = dble(poolval)
     
      if (physcon(i)%c4flag .EQ. dzero) then
-       poolcon(i)%poolpft_min(lpc13) = dble(rpoolinitc3*poolval) ! based on rcassim equiv to -26
+       poolcon(i)%poolpft_min(lpc13) = dble(rc13poolinitc3*poolval) ! based on rcassim equiv to -26
      else
-       poolcon(i)%poolpft_min(lpc13) = dble(rpoolinitc4*poolval) ! based on rcassim equiv to -12.4          
+       poolcon(i)%poolpft_min(lpc13) = dble(rc13poolinitc4*poolval) ! based on rcassim equiv to -12.4          
      endif
 
    !print*,'lp min from readpool :',poolcon(i)%poolpft_min(lp)
@@ -331,8 +331,8 @@ if (cornsoy_switch) then
                  poolcon(pft_soy)%poolpft_min(1)))
    poolcon(pft_mze)%poolpft_min(lp) = dble(poolval)
    poolcon(pft_soy)%poolpft_min(lp) = dble(poolval)
-   poolcon(pft_mze)%poolpft_min(lpc13) = dble(rpoolinitc4*poolval) ! same as above
-   poolcon(pft_soy)%poolpft_min(lpc13) = dble(rpoolinitc3*poolval) ! same as above
+   poolcon(pft_mze)%poolpft_min(lpc13) = dble(rc13poolinitc4*poolval) ! same as above
+   poolcon(pft_soy)%poolpft_min(lpc13) = dble(rc13poolinitc3*poolval) ! same as above
 endif
 
 

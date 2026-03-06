@@ -18,8 +18,8 @@ use module_oparams, only: &
 use module_param, only: poolcon
 use module_pparams, only: &
      mwc, mol_to_umol, &
-     month_names, rpoolinitc3, &
-     rpoolinitc4
+     month_names, rc13poolinitc3, &
+     rc13poolinitc4
 use module_pftinfo, only: pft_num
 use module_poolinfo
 use module_sib, only: &
@@ -137,9 +137,9 @@ sibg%gprogt%fireco2 = facsibdrv*sibg%gprogt%fireco21 &
 if (sibg%gprogt%firec .gt. dzero) then
 
    !if (c4_flag .EQ. dzero) then
-   !  totemisc13 = rpoolinitc3*sibg%gprogt%firec * dtsib
+   !  totemisc13 = rc13poolinitc3*sibg%gprogt%firec * dtsib
    !else
-   !  totemisc13 = rpoolinitc4*sibg%gprogt%firec * dtsib
+   !  totemisc13 = rc13poolinitc4*sibg%gprogt%firec * dtsib
    !endif
 
    !.... in order to use this below, need a grid-cell rcassim??
@@ -162,9 +162,9 @@ if (sibg%gprogt%firec .gt. dzero) then
 
            c4_flag = dble(physcon(p)%c4flag) 
             if (c4_flag .EQ. dzero) then
-              totemisc13 = rpoolinitc3*sibg%gprogt%firec * dtsib
+              totemisc13 = rc13poolinitc3*sibg%gprogt%firec * dtsib
             else
-              totemisc13 = rpoolinitc4*sibg%gprogt%firec * dtsib
+              totemisc13 = rc13poolinitc4*sibg%gprogt%firec * dtsib
             endif
 
            tpagb(l) = tpagb(l) + tparea(l) &
@@ -420,10 +420,10 @@ if (sibg%gprogt%firec .gt. dzero) then
       print*,''
       if (c4_flag .EQ. dzero) then
           print('(a,f18.8)'),     '      Fire C13 Emissions (umol/m2/s): ', &
-              rpoolinitc3*sibg%gprogt%firec*mol_to_umol
+              rc13poolinitc3*sibg%gprogt%firec*mol_to_umol
       else
           print('(a,f18.8)'),     '      Fire C13 Emissions (umol/m2/s): ', &
-              rpoolinitc4*sibg%gprogt%firec*mol_to_umol
+              rc13poolinitc4*sibg%gprogt%firec*mol_to_umol
       endif
       print('(a,f18.8)'),     '      Time-Step C13 Losses (mol/m2):', totemisc13
 
