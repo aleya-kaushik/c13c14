@@ -20,24 +20,25 @@ use module_time, only: dtsib
 implicit none
 
 !...input variables
+type(pooll_type), intent(inout) :: poollt
+type(co2_type), intent(in) :: co2t
+type(fract_type), intent(in) :: fract
 integer(i4), intent(in) :: sibpt, pref
 real(r4), intent(in) :: lonsib, latsib
 real(r4), intent(in) :: hhti, hlti, shti, slti
 real(r4), dimension(npoolpft), intent(in) :: gr_frac
-real(r8), intent(in) :: assim, c13assim, rstfac2, tm
-type(pooll_type), intent(inout) :: poollt
-type(co2_type), intent(in) :: co2t
-type(fract_type), intent(in) :: fract
+real(r8), intent(in) :: assim, c13assim, c14assim, rstfac2, tm
 
 !...local variables
 integer(i4) :: k, p, kref
-integer(i4) :: ialloc, iallocc13
+integer(i4) :: ialloc
 real(r8) :: deltac
 
 !--------------------------------------------------------------------
 !Reset variables
 poollt%resp_grow = dzero
 poollt%resp_growc13 = dzero
+poollt%resp_growc14 = dzero
 poollt%resp_nveg = dzero
 poollt%resp_nvegc13 = dzero
 poollt%resp_nvegc14 = dzero
@@ -54,25 +55,12 @@ IF (assim .le. dzero) RETURN
 !...if not one, then in dormancy and respire
 !...back out the 'assimilated' carbon
 ialloc = nint(sum(poollt%alloc_phen(1:5)))
-!iallocc13 = nint(sum(poollt%alloc_phen(6:10)))
 IF (ialloc .ne. ione) THEN ! first 5 are total C, next 5 are C-13 live pools
-  !do p=1, npoolpft/2
-  !  poollt%resp_nveg_tmp(p) = assim
-  !enddo
-  !poollt%resp_nveg = sum(poollt%resp_nveg_tmp)
   poollt%resp_nveg = assim
   poollt%resp_nvegc13 = c13assim
   poollt%resp_nvegc14 = c14assim
   RETURN
 ENDIF
-!IF (iallocc13 .ne. ione) THEN
-!  do p=npoolpft/2+1,npoolpft
-!    poollt%resp_nvegc13_tmp(p) = assim 
-!    poollt%resp_nvegc13_tmp(p) = c13assim    
-!  enddo
-!  poollt%resp_nvegc13 = sum(poollt%resp_nvegc13_tmp)
-!  RETURN
-!ENDIF
 
 !Calculate allocation fraction adjustments
 IF ((poollt%aadj_moist) .or. (poollt%aadj_temp)) THEN
@@ -90,8 +78,9 @@ ELSE
 ENDIF
 
 !Assign photosynthate to live pools
-do p=1, npoolpft/2 !npoolpft is 10, first 5 are total C, next 5 are C-13
-!  if (p <= 5) then ! total C pools
+!... with C14: npoolpft=15, npoollu=18, ntpool=33
+do p=1, npoolpft/3 !1,5 totalC pools
+!  if (p <= 5) then ! total C live pools
     deltac = co2t%assim*poollt%alloc(p)
     poollt%gain_assim(p) = deltac
     poollt%loss_gresp(p) = deltac*gr_frac(p)
@@ -104,8 +93,8 @@ do p=1, npoolpft/2 !npoolpft is 10, first 5 are total C, next 5 are C-13
     enddo
 enddo
 !  else !do the same calculations but for C-13 pools
-do p=npoolpft/2+1,npoolpft !6,10
-    kref=p+npoolpft/2+1 !12,16 ntpool
+do p=npoolpft/3+1,2*npoolpft !6,10 C13 live pools
+    kref=p+npoolpft/3+1 !12,16 ntpool
     deltac = fract%c13assim*poollt%alloc(p)
 !    deltac = fract%rcpoolfac*co2t%assim*poollt%alloc(p)
 !    deltac = (poollt%rcpoolpft(p))*assim*poollt%alloc(p)

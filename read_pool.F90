@@ -265,7 +265,7 @@ read(poolid,*) trash
 read(poolid,*) trash
 read(poolid,*) trash
 read(poolid,*) trash
-do i=1,npoollu/2+2 !first 2 listings are respire and remove, next 6 are dead pools
+do i=1,npoollu/3+2 ! 1,8 first 2 listings are respire and remove, next 6 are dead pools
     read(poolid,*) num, poolname(i), graze_trans(i), harvest_trans(i)
 enddo
 graze_trans(9:14) = graze_trans(3:8)
@@ -315,8 +315,10 @@ do i=1,npft
     
      if (physcon(i)%c4flag .EQ. dzero) then
        poolcon(i)%poolpft_min(lpc13) = dble(rc13poolinitc3*poolval) ! based on rcassim equiv to -26
+       poolcon(i)%poolpft_min(lpc14) = dble(rc14poolinitc3*poolval)
      else
        poolcon(i)%poolpft_min(lpc13) = dble(rc13poolinitc4*poolval) ! based on rcassim equiv to -12.4          
+       poolcon(i)%poolpft_min(lpc14) = dble(rc14poolinitc4*poolval)
      endif
 
    !print*,'lp min from readpool :',poolcon(i)%poolpft_min(lp)
@@ -333,6 +335,8 @@ if (cornsoy_switch) then
    poolcon(pft_soy)%poolpft_min(lp) = dble(poolval)
    poolcon(pft_mze)%poolpft_min(lpc13) = dble(rc13poolinitc4*poolval) ! same as above
    poolcon(pft_soy)%poolpft_min(lpc13) = dble(rc13poolinitc3*poolval) ! same as above
+   poolcon(pft_mze)%poolpft_min(lpc14) = dble(rc14poolinitc4*poolval) ! same as above
+   poolcon(pft_soy)%poolpft_min(lpc14) = dble(rc14poolinitc3*poolval) ! same as above
 endif
 
 

@@ -26,8 +26,8 @@ character(len=16) :: trash
 logical :: iscomment1, iscomment2
 
 !...allocation check variables
-real(r4) :: asum, asumc13
-logical :: aok, aokc13
+real(r4) :: asum, asumc13, asumc14
+logical :: aok, aokc13, aokc14
 
 !...misc variables
 integer(i4) :: i, iref, ref, s
@@ -178,6 +178,7 @@ do i=1, npft_stg
    iref = pftnum_stgindx(i)
    read(pstgid,*) ref, pftname, phencon(iref)%allocp(1:5,1:3)
    phencon(iref)%allocp(6:10,1:3) = phencon(iref)%allocp(1:5,1:3)
+   phencon(iref)%allocp(11:15,1:3) = phencon(iref)%allocp(1:5,1:3)
 enddo
 
 read(pstgid,*) trash
@@ -187,6 +188,7 @@ do i=1, npft_stg
    read(pstgid,*) ref, pftname, phencon(iref)%allocp(1:5,4:5), &
         phencon(iref)%adj_moist, phencon(iref)%adj_temp
    phencon(iref)%allocp(6:10,4:5) = phencon(iref)%allocp(1:5,4:5)
+   phencon(iref)%allocp(11:15,4:5) = phencon(iref)%allocp(1:5,4:5)
 enddo
 
 !...Read in the leaf pool transfer fractions
@@ -254,6 +256,7 @@ do i=1, npft_stg
       enddo !s=1,npstg
    ENDIF !not pft_dbg
 enddo !i=1,npft
+
 !same check for c13
 do i=1, npft_stg
    IF (i .ne. pft_dbg) THEN
@@ -278,6 +281,38 @@ do i=1, npft_stg
               print('(a)'), &
                   '   Phenology Factor Contribuations: (leaf/froot/croot/wood/prod):'
               print('(a,5f8.3)'),'  ', phencon(i)%allocp(6:10,s)
+
+              print('(a)'),'Stopping.'
+              stop
+         endif
+      enddo !s=1,npstg
+   ENDIF !not pft_dbg
+enddo !i=1,npft
+
+!same check for c14
+do i=1, npft_stg
+   IF (i .ne. pft_dbg) THEN
+       do s=1, phencon(i)%npstg
+          aokc14 = .true.
+          asumc14 = sum(phencon(i)%allocp(11:15,s))
+          if (asumc14 .eq. rzero) then
+              if ((s .gt. 1) .and. &
+                  (s .lt. phencon(i)%npstg)) then
+                  aokc14 = .false.
+              endif
+          elseif ((asumc14 .lt. 0.99) .or. (asumc14 .gt. 1.01) .or. &
+                  (minval(phencon(i)%allocp(11:15,s)) .lt. rzero)) then
+                  aokc14 = .false.
+          endif
+
+          if (.not. aokc14) then
+              print*,'---Error with C14 Allocation Factors---'
+              print('(a,2i5,a3,a3)'),'   PFT Num/Ref/Name: ',i,pft_ref(i),'   ',pft_name(i)
+              print('(a,i3)'),'   Phenology Stage: ', s
+              print('(a,f8.3)'),'   Phenology Factor Total: ', asumc14
+              print('(a)'), &
+                  '   Phenology Factor Contribuations: (leaf/froot/croot/wood/prod):'
+              print('(a,5f8.3)'),'  ', phencon(i)%allocp(11:15,s)
 
               print('(a)'),'Stopping.'
               stop

@@ -166,6 +166,8 @@ do i=1, npft_gdd
 !       phencon(iref)%adj_moist, phencon(iref)%adj_temp
    phencon(iref)%allocp(lpc13,:) = &
                phencon(iref)%allocp(lp,:)
+   phencon(iref)%allocp(lpc14,:) = &
+               phencon(iref)%allocp(lp,:)
 enddo
 
 read(pgddid,*) trash
@@ -173,6 +175,8 @@ do i=1, npft_gdd
    iref = pftnum_gddindx(i)
    read(pgddid,*) ref, pftname, phencon(iref)%allocp(frp,:)
    phencon(iref)%allocp(frpc13,:) = &
+               phencon(iref)%allocp(frp,:)
+   phencon(iref)%allocp(frpc14,:) = &
                phencon(iref)%allocp(frp,:)
 enddo
 
@@ -182,6 +186,8 @@ do i=1, npft_gdd
    read(pgddid,*) ref, pftname, phencon(iref)%allocp(wp,:)
    phencon(iref)%allocp(wpc13,:) = &
                phencon(iref)%allocp(wp,:)
+   phencon(iref)%allocp(wpc14,:) = &
+               phencon(iref)%allocp(wp,:)
 enddo
 
 read(pgddid,*) trash
@@ -189,6 +195,8 @@ do i=1, npft_gdd
    iref = pftnum_gddindx(i)
    read(pgddid,*) ref, pftname, phencon(iref)%allocp(pp,:)
    phencon(iref)%allocp(ppc13,:) = &
+               phencon(iref)%allocp(pp,:)
+   phencon(iref)%allocp(ppc14,:) = &
                phencon(iref)%allocp(pp,:)
 enddo
 

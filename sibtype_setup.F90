@@ -505,8 +505,9 @@ if ((spinup) .and. (spinup_default) .and. &
 endif
 
 !...set vertical distribution information
-do p=1,npoollu/2 !1,6
-   dlay = pool_indx_lay(p+npoolpft/2) !6,12
+!... with C14: npoolpft=15, npoollu=18, ntpool=33
+do p=1,npoollu/3 !1,6 dead pools
+   dlay = pool_indx_lay(p+npoolpft/3) !6,11 ntpool
    if (dlay .eq. 1) then
        pooldt%poollu_flay(p,1) = done
    else
@@ -514,8 +515,8 @@ do p=1,npoollu/2 !1,6
    endif
 enddo
 
-do p=1,npoolpft/2 !1,5
-   dlay = pool_indx_lay(p) !1,5
+do p=1,npoolpft/3 !1,5 live pools
+   dlay = pool_indx_lay(p) !1,5 ntpool
    if (dlay .eq. 1) then
       poollt%poolpft_flay(p,1) = done
    else
@@ -524,8 +525,8 @@ do p=1,npoolpft/2 !1,5
 enddo
 
 !...same as above but for C13 pools
-do p=npoollu/2+1,npoollu !7,12
-   dlay = pool_indx_lay(p+npoolpft) !17,22
+do p=npoollu/3+1,2*npoollu/3 !7,12 dead pools
+   dlay = pool_indx_lay(p+2*npoolpft/3) !17,22 ntpool
    if (dlay .eq. 1) then
        pooldt%poollu_flay(p,1) = done
    else
@@ -533,8 +534,27 @@ do p=npoollu/2+1,npoollu !7,12
    endif
 enddo
 
-do p=npoolpft/2+1,npoolpft !6,10
-   dlay = pool_indx_lay(p+npoolpft/2+1) !12,16
+do p=npoolpft/3+1,2*npoolpft/3 !6,10 live pools
+   dlay = pool_indx_lay(p+npoolpft/3+1) !12,16 ntpool
+   if (dlay .eq. 1) then
+      poollt%poolpft_flay(p,1) = done
+   else
+      poollt%poolpft_flay(p,:) = rootf(:)
+   endif
+enddo
+
+!...same as above but for C14 pools
+do p=2*npoollu/3+1,npoollu !13,18 dead pools
+   dlay = pool_indx_lay(p+npoolpft) !28,33 ntpool
+   if (dlay .eq. 1) then
+       pooldt%poollu_flay(p,1) = done
+   else
+       pooldt%poollu_flay(p,:) = rootf(:)
+   endif
+enddo
+
+do p=2*npoolpft/3+1,npoolpft !11,15 live pools
+   dlay = pool_indx_lay(p+2*npoolpft/3+2) !23,27 ntpool
    if (dlay .eq. 1) then
       poollt%poolpft_flay(p,1) = done
    else
@@ -545,7 +565,7 @@ enddo
 
 !...set pool vertical distribution and
 !...equilibrium information
-do p=1,npoollu/2
+do p=1,npoollu/2 !1,6 dead pools
    pooldt%poollup(p) = pooldt%poollu(p)
    if (sum(pooldt%poollu_lay(p,:)) .ne. pooldt%poollu(p)) then
        pooldt%poollu_lay(p,:) = pooldt%poollu(p) &
@@ -563,8 +583,27 @@ do p=1,npoollu/2
 !   endif
 enddo
 
-do p=npoollu/2+1,npoollu
-   tcref=p-6
+!.. same as above but for C13
+do p=npoollu/3+1,2*npoollu/3 !7,12 C13 dead pools
+   pooldt%poollup(p) = pooldt%poollu(p)
+   if (sum(pooldt%poollu_lay(p,:)) .ne. pooldt%poollu(p)) then
+       pooldt%poollu_lay(p,:) = pooldt%poollu(p) &
+           * pooldt%poollu_flay(p,:)
+   endif
+
+!   if (.not. spinup_continue) then
+      equibdt%poollu_init(p) = pooldt%poollu(p)
+      equibdt%poollu_min(p) = pooldt%poollu(p)
+      equibdt%poollu_max(p) = pooldt%poollu(p)
+!   else
+!      equibdt%poollu_init(p) = equibdt%poollu_equib(p)
+!      equibdt%poollu_min(p) = equibdt%poollu_min(p)
+!      equibdt%poollu_max(p) = equibdt%poollu_max(p)
+!   endif
+enddo
+
+!.. same as above but for C14
+do p=2*npoollu/3+1,npoollu !13,18 C14 dead pools
    pooldt%poollup(p) = pooldt%poollu(p)
    if (sum(pooldt%poollu_lay(p,:)) .ne. pooldt%poollu(p)) then
        pooldt%poollu_lay(p,:) = pooldt%poollu(p) &
@@ -583,7 +622,8 @@ do p=npoollu/2+1,npoollu
 enddo
 
 
-do p=1,npoolpft/2
+!...total C
+do p=1,npoolpft/3 !1,5 live pools
    poollt%poolpftp(p) = poollt%poolpft(p)
    if (sum(poollt%poolpft_lay(p,:)) .ne. poollt%poolpft(p)) then
        poollt%poolpft_lay(p,:) = poollt%poolpft(p) &
@@ -601,8 +641,9 @@ do p=1,npoolpft/2
 !   endif
 enddo
 
-do p=npoolpft/2+1,npoolpft
-   tcref=p-5
+
+!... same as above but for C13
+do p=npoolpft/3+1,2*npoolpft/3 !6,10 live pools
    poollt%poolpftp(p) = poollt%poolpft(p)
    if (sum(poollt%poolpft_lay(p,:)) .ne. poollt%poolpft(p)) then
        poollt%poolpft_lay(p,:) = poollt%poolpft(p) &
@@ -619,6 +660,27 @@ do p=npoolpft/2+1,npoolpft
 !      equiblt%poolpft_max(p) = equiblt%poolpft_max(p)
 !   endif
 enddo
+
+
+!... same as above but for C14
+do p=2*npoolpft/3+1,npoolpft !11,15 live pools
+   poollt%poolpftp(p) = poollt%poolpft(p)
+   if (sum(poollt%poolpft_lay(p,:)) .ne. poollt%poolpft(p)) then
+       poollt%poolpft_lay(p,:) = poollt%poolpft(p) &
+           * poollt%poolpft_flay(p,:)
+   endif
+
+!   if (.not. spinup_continue) then
+      equiblt%poolpft_init(p) = poollt%poolpft(p)
+      equiblt%poolpft_min(p) = poollt%poolpft(p)
+      equiblt%poolpft_max(p) = poollt%poolpft(p)
+!   else
+!      equiblt%poolpft_init(p) = equiblt%poolpft_equib(p)
+!      equiblt%poolpft_min(p) = equiblt%poolpft_min(p)
+!      equiblt%poolpft_max(p) = equiblt%poolpft_max(p)
+!   endif
+enddo
+
 
 end subroutine setup_poolt
 

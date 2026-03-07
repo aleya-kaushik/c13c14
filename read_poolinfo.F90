@@ -174,7 +174,7 @@ enddo
 !...set the pool type/location indices
 allocate(pool_indx_can(npoolcan))
 allocate(pool_indx_canc13(npoolcanc13))
-allocate(pool_indx_canc13(npoolcanc14))
+allocate(pool_indx_canc14(npoolcanc14))
 iref=bone
 do i=1, ntpool
    if (trim(pool_loc(i)) == 'canopy') then 
@@ -200,7 +200,7 @@ enddo
 
 allocate(pool_indx_sfc(npoolsfc))
 allocate(pool_indx_sfcc13(npoolsfcc13))
-allocate(pool_indx_sfcc13(npoolsfcc14))
+allocate(pool_indx_sfcc14(npoolsfcc14))
 iref=bone
 do i=1, ntpool
    if (trim(pool_loc(i)) == 'surface') then
@@ -225,7 +225,7 @@ enddo
 
 allocate(pool_indx_soil(npoolsoil))
 allocate(pool_indx_soilc13(npoolsoilc13))
-allocate(pool_indx_soilc13(npoolsoilc14))
+allocate(pool_indx_soilc14(npoolsoilc14))
 iref=bone
 do i=1, ntpool
    if (trim(pool_loc(i)) == 'soil') then
