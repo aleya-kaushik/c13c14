@@ -228,11 +228,13 @@ type, public :: fract_type
     real(r8) :: d14cm     ! 
     real(r8) :: c14ca     !
     real(r8) :: c14cm     !
+    real(r8) :: c14cca
     
     real(r8) :: rcassimc14    ! isotope ratio value of assimilation 
     real(r8) :: rcassimfacc14
     real(r8) :: d14cassim   ! delta value of assimilation
     real(r8) :: c14assim    ! recently assimilated carbon-13 (mol C/m2/s)
+    real(r8) :: c14assimn   ! recently net assimilated carbon-14 (mol C/m2/s)
     real(r8) :: c14assimd   ! daily (24-hour running mean) assimilated carbon-14 (mol C/m2/s)
     real(r8) :: c14resptot 
 
@@ -298,7 +300,7 @@ type, public :: fract_type
     real(r8) :: press_cfraxps
 
     !...fire variables
-    real(r8) :: rcpoolfire !pool ratio for (lp+wp+cdb+metl+strl) for fire
+    real(r8) :: rcpoolfirec13 !pool ratio for (lp+wp+cdb+metl+strl) for fire
     real(r8) :: rcpoolfirec14
     real(r8) :: poolemistotC !pool sum for totC for (lp+wp+cdb+metl+strl) 
     real(r8) :: poolemisc13 !pool sum for C13 for (lp+wp+cdb+metl+strl) 

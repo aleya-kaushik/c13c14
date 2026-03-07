@@ -519,7 +519,7 @@ tmpval = ( (poollt%poolpft_lay(lp,1) &
 !     (pooldt%poollu(strlpc14) .gt. nzero)) then
 
 if (tmpval .gt. nzero) then
-  fract%rcpoolfire = & 
+  fract%rcpoolfirec14 = & 
      ( (poollt%poolpft_lay(lpc14,1) &
         + poollt%poolpft_lay(wpc14,1) &
         + pooldt%poollu_lay(cdbpc14,1) &

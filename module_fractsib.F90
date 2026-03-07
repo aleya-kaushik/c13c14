@@ -10,7 +10,9 @@ module module_fractsib
 
     !...cfrax variables
     real(r8) :: d13cca   ! isotope effects
-    real(r8) :: d13cm     ! 
+    real(r8) :: d13cm     !
+    real(r8) :: c13cca
+    real(r8) :: c12cca 
     real(r8) :: c13ca     !
     real(r8) :: c12ca     !
     real(r8) :: c13cm     !
@@ -37,11 +39,13 @@ module module_fractsib
     real(r8) :: d14cca   ! isotope effects
     real(r8) :: d14cm     ! 
     real(r8) :: c14ca     !
+    real(r8) :: c14cca
     real(r8) :: c14cm     !
     real(r8) :: rcassimc14    ! isotope ratio value of assimilation 
     real(r8) :: rcassimfacc14
     real(r8) :: d14cassim   ! delta value of assimilation
     real(r8) :: c14assim    ! recently assimilated carbon-13 (mol C/m2/s)
+    real(r8) :: c14assimn   ! recently net assimilated carbon-14 (mol C/m2/s)
     real(r8) :: c14assimd   ! daily (24-hour running mean) assimilated carbon-14 (mol C/m2/s)
     real(r8) :: c14resptot    ! recently respired carbon-13 (mol C/m2/s)
 
@@ -107,7 +111,7 @@ module module_fractsib
 
     !...fire variables
 
-    real(r8) :: rcpoolfire
+    real(r8) :: rcpoolfirec13
     real(r8) :: rcpoolfirec14
     real(r8) :: poolemistotC
     real(r8) :: poolemisc13

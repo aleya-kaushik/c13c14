@@ -118,8 +118,8 @@ module module_io
     character(len=15), parameter :: &
         fnsibname = 'nsib',       & ! number of landpoints
         ftimename = 'time',       & ! time dimension
-        firecname = 'emis_C',     & ! fire C emissions
-        fireco2name = 'emis_CO2'    ! fire CO2 emissions
+        firecname = 'emis_C',     & ! fire C emissions from GFED4.1s-derived files
+        fireco2name = 'emis_CO2'    ! fire CO2 emissions from GFED4.1s-derived files
 
     ! fire file access information
     integer(i4) :: fireid

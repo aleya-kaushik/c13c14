@@ -14,7 +14,7 @@ use module_poolinfo, only: pool_indx_lay
 use module_sib, only: &
     pooll_type, co2_type, &
     fract_type
-use module_sibconst, only: npoolpft, npoollu
+use module_sibconst, only: npoolpft
 use module_time, only: dtsib
 
 implicit none
@@ -92,8 +92,9 @@ do p=1, npoolpft/3 !1,5 totalC pools
              + poollt%loss_gresp(p)*poollt%poolpft_flay(p,k)*dtsib
     enddo
 enddo
-!  else !do the same calculations but for C-13 pools
-do p=npoolpft/3+1,2*npoolpft !6,10 C13 live pools
+
+!do the same calculations but for C-13 pools
+do p=npoolpft/3+1,2*npoolpft/3 !6,10 C13 live pools
     kref=p+npoolpft/3+1 !12,16 ntpool
     deltac = fract%c13assim*poollt%alloc(p)
 !    deltac = fract%rcpoolfac*co2t%assim*poollt%alloc(p)
@@ -107,6 +108,7 @@ do p=npoolpft/3+1,2*npoolpft !6,10 C13 live pools
        poollt%poolpft_dloss(p,k) = poollt%poolpft_dloss(p,k) &
              + poollt%loss_gresp(p)*poollt%poolpft_flay(p,k)*dtsib
 
+       !.. some checks
        if ( (poollt%poolpft_dloss(p,k) .gt. 10.) .or. &
             (poollt%poolpft_dloss(p,k) .lt. -10.)) then
           print*,' '
@@ -120,8 +122,40 @@ do p=npoolpft/3+1,2*npoolpft !6,10 C13 live pools
     enddo
 !  endif
 enddo
+
+!do the same calculations but for C-14 pools
+do p=2*npoolpft/3+1,npoolpft !11,15 C14 live pools
+    kref=p+npoolpft/3+1 !23,27 ntpool
+    deltac = fract%c14assim*poollt%alloc(p)
+!    deltac = fract%rcpoolfac*co2t%assim*poollt%alloc(p)
+!    deltac = (poollt%rcpoolpft(p))*assim*poollt%alloc(p)
+    poollt%gain_assim(p) = deltac
+    poollt%loss_gresp(p) = deltac*gr_frac(p)
+    do k=1,pool_indx_lay(kref)
+       !poolpft_dgain (npoolpft,nsoil)
+       poollt%poolpft_dgain(p,k) = poollt%poolpft_dgain(p,k) &
+             + poollt%gain_assim(p)*poollt%poolpft_flay(p,k)*dtsib
+       poollt%poolpft_dloss(p,k) = poollt%poolpft_dloss(p,k) &
+             + poollt%loss_gresp(p)*poollt%poolpft_flay(p,k)*dtsib
+
+       !... some checks
+       if ( (poollt%poolpft_dloss(p,k) .gt. 10.) .or. &
+            (poollt%poolpft_dloss(p,k) .lt. -10.)) then
+          print*,' '
+          print*,'code: pool_assim'
+          print*,'p,k:',p,k
+          print*,'poollt%poolpft_dloss(p,k): ',poollt%poolpft_dloss(p,k)
+          print*,'poollt%loss_gresp(p): ',poollt%loss_gresp(p)
+          print*,'poollt%poolpft_dloss(p-10,k): ',poollt%poolpft_dloss(p-10,k)
+       endif
+
+    enddo
+!  endif
+enddo
+
 poollt%resp_grow = sum(poollt%loss_gresp(1:5))
 poollt%resp_growc13 = sum(poollt%loss_gresp(6:10))
+poollt%resp_growc14 = sum(poollt%loss_gresp(11:15))
 
 
 !...Additional diagnostics
@@ -169,8 +203,9 @@ real(r8), dimension(npoolpft), intent(inout) :: &
 
 !...local variables
 integer(i4) :: lp,frp,crp,wp,pp,lpc13,frpc13,crpc13,wpc13,ppc13
-integer(i4) :: npallow, npallowc13
-real(r8) :: atot, atotc13, aadjust, aadjustc13, aadd, aaddc13
+integer(i4) :: lpc14,frpc14,crpc14,wpc14,ppc14
+integer(i4) :: npallow, npallowc13, npallowc14
+real(r8) :: atot, atotc13, aadjust, aadjustc13, aadjustc14, aadd, aaddc13, aaddc14
 real(r8), dimension(npoolpft) :: alloc_now
 logical, dimension(npoolpft) :: alloc_allow
 
@@ -201,6 +236,12 @@ frpc13 = pool_indx_froot_c13-6 !ntpool index 13, npoolpft index 7
 crpc13 = pool_indx_croot_c13-6 !ntpool index 14, npoolpft index 8
 wpc13 =  pool_indx_stwd_c13-6 !ntpool index 15, npoolpft index 9
 ppc13 =  pool_indx_prod_c13-6 !ntpool index 16, npoolpft index 10
+
+lpc13 =  pool_indx_leaf_c13-12 !ntpool index 23, npoolpft index 11
+frpc13 = pool_indx_froot_c13-12 !ntpool index 24, npoolpft index 12
+crpc13 = pool_indx_croot_c13-12 !ntpool index 25, npoolpft index 13
+wpc13 =  pool_indx_stwd_c13-12 !ntpool index 26, npoolpft index 14
+ppc13 =  pool_indx_prod_c13-12 !ntpool index 27, npoolpft index 15
 
 !Reset allocations
 alloc_moist(:) = dzero
@@ -234,6 +275,10 @@ IF ((adj_temp) .AND. &
                   MAX(0.,alloc_now(crpc13)*(1.-wood_grw_tot)) + &
                   MAX(0.,alloc_now(lpc13)*(1.-leaf_grw_frz))
 
+   aadjustc14 = MAX(0.,alloc_now(wpc14)*(1.-wood_grw_tot))  + &
+                  MAX(0.,alloc_now(crpc14*(1.-wood_grw_tot)) + &
+                  MAX(0.,alloc_now(lpc14)*(1.-leaf_grw_frz))
+
    if (aadjust >= aadjustmin) then
       alloc_temp(lp) = -1. * MAX(0.,alloc_now(lp)*(1.-leaf_grw_frz))
       alloc_now(lp) = alloc_now(lp) + alloc_temp(lp)
@@ -242,7 +287,6 @@ IF ((adj_temp) .AND. &
       alloc_temp(crp)= -1. * MAX(0.,alloc_now(crp)*(1-wood_grw_tot))
       alloc_now(crp) = alloc_now(crp) + alloc_temp(crp)
 
-   !if (aadjustc13 >= aadjustmin) then
       ! same calculations for C-13 pools
       alloc_temp(lpc13) = -1. * MAX(0.,alloc_now(lpc13)*(1.-leaf_grw_frz))
       alloc_now(lpc13) = alloc_now(lpc13) + alloc_temp(lpc13)
@@ -251,8 +295,16 @@ IF ((adj_temp) .AND. &
       alloc_temp(crpc13)= -1. * MAX(0.,alloc_now(crpc13)*(1-wood_grw_tot))
       alloc_now(crpc13) = alloc_now(crpc13) + alloc_temp(crpc13)
 
+      ! same calculations for C-14 pools
+      alloc_temp(lpc14) = -1. * MAX(0.,alloc_now(lpc14)*(1.-leaf_grw_frz))
+      alloc_now(lpc14) = alloc_now(lpc14) + alloc_temp(lpc14)
+      alloc_temp(wpc14) = -1. * MAX(0.,alloc_now(wpc14)*(1-wood_grw_tot))
+      alloc_now(wpc14) = alloc_now(wpc14) + alloc_temp(wpc14)
+      alloc_temp(crpc14)= -1. * MAX(0.,alloc_now(crpc14)*(1-wood_grw_tot))
+      alloc_now(crpc14) = alloc_now(crpc14) + alloc_temp(crpc14)
+
       npallow=0
-      do p=1,npoolpft/2
+      do p=1,npoolpft/3 !1,5 totC live pools
          IF ((p .ne. lp) .and. (p .ne. wp) .and. &
             (alloc_now(p) .gt. 0.)) THEN
              alloc_allow(p) = .true.
@@ -263,7 +315,7 @@ IF ((adj_temp) .AND. &
       enddo
       !.. same as above but for c13
       npallowc13=0
-      do p=npoolpft/2+1,npoolpft 
+      do p=npoolpft/3+1,2*npoolpft/3 !6,10 C13 live pools
          IF ((p .ne. lpc13) .and. (p .ne. wpc13) .and. &
              (alloc_now(p) .gt. 0.)) THEN
              alloc_allow(p) = .true.
@@ -272,6 +324,18 @@ IF ((adj_temp) .AND. &
              alloc_allow(p) = .false.
          ENDIF
       enddo
+      !.. same as above but for c14
+      npallowc14=0
+      do p=2*npoolpft/3+1,npoolpft !11,15 C14 live pools
+         IF ((p .ne. lpc14) .and. (p .ne. wpc14) .and. &
+             (alloc_now(p) .gt. 0.)) THEN
+             alloc_allow(p) = .true.
+             npallowc14=npallowc14+1
+         ELSE
+             alloc_allow(p) = .false.
+         ENDIF
+      enddo
+
 
       if (npallow .EQ. 0) then
          !adjustment fine roots
@@ -279,7 +343,7 @@ IF ((adj_temp) .AND. &
          alloc_now(frp) = aadjust
       else
          aadd = aadjust/dble(npallow)
-         do p=1,npoolpft/2
+         do p=1,npoolpft/3 !1,5 totC live pools
              IF (alloc_allow(p)) THEN
                alloc_temp(p) = &
                   alloc_temp(p) + aadd
@@ -294,7 +358,7 @@ IF ((adj_temp) .AND. &
          alloc_now(frpc13) = aadjustc13
       else
          aaddc13 = aadjustc13/dble(npallowc13)
-         do p=npoolpft/2+1,npoolpft
+         do p=npoolpft/3+1,2*npoolpft/3 !6,10 C13 live pools
              IF (alloc_allow(p)) THEN
                alloc_temp(p) = &
                   alloc_temp(p) + aaddc13
@@ -302,7 +366,21 @@ IF ((adj_temp) .AND. &
              ENDIF
          enddo
       endif
-
+      !.. same as above but for c14
+      if (npallowc14 .EQ. 0) then
+         !adjustment fine roots
+         alloc_temp(frpc14) = aadjustc14
+         alloc_now(frpc14) = aadjustc14
+      else
+         aaddc14 = aadjustc14/dble(npallowc14)
+         do p=2*npoolpft/3+1,npoolpft !11,15 C14 live pools
+             IF (alloc_allow(p)) THEN
+               alloc_temp(p) = &
+                  alloc_temp(p) + aaddc14
+               alloc_now(p) = alloc_now(p) + aaddc14
+             ENDIF
+         enddo
+      endif
 
 
       !check totals
@@ -346,6 +424,26 @@ IF ((adj_temp) .AND. &
            stop
        endif
 
+      atotc14 = sum(alloc_temp(11:15))
+      if ((atotc14 .lt. -0.01) .or. (atotc14 .gt. 0.01)) then
+           print*,'---Error with C14 temperature adjustment allocation factors---'
+           print*,'   SiB Point/Lon/Lat/PFT: ', sibpt, lonsib, latsib, pref
+           print*,'   Temperature Adjustment Total Allocation Factor: ',atotc14
+           print*,'   Temperature Adjustment Contributions: '
+           print*, alloc_temp(11:15)
+           stop
+       endif
+
+       atotc14 = sum(alloc_now(11:15))
+       if ((atotc14 .lt. 0.99) .or. (atotc14 .gt. 1.01)) then
+           print*,'---Error with C14 total allocation following temp adjustments---'
+           print*,'   SiB Point/Lon/Lat/PFT: ',sibpt, lonsib, latsib, pref
+           print*,'   Total Allocation Factor: ',atotc14
+           print*,'   Total Allocation Contributions: '
+           print*, alloc_now(11:15)
+           stop
+       endif
+
 
    endif !(aadjust > adjustmin)
 ENDIF !use_temp
@@ -378,10 +476,10 @@ IF ((adj_moist) .AND. &
 
       alloc_moist(pp) = -1. * alloc_now(pp)*wood_grw_moist
       alloc_now(pp) = alloc_now(pp) + alloc_moist(pp)
-   !same calculations for C-13 pools
-   !if (aadjustc13 >= aadjustmin) then
+
+      !same calculations for C-13 pools
       alloc_moist(lpc13) = -1. * alloc_now(lpc13)*wood_grw_moist
-      alloc_now(lpc13) = alloc_now(lpc13) + alloc_moist(lp)
+      alloc_now(lpc13) = alloc_now(lpc13) + alloc_moist(lpc13)
 
       alloc_moist(wpc13) = -1. * alloc_now(wpc13)*wood_grw_moist
       alloc_now(wpc13) = alloc_now(wpc13) + alloc_moist(wpc13)
@@ -389,11 +487,24 @@ IF ((adj_moist) .AND. &
       alloc_moist(ppc13) = -1. * alloc_now(ppc13)*wood_grw_moist
       alloc_now(ppc13) = alloc_now(ppc13) + alloc_moist(ppc13)
 
+      !same calculations for C-14 pools
+      alloc_moist(lpc14) = -1. * alloc_now(lpc14)*wood_grw_moist
+      alloc_now(lpc14) = alloc_now(lpc14) + alloc_moist(lpc14)
+
+      alloc_moist(wpc14) = -1. * alloc_now(wpc14)*wood_grw_moist
+      alloc_now(wpc14) = alloc_now(wpc14) + alloc_moist(wpc14)
+
+      alloc_moist(ppc14) = -1. * alloc_now(ppc14)*wood_grw_moist
+      alloc_now(ppc14) = alloc_now(ppc14) + alloc_moist(ppc14)
+
+
       !put in fine roots
       alloc_moist(frp) = aadjust
       alloc_now(frp) = alloc_now(frp) + alloc_moist(frp)
       alloc_moist(frpc13) = aadjustc13
       alloc_now(frpc13) = alloc_now(frpc13) + alloc_moist(frpc13)
+      alloc_moist(frpc14) = aadjustc14
+      alloc_now(frpc14) = alloc_now(frpc14) + alloc_moist(frpc14)
 
        !check totals
        atot = sum(alloc_moist(1:5))
@@ -436,6 +547,26 @@ IF ((adj_moist) .AND. &
             stop
         endif
 
+       atotc14 = sum(alloc_moist(11:15))
+       if ((atotc14 .lt. -0.01) .or. (atotc14 .gt. 0.01)) then
+            print*,'---Error with C14 moisutre adjustment allocation factors---'
+            print*,'   SiB Point/Lon/Lat/PFT: ', sibpt, lonsib, latsib, pref
+            print*,'   Moisture Adjustment Total Allocation Factor: ',atotc14
+            print*,'   Moisture Adjustment Contributions: '
+            print*, alloc_moist(11:15)
+            stop
+        endif
+
+        atotc14 = sum(alloc_now(11:15))
+        if ((atotc14 .lt. 0.99) .or. (atotc14 .gt. 1.01)) then
+            print*,'---Error with C14 total allocation following moisture adjustments---'
+            print*,'   SiB Point/Lon/Lat/PFT: ', sibpt, lonsib, latsib, pref
+            print*,'   Total Allocation Factor: ',atotc14
+            print*,'   Total Allocation Contributions: '
+            print*, alloc_now(11:15)
+            stop
+        endif
+
    endif  !aadjust > aadjustmin
 
 ENDIF !use_moist
@@ -465,8 +596,18 @@ if ((atotc13 .lt. 0.99) .or. (atotc13 .gt. 1.01)) then
    stop
 endif
 
+atotc14 = sum(alloc(11:15))
+if ((atotc14 .lt. 0.99) .or. (atotc14 .gt. 1.01)) then
+   print*,'---Error with C14 final allocation factors---'
+   print*,'   SiB Point/Lon/Lat/PFT: ', sibpt, lonsib, latsib, pref
+   print*,'   Total Allocation Factor: ',atotc14
+   print*,'   Allocation Contributions: '
+   print*, alloc(11:15)
+   stop
+endif
+
 !...check for negative allocations
-do p=1,npoolpft/2
+do p=1,npoolpft/3 !1,5 live totC pools 
    if (alloc(p) < 0.) then
       if (alloc(p) > -.001) then
          alloc(p) = 0.
@@ -481,7 +622,7 @@ do p=1,npoolpft/2
    endif
 enddo
 
-do p=npoolpft/2+1,npoolpft
+do p=npoolpft/3+1,2*npoolpft/3 !6,10 C13 live pools
    if (alloc(p) < 0.) then
       if (alloc(p) > -.001) then
          alloc(p) = 0.
@@ -496,8 +637,20 @@ do p=npoolpft/2+1,npoolpft
    endif
 enddo
 
+do p=2*npoolpft/3+1,npoolpft !11,15 C13 live pools
+   if (alloc(p) < 0.) then
+      if (alloc(p) > -.001) then
+         alloc(p) = 0.
+      else
+          print*,'---Negative C14 final allocation factors---'
+          print*,'   SiB Point/Lon/Lat/PFT: ', sibpt, lonsib, latsib, pref
+          print*,'   Total Allocation Factor: ',atotc14
+          print*,'   Allocation Contributions: '
+          print*, alloc(11:15)
+          stop
+      endif
+   endif
+enddo
+
 end subroutine pool_alloc
-
-
-
 

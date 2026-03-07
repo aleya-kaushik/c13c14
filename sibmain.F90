@@ -121,7 +121,7 @@ if (sibgl%vegt%lai .gt. canlai_min) then
         sibgl%poollt%resp_auto, sibgl%pooldt%resp_het, &
         sibgl%vegt, sibgl%co2t)
 
-   !..calculate 13CO2 fractionation
+   !..calculate 13CO2 and 14CO2 fractionation
    call cfrax_calc(physcont, gprogt, sibgl%co2t, &
          sibgl%fract, sibgl%fluxt, &! sibgl%co2t%co2cas, &
          !sibgl%co2t%co2s, sibgl%co2t%co2i, sibgl%co2t%co2c, &

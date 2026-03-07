@@ -456,7 +456,7 @@ integer(i4) :: yrnow, i, loc
     fract%press_cfrax = dzero
     fract%press_cfraxps = dzero
 
-    fract%rcpoolfire = dzero
+    fract%rcpoolfirec13 = dzero
     fract%rcpoolfirec14 = dzero
     fract%poolemistotC = dzero
     fract%poolemisc13 = dzero
@@ -1195,9 +1195,6 @@ type(pooll_type), intent(inout) :: poollt
      allocate(poollt%curpoolpft(npoolpft))
      poollt%curpoolpft(:) = dzero
 
-     !poollt%rcpoolfire = dzero
-     !poollt%poolemistotC = dzero
-     !poollt%poolemisc13 = dzero
 
 end subroutine init_poollt
 

@@ -104,11 +104,14 @@ select case (phencont%pswx_type)
 end select
 
 !------------------------------------------
-!...Update phenology running-mean variables
+!...print check
+
 !print*,' '
 !print*,'assim from phen_update: ',assim
 !print*,'c13assim from phen_update: ',c13assim 
 !print*,' '
+
+!...Update phenology running-mean variables
 phent%phenave_assim = assim*phencont%wt_assim &
         + phent%phenave_assim*(1. - phencont%wt_assim)
 phent%phenave_assimsm = &

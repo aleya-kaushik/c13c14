@@ -50,9 +50,9 @@ lp =  pool_indx_leaf
 frp = pool_indx_froot
 crp = pool_indx_croot
 wp =  pool_indx_stwd
-cdbp  = pool_indx_cdb-npoolpft/2
-metlp = pool_indx_metl-npoolpft/2
-strlp = pool_indx_strl-npoolpft/2
+cdbp  = pool_indx_cdb-npoolpft/3
+metlp = pool_indx_metl-npoolpft/3
+strlp = pool_indx_strl-npoolpft/3
 
 ! ------------------------------------------------------------
 ! Calculate LAI

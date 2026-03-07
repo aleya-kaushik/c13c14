@@ -627,7 +627,7 @@ tmpval = ( (poollt%poolpft_lay(lp,1) &
 !     (pooldt%poollu(strlpc13) .gt. nzero)) then
 
 if (tmpval .gt. nzero) then
-  fract%rcpoolfire = & 
+  fract%rcpoolfirec13 = & 
      ( (poollt%poolpft_lay(lpc13,1) &
         + poollt%poolpft_lay(wpc13,1) &
         + pooldt%poollu_lay(cdbpc13,1) &

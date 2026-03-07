@@ -225,6 +225,7 @@ SCI_OBJS  = \
         balan_carbon.o \
         balan_eh2o.o \
         c13_iso_calc.o \
+        c14_iso_calc.o \
         cas_update.o \
         cfrax_calc.o \
         cos_calc.o \
