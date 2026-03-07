@@ -1,9 +1,11 @@
 !======================================================================
-subroutine pool_auto_resp( poolcont, &
+subroutine pool_auto_resp(poolcont, &
      clim_assim, clim_lai, &
-     assimd, c13assimd, lai, tc, td_lay, &
+     assimd, c13assimd, &
+     c14assimd, lai, tc, td_lay, &
      rootf_lay, poollt, resp_soil, resp_soil_lay, &
-     resp_soilc13, resp_soilc13_lay, fract)
+     resp_soilc13, resp_soilc13_lay, &
+     resp_soilc14, resp_soilc14_lay, fract)
 !======================================================================
 
 ! Description
@@ -23,7 +25,9 @@ use module_poolinfo, only: &
    pool_indx_froot, pool_indx_croot, &
    pool_indx_leaf, pool_indx_lay, &
    pool_indx_froot_c13, pool_indx_croot_c13, &
-   pool_indx_leaf_c13
+   pool_indx_leaf_c13, &
+   pool_indx_froot_c14, pool_indx_croot_c14, &
+   pool_indx_leaf_c14
 use module_sib, only: &
    soil_type, pooll_type, &
    fract_type
@@ -37,13 +41,13 @@ implicit none
 !...input variables
 type(pool_param), intent(inout) :: poolcont
 real(r8), intent(in) :: clim_assim, clim_lai
-real(r8), intent(in) :: assimd, c13assimd, lai, tc
+real(r8), intent(in) :: assimd, c13assimd, c14assimd, lai, tc
 real(r8), dimension(nsoil), intent(in) :: &
       rootf_lay, td_lay
 type(pooll_type), intent(inout) :: poollt
-real(r8), intent(inout) :: resp_soil, resp_soilc13
+real(r8), intent(inout) :: resp_soil, resp_soilc13, resp_soilc14
 real(r8), dimension(nsoil), intent(inout) :: &
-      resp_soil_lay, resp_soilc13_lay
+      resp_soil_lay, resp_soilc13_lay, resp_soilc14_lay
 type(fract_type), intent(in) :: fract
 
 !...local variables
@@ -52,22 +56,28 @@ real(r8) :: qt, mtemp
 real(r8) :: pool_valid, pool_updated
 real(r8) :: temp_mrespr, temp_mrespl
 real(r8) :: temp_mresprc13, temp_mresplc13
+real(r8) :: temp_mresprc14, temp_mresplc14
 real(r8) :: tmpv,tmpv1,tmpv2
 !real(r8) :: isofactor
 
 !...misc values
-integer(i4) :: n,s,nref,tcref,isoref
+integer(i4) :: n,s,nref,tcref,isorefc13,isorefc14
 integer(i4) :: lp,frp,crp
 integer(i4) :: lpc13,frpc13,crpc13
+integer(i4) :: lpc14,frpc14,crpc14
 
 !...alias the pool indices
-lp =  pool_indx_leaf
+lp =  pool_indx_leaf !1,3 live totC pools
 frp = pool_indx_froot
 crp = pool_indx_croot
 
-lpc13 =  pool_indx_leaf_c13-6
+lpc13 =  pool_indx_leaf_c13-6 !6,8 live C13 pools
 frpc13 = pool_indx_froot_c13-6
 crpc13 = pool_indx_croot_c13-6
+
+lpc14 =  pool_indx_leaf_c14-12 !11,13 live C14 pools
+frpc14 = pool_indx_froot_c14-12
+crpc14 = pool_indx_croot_c14-12
 
 !-----------------------------------------
 !...Reset respiration variables
@@ -163,8 +173,9 @@ ENDDO
 
 !-----------------------------------------------------------------
 !-----Autotrophic Respiration Rate----
-do n=1,npoolpft/2 !1,5
-    isoref=n+5
+do n=1,npoolpft/2 !1,5 live totC pools
+    isorefc13=n+5 !5,10 live C13 pools
+    isorefc14=n+10 !11,15 live C14 pools
     !...only resp if above min pool value
     pool_valid = poolcont%poolpft_min(n)
 !    poollt%poolpftmin(n) = pool_valid
@@ -178,19 +189,23 @@ do n=1,npoolpft/2 !1,5
         !krater_lay(npoolpft,nsoil), k_rate(ntpool)
         poollt%krater_lay(n,1) = poollt%mcr_scale &
               * poolcont%k_rate(n)
-        poollt%krater_lay(isoref,1) = poollt%mcr_scale &
-              * poolcont%k_rate(isoref)
+        poollt%krater_lay(isorefc13,1) = poollt%mcr_scale &
+              * poolcont%k_rate(isorefc13)
+        poollt%krater_lay(isorefc14,1) = poollt%mcr_scale &
+              * poolcont%k_rate(isorefc14)
     else
         do s=1,pool_indx_lay(n)
            poollt%krater_lay(n,s) = poollt%mrr_scale_lay(s) &
                * poolcont%k_rate(n)
-           poollt%krater_lay(isoref,s) = poollt%mrr_scale_lay(s) &
-               * poolcont%k_rate(isoref)
+           poollt%krater_lay(isorefc13,s) = poollt%mrr_scale_lay(s) &
+               * poolcont%k_rate(isorefc13)
+           poollt%krater_lay(isorefc14,s) = poollt%mrr_scale_lay(s) &
+               * poolcont%k_rate(isorefc14)
         enddo
     endif
 
     !.....calculate/check maintenance resp
-    do s=1,pool_indx_lay(n) !1,5 ntpool, indx_lay same for isoref
+    do s=1,pool_indx_lay(n) !1,5 ntpool, indx_lay same for isorefc13
        temp_mrespr = poollt%poolpft_lay(n,s) * &
                      poollt%krater_lay(n,s) * &
                      poolcont%lresp_eff(n)
@@ -202,72 +217,66 @@ do n=1,npoolpft/2 !1,5
        poollt%poolpft_dloss(n,s) = temp_mrespl &
            + poollt%poolpft_dloss(n,s)
 
-       !poollt%loss_mresp_lay(isoref,s) = fract%rcpoolfac*temp_mrespr
-       !poollt%poolpft_dloss(isoref,s) = fract%rcpoolfac*temp_mrespl & !(npoolpft,nsoil)
-       !    + poollt%poolpft_dloss(isoref,s)
-!       temp_mresprc13 = poollt%poolpft_lay(isoref,s) * &
-!                     poollt%krater_lay(isoref,s) * &
-!                     poolcont%lresp_eff(isoref)
-!       temp_mresplc13 = temp_mrespr*dtsib
+       poollt%loss_mresp_lay(isorefc13,s) = poollt%rcpoolpft_lay(isorefc13,s)*temp_mrespr
+       poollt%poolpft_dloss(isorefc13,s) = poollt%rcpoolpft_lay(isorefc13,s)*temp_mrespl &
+           + poollt%poolpft_dloss(isorefc13,s)
 
-       poollt%loss_mresp_lay(isoref,s) = poollt%rcpoolpft_lay(isoref,s)*temp_mrespr
-       poollt%poolpft_dloss(isoref,s) = poollt%rcpoolpft_lay(isoref,s)*temp_mrespl &
-           + poollt%poolpft_dloss(isoref,s)
+       poollt%loss_mresp_lay(isorefc14,s) = poollt%rcpoolpft_lay(isorefc14,s)*temp_mrespr
+       poollt%poolpft_dloss(isorefc14,s) = poollt%rcpoolpft_lay(isorefc14,s)*temp_mrespl &
+           + poollt%poolpft_dloss(isorefc14,s)
 
-       !if ( (poollt%loss_mresp_lay(isoref,s) .gt. 1) .or. &
-       !     (poollt%loss_mresp_lay(isoref,s) .lt. -1) ) then
-       if ( (poollt%poolpft_dloss(isoref,s) .gt. 10.) .or. &
-            (poollt%poolpft_dloss(isoref,s) .lt. -10.)) then
+       if ( (poollt%poolpft_dloss(isorefc13,s) .gt. 10.) .or. &
+            (poollt%poolpft_dloss(isorefc13,s) .lt. -10.)) then
          print*,'code: pool_auto_resp'
-         print*,'isoref: ',isoref
+         print*,'isorefc13: ',isorefc13
          print*,'s: ',s
          print*,'temp_mresprc13: ',temp_mresprc13
          print*,'temp_mrespr: ',temp_mrespr
-         print*,'poollt%loss_mresp_lay(isoref-5,s):',poollt%loss_mresp_lay(isoref-5,s)
-         !print*,'poollt%loss_mresp_lay(isoref-5,s-1):',poollt%loss_mresp_lay(isoref-5,s-1)
-         !print*,'poollt%loss_mresp_lay(isoref-5,s+1):',poollt%loss_mresp_lay(isoref-5,s+1)
-         print*,'poollt%loss_mresp_lay(isoref,s): ',poollt%loss_mresp_lay(isoref,s)
-         !print*,'poollt%loss_mresp_lay(isoref,s-1):',poollt%loss_mresp_lay(isoref,s-1)
-         !print*,'poollt%loss_mresp_lay(isoref,s+1):',poollt%loss_mresp_lay(isoref,s+1)
-         print*,'poollt%rcpoolpft_lay(isoref,s): ',poollt%rcpoolpft_lay(isoref,s)
-         !print*,'poollt%rcpoolpft_lay(isoref,s-1):',poollt%rcpoolpft_lay(isoref,s-1)
-         !print*,'poollt%rcpoolpft_lay(isoref,s+1):',poollt%rcpoolpft_lay(isoref,s+1)
+         print*,'poollt%loss_mresp_lay(isorefc13-5,s):',poollt%loss_mresp_lay(isorefc13-5,s)
+         !print*,'poollt%loss_mresp_lay(isorefc13-5,s-1):',poollt%loss_mresp_lay(isorefc13-5,s-1)
+         !print*,'poollt%loss_mresp_lay(isorefc13-5,s+1):',poollt%loss_mresp_lay(isorefc13-5,s+1)
+         print*,'poollt%loss_mresp_lay(isorefc13,s): ',poollt%loss_mresp_lay(isorefc13,s)
+         !print*,'poollt%loss_mresp_lay(isorefc13,s-1):',poollt%loss_mresp_lay(isorefc13,s-1)
+         !print*,'poollt%loss_mresp_lay(isorefc13,s+1):',poollt%loss_mresp_lay(isorefc13,s+1)
+         print*,'poollt%rcpoolpft_lay(isorefc13,s): ',poollt%rcpoolpft_lay(isorefc13,s)
+         !print*,'poollt%rcpoolpft_lay(isorefc13,s-1):',poollt%rcpoolpft_lay(isorefc13,s-1)
+         !print*,'poollt%rcpoolpft_lay(isorefc13,s+1):',poollt%rcpoolpft_lay(isorefc13,s+1)
          print*,'temp_mrespr: ',temp_mrespr
 
-         tmpv=( poollt%poolpft_lay(isoref,s) &
-                + poollt%poolpft_dgain(isoref,s) &
-                - poollt%poolpft_dloss(isoref,s) )
+         tmpv=( poollt%poolpft_lay(isorefc13,s) &
+                + poollt%poolpft_dgain(isorefc13,s) &
+                - poollt%poolpft_dloss(isorefc13,s) )
          if (s .gt. 1) then
-           tmpv1=( poollt%poolpft_lay(isoref,s-1) &
-                + poollt%poolpft_dgain(isoref,s-1) &
-                - poollt%poolpft_dloss(isoref,s-1) )
+           tmpv1=( poollt%poolpft_lay(isorefc13,s-1) &
+                + poollt%poolpft_dgain(isorefc13,s-1) &
+                - poollt%poolpft_dloss(isorefc13,s-1) )
          endif
-         tmpv2=( poollt%poolpft_lay(isoref,s+1) &
-                + poollt%poolpft_dgain(isoref,s+1) &
-                - poollt%poolpft_dloss(isoref,s+1) )
-         print*,'tmpv(isoref,s):',tmpv
+         tmpv2=( poollt%poolpft_lay(isorefc13,s+1) &
+                + poollt%poolpft_dgain(isorefc13,s+1) &
+                - poollt%poolpft_dloss(isorefc13,s+1) )
+         print*,'tmpv(isorefc13,s):',tmpv
          if (s .gt. 1) then
-            print*,'tmpv(isoref,s-1):',tmpv1
+            print*,'tmpv(isorefc13,s-1):',tmpv1
          endif
-         print*,'tmpv(isoref,s+1):',tmpv2
+         print*,'tmpv(isorefc13,s+1):',tmpv2
 
 
-         print*,'poollt%poolpft_lay(isoref,s):',poollt%poolpft_lay(isoref,s)
+         print*,'poollt%poolpft_lay(isorefc13,s):',poollt%poolpft_lay(isorefc13,s)
          if (s .gt. 1) then
-           print*,'poollt%poolpft_lay(isoref,s-1):',poollt%poolpft_lay(isoref,s-1)
+           print*,'poollt%poolpft_lay(isorefc13,s-1):',poollt%poolpft_lay(isorefc13,s-1)
          endif
-         print*,'poollt%poolpft_lay(isoref,s+1):',poollt%poolpft_lay(isoref,s+1)
-         print*,'poollt%poolpft_dgain(isoref,s):',poollt%poolpft_dgain(isoref,s)
+         print*,'poollt%poolpft_lay(isorefc13,s+1):',poollt%poolpft_lay(isorefc13,s+1)
+         print*,'poollt%poolpft_dgain(isorefc13,s):',poollt%poolpft_dgain(isorefc13,s)
          if (s .gt. 1) then
-           print*,'poollt%poolpft_dgain(isoref,s-1):',poollt%poolpft_dgain(isoref,s-1)
+           print*,'poollt%poolpft_dgain(isorefc13,s-1):',poollt%poolpft_dgain(isorefc13,s-1)
          endif
-         print*,'poollt%poolpft_dgain(isoref,s+1):',poollt%poolpft_dgain(isoref,s+1)
-         print*,'poollt%poolpft_dloss(isoref,s):',poollt%poolpft_dloss(isoref,s)
+         print*,'poollt%poolpft_dgain(isorefc13,s+1):',poollt%poolpft_dgain(isorefc13,s+1)
+         print*,'poollt%poolpft_dloss(isorefc13,s):',poollt%poolpft_dloss(isorefc13,s)
          if (s .gt. 1) then
-           print*,'poollt%poolpft_dloss(isoref,s-1):',poollt%poolpft_dloss(isoref,s-1)
+           print*,'poollt%poolpft_dloss(isorefc13,s-1):',poollt%poolpft_dloss(isorefc13,s-1)
          endif
-         print*,'poollt%poolpft_dloss(isoref,s+1):',poollt%poolpft_dloss(isoref,s+1)
-       endif
+         print*,'poollt%poolpft_dloss(isorefc13,s+1):',poollt%poolpft_dloss(isorefc13,s+1)
+       endif !end print loop to check
 
     enddo !s=1,pool_indx_lay
     
@@ -359,7 +368,7 @@ resp_soil_lay(:) = &
     poollt%loss_gresp(frp)*rootf_lay(:) + &
     poollt%loss_gresp(crp)*rootf_lay(:) 
 
-!----Similar calculations for carbon-13 respiration
+!----same as above for C13
 poollt%resp_autoc13 = sum(poollt%loss_gresp(6:10)) &
                      + sum(poollt%loss_mresp_lay(6:10,:))
 poollt%resp_leafc13 = poollt%loss_gresp(lpc13) & 
@@ -376,5 +385,23 @@ resp_soilc13_lay(:) = &
     poollt%loss_mresp_lay(crpc13,:) + &
     poollt%loss_gresp(frpc13)*rootf_lay(:) + &
     poollt%loss_gresp(crpc13)*rootf_lay(:)
+
+!----same as above for C14
+poollt%resp_autoc14 = sum(poollt%loss_gresp(11:15)) &
+                     + sum(poollt%loss_mresp_lay(11:15,:))
+poollt%resp_leafc14 = poollt%loss_gresp(lpc14) &
+                   + sum(poollt%loss_mresp_lay(lpc14,:))
+poollt%resp_mntnc14 = sum(poollt%loss_mresp_lay(11:15,:))
+poollt%resp_rootc14 = &
+    sum(poollt%loss_mresp_lay(frpc14,:)) + &
+    sum(poollt%loss_mresp_lay(crpc14,:)) + &
+    poollt%loss_gresp(frpc14) + &
+    poollt%loss_gresp(crpc14)
+resp_soilc14 = poollt%resp_rootc14
+resp_soilc14_lay(:) = &
+    poollt%loss_mresp_lay(frpc14,:) + &
+    poollt%loss_mresp_lay(crpc14,:) + &
+    poollt%loss_gresp(frpc14)*rootf_lay(:) + &
+    poollt%loss_gresp(crpc14)*rootf_lay(:)
 
 end subroutine pool_auto_resp

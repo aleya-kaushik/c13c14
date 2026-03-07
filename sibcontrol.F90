@@ -98,11 +98,12 @@ do l=1,sibg%g_nlu
        call pool_auto_resp(poolcon(pnum), &
             sibg%l(l)%co2t%clim_assim, sibg%l(l)%vegt%clim_lai, &
             sibg%l(l)%co2t%assimd, sibg%l(l)%fract%c13assimd, & 
-            sibg%l(l)%vegt%lai, &
+            sibg%l(l)%fract%c14assimd, sibg%l(l)%vegt%lai, &
             sibg%l(l)%cast%tc, sibg%l(l)%sscolt%td(1:nsoil), &
             sibg%l(l)%vegt%rootf, sibg%l(l)%poollt, &
             sibg%l(l)%pooldt%resp_soil, sibg%l(l)%pooldt%resp_soil_lay, &
             sibg%l(l)%pooldt%resp_soilc13, sibg%l(l)%pooldt%resp_soilc13_lay, &
+            sibg%l(l)%pooldt%resp_soilc14, sibg%l(l)%pooldt%resp_soilc14_lay, &
             sibg%l(l)%fract)
 
        !...Autotrophic Transfer
