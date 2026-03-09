@@ -102,6 +102,7 @@ module module_pparams
 
            rc14poolinitc4 =
 
+           c14taumean = 8267.0 
 
        integer(i4), parameter :: &
             eqnx  = 80, &             !  day of vernal equinox
@@ -120,6 +121,7 @@ module module_pparams
             mol_to_dw = 24.0,   &  ! conversion factor: mol C/m2 to g DW/m2
             mol_to_mg = 0.12,   &  ! conversion factor: mol C/m2 to Mg C/ha
             molc13_to_mg = 0.13,   &  ! conversion factor: mol C-13/m2 to Mg C/ha
+            molc14_to_mg = 0.14,   &  ! conversion factor: mol C-14/m2 to Mg C/ha
             mol_to_umol = 1.0D6, &  ! conversion factor: mol to micromol
             mol_to_pmol = 1.0D12    ! conversion factor: mol to picomol
 

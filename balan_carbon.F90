@@ -2,7 +2,8 @@
 !...balance is maintained
 subroutine balan_carbon( &
     sibpt, siblon, siblat, pref, &
-    assimin, c13assimin, laiin, fparin, &
+    assimin, c13assimin, c14assimin, & 
+    laiin, fparin, &
     pooldt, poollt, grz_transfer, co2t, fract)
 
 use kinds
@@ -11,7 +12,7 @@ use module_poolinfo
 use module_pparams, only: &
     mol_to_mg, mol_to_umol, &
     month_names, molc13_to_mg, &
-    pdb
+    molc14_to_mg, pdb
 use module_sib, only: &
     poold_type, pooll_type, &
     co2_type, fract_type
@@ -19,7 +20,7 @@ use module_sibconst, only: &
     npoolcan, npoollu, npoolpft, &
     carbonb_print, carbonb_stop, &
     carbonb_thresh, carbonb_threshc13, &
-    npoolcanc13
+    npoolcanc13, npoolcanc14
 use module_time, only: &
     dtsib, day, month, year
 
@@ -28,7 +29,7 @@ implicit none
 !...input variables
 integer(i4), intent(in) :: sibpt, pref
 real(r4), intent(in) :: siblon, siblat
-real(r8), intent(in) :: assimin, c13assimin
+real(r8), intent(in) :: assimin, c13assimin, c14assimin
 real(r8), intent(in) :: fparin, laiin
 real(r4), dimension(npoollu+2), intent(in) :: grz_transfer
 
@@ -44,6 +45,7 @@ real(r8) :: myconvert
 !...assimilation variables
 real(r8) :: assimtot
 real(r8) :: assimtotc13
+real(r8) :: assimtotc14
 
 !...dead pool variables
 real(r8), dimension(npoollu) :: dgain, dloss

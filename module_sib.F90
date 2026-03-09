@@ -305,6 +305,7 @@ type, public :: fract_type
     real(r8) :: poolemistotC !pool sum for totC for (lp+wp+cdb+metl+strl) 
     real(r8) :: poolemisc13 !pool sum for C13 for (lp+wp+cdb+metl+strl) 
     real(r8) :: poolemisc14
+
     !real(r8) :: d13cassimxassim
     !real(r8) :: kiecpsxassim
     !real(r8) :: kiecpsk1xassim
@@ -759,7 +760,11 @@ type, public :: poold_type
      !Fire Loss
      real(r8), dimension(:,:), allocatable :: &  !(npoollu,nsoil)
            loss_fire_lay   !loss from fire (mol C/m2/s)
-     
+
+     !...loss from radioactive decay, zero for everything except C14
+     real(r8), dimension(:,:), allocatable :: &  !(npoollu,nsoil)
+           loss_raddecay_lay  !loss from radioactive decay (mol C/m2/s)
+ 
      !Heterotrophic Respiration/Transfer Loss
 
      !...surface pools
@@ -950,6 +955,10 @@ type, public :: pooll_type
 
      real(r8) :: resp_leafc12 !leaf respiration c12 (mol C/m2/s)
      !real(r8) :: resp_casn    !canopy resp factoring vmax0, rstfac2, qt
+
+     !...loss from radioactive decay, zero for everything except C14
+     real(r8), dimension(:,:), allocatable :: &  !(npoolpft,nsoil)
+              loss_raddecay_lay  !loss from radioactive decay (mol C/m2/s)
 
      !----------------------
      !Live-To-Dead Transfer

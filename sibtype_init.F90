@@ -972,6 +972,9 @@ type (poold_type), intent(inout) :: pooldt
      allocate(pooldt%loss_trans_lay(npoollu,nsoil))
      pooldt%loss_trans_lay(:,:) = dzero
 
+     allocate(pooldt%loss_raddecay_lay(npoollu,nsoil))
+     pooldt%loss_raddecay_lay(:,:) = dzero
+
      pooldt%resp_het = dzero
      pooldt%resp_soil = dzero
      allocate(pooldt%resp_soil_lay(nsoil))
@@ -1117,6 +1120,9 @@ type(pooll_type), intent(inout) :: poollt
      poollt%tf_turnover(:) = dzero
      allocate(poollt%loss_trans_lay(npoolpft,nsoil))
      poollt%loss_trans_lay(:,:) = dzero
+
+     allocate(poollt%loss_raddecay_lay(npoolpft,nsoil))
+     poollt%loss_raddecay_lay(:,:) = dzero
 
      poollt%nd_fire = dzero
      poollt%rmmd_fire = dzero

@@ -12,13 +12,14 @@ use module_sib, only: &
     pooll_type, poold_type, &
     fract_type
 use module_pparams,only: &
-    pdb
+    pdb, c14taumean
 use module_time, only: &
     dtsib, wt_daily, year
 use module_poolinfo
 use module_sibconst, only: &
     npoolpft, nsoil, npoollu, &
-    varciso_switch, varco2_switch
+    varciso_switch, varco2_switch, &
+    spinup
 use module_phosib, only: &
     c4, gah2o, co2cap, &
     resp_cas
@@ -45,6 +46,10 @@ real(r8) :: tmpmin
 real(r8) :: tmpval,tmpvdr
 real(r8) :: resp_casc14, resp_casc12
 real(r8) :: nzero=1.E-14
+
+!...reset variables
+poollt%loss_raddecay_lay(:,:) = dzero
+pooldt%loss_raddecay_lay(:,:) = dzero
 
 !...with C14: ntpool=33, npoolpft=15, npoollu=18 
 lp =  pool_indx_leaf !ntpool index 1
@@ -82,7 +87,64 @@ armpc14  = pool_indx_arm_c14 - npoolpft !ntpool index 33, npoollu index 18
 !print*,'poolpft_lay(7,1/2/3) :',&
 !    poollt%poolpft_lay(7,1),poollt%poolpft_lay(7,2),poollt%poolpft_lay(7,3)
 !print*,' '
- 
+
+!... decay only from all c14 pools... and decay only if not spinning up...
+!... decay from live pools
+IF (.not. spinup) THEN
+
+   do n=1,npoolpft/3 !1,5 live totC 
+      nref=n !1,5 ntpool
+      do s=1,pool_indx_lay(nref) !ntpool
+           poollt%loss_raddecay_lay(n,s) = dzero !npoolpft,nsoil
+      enddo
+   enddo
+   
+   do n=npoolpft/3+1,2*npoolpft/3 !6,10 live C13
+      nref=p+npoolpft/3+1 !12,16 ntpool
+      do s=1,pool_indx_lay(nref) !ntpool
+           poollt%loss_raddecay_lay(n,s) = dzero !npoolpft,nsoil
+      enddo
+   enddo
+   
+   do n=2*npoolpft/3+1,npoolpft !11,15 live C14
+      nref=p+2*npoolpft/3+2 !23,27 ntpool
+      do s=1,pool_indx_lay(nref) !ntpool
+           poollt%loss_raddecay_lay(n,s) = &
+                 (1.0D0/c14taumean)*poollt%poolpft_lay(n,s) !npoolpft,nsoil
+      enddo
+   enddo
+   
+   !... decay from dead pools
+   do n=1,npoollu/3 !1,6 dead totC 
+      nref=n+npoolpft/3 !6,10 ntpool
+      do s=1,pool_indx_lay(nref) !ntpool
+           pooldt%loss_raddecay_lay(n,s) = dzero !npoollu,nsoil
+      enddo
+   enddo
+   
+   do n=npoollu/3+1,2*npoollu/3 !7,12 dead totC 
+      nref=n+2*npoolpft/3 !17,22 ntpool
+      do s=1,pool_indx_lay(nref) !ntpool
+           pooldt%loss_raddecay_lay(n,s) = dzero !npoollu,nsoil
+      enddo
+   enddo
+   
+   do n=2*npoollu/3+1,npoollu !13,18 dead totC 
+      nref=n+npoolpft !28,33 ntpool
+      do s=1,pool_indx_lay(nref) !ntpool
+           pooldt%loss_raddecay_lay(n,s) = & 
+                (1.0D0/c14taumean)*pooldt%poollu_lay(n,s) !npoollu,nsoil
+      enddo
+   enddo
+
+
+ENDIF !spinup
+
+!...Accumulate losses for pool updates
+poollt%poolpft_dloss = poollt%poolpft_dloss & !(npoolpft,nsoil)
+                      + poollt%loss_raddecay_lay*dtsib
+pooldt%poollu_dloss = pooldt%poollu_dloss & !(npoollu,nsoil)
+                      + pooldt%loss_raddecay_lay*dtsib
 
 !...Initialize values
 !fract%d13cpool_leafc14 = nzero

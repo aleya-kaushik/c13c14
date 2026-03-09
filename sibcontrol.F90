@@ -62,6 +62,7 @@ do l=1,sibg%g_nlu
              !...Update pools (once daily)
              call pool_update(gref, lonsib, latsib, pref, &
                   sibg%l(l)%co2t%assim, sibg%l(l)%fract%c13assim, &
+                  sibg%l(l)%fract%c14assim, &
                   sibg%l(l)%vegt%lai, sibg%l(l)%vegt%fpar, &
                   sibg%l(l)%equibdt, sibg%l(l)%pooldt, &
                   sibg%l(l)%equiblt, sibg%l(l)%poollt, &

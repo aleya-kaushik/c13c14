@@ -41,7 +41,6 @@ type(fract_type), intent(in) :: fract
 ! Local variables
 integer(i4) :: cp, p, cpc13, cpc14!, canpc13
 integer(i4) :: m, mref, s, tcref
-integer(i4) :: isorefc13, isorefc14
 real(r8) :: cpooltot, pool_avail
 real(r8) :: cpooltotc13, pool_availc13
 real(r8) :: cpooltotc14, pool_availc14

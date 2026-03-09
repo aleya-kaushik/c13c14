@@ -100,11 +100,11 @@ crpc13 = pool_indx_croot_c13-npoollu/3 !ntpool index 14, npoolpft index 8
 wpc13 =  pool_indx_stwd_c13-npoollu/3 !ntpool index 15, npoolpft index 9
 ppc13 =  pool_indx_prod_c13-npoollu/3 !ntpool index 16, npoolpft index 10
 
-lpc14 =  pool_indx_leaf_c14-(2*(npoollu/3)) !ntpool index 18, npoolpft index 11
-frpc14 = pool_indx_froot_c14-(2*(npoollu/3)) !ntpool index 19, npoolpft index 12
-crpc14 = pool_indx_croot_c14-(2*(npoollu/3)) !ntpool index 20, npoolpft index 13
-wpc14 =  pool_indx_stwd_c14-(2*(npoollu/3)) !ntpool index 21, npoolpft index 14
-ppc14 =  pool_indx_prod_c14-(2*(npoollu/3)) !ntpool index 22, npoolpft index 15
+lpc14 =  pool_indx_leaf_c14-(2*(npoollu/3)) !ntpool index 23, npoolpft index 11
+frpc14 = pool_indx_froot_c14-(2*(npoollu/3)) !ntpool index 24, npoolpft index 12
+crpc14 = pool_indx_croot_c14-(2*(npoollu/3)) !ntpool index 25, npoolpft index 13
+wpc14 =  pool_indx_stwd_c14-(2*(npoollu/3)) !ntpool index 26, npoolpft index 14
+ppc14 =  pool_indx_prod_c14-(2*(npoollu/3)) !ntpool index 27, npoolpft index 15
 
 cdbp  = pool_indx_cdb-npoolpft/3 !ntpool index 6, npoollu index 1
 metlp = pool_indx_metl-npoolpft/3 !ntpool index 7, npoollu index 2
@@ -277,6 +277,40 @@ do i=1,subcount
                  sib%g(i)%l(l)%equibdt%deadsfc_c13_notdone = .true.
              endif
 
+             !...same spinup check calculations for C-14 sfc pools
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_init  = &
+                    sib%g(i)%l(l)%equibdt%poollu_init(cdbpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_init(metlpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_init(strlpc14)
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_end = &
+                    sib%g(i)%l(l)%equibdt%poollu_end(cdbpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_end(metlpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_end(strlpc14)
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_gain = &
+                    sib%g(i)%l(l)%equibdt%poollu_gain(cdbpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_gain(metlpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_gain(strlpc14)
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_loss = &
+                    sib%g(i)%l(l)%equibdt%poollu_loss(cdbpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_loss(metlpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_loss(strlpc14)
+
+             if (sib%g(i)%l(l)%equibdt%deadsfc_c14_loss > 0.) then
+                    sib%g(i)%l(l)%equibdt%deadsfc_c14_ratio = &
+                        sib%g(i)%l(l)%equibdt%deadsfc_c14_gain / &
+                        sib%g(i)%l(l)%equibdt%deadsfc_c14_loss
+             else
+                   sib%g(i)%l(l)%equibdt%deadsfc_c14_ratio = 1.0
+             endif
+
+             pdiffrc14 = abs(sib%g(i)%l(l)%equibdt%deadsfc_c14_ratio - 1.0)
+             if (pdiffrc14 <= spinup_threshold) then
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_notdone = .false.
+             else
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_notdone = .true.
+             endif
+
+
              !...Determine if the soil pools are spunup
              sib%g(i)%l(l)%equibdt%deadsoil_init = &
                     sib%g(i)%l(l)%equibdt%poollu_init(slitp) + &
@@ -342,6 +376,38 @@ do i=1,subcount
                  sib%g(i)%l(l)%equibdt%deadsoil_c13_notdone = .true.
              endif
 
+             !...same spinup check calculations for C-14 soil pools
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_init = &
+                    sib%g(i)%l(l)%equibdt%poollu_init(slitpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_init(slowpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_init(armpc14)
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_end = &
+                    sib%g(i)%l(l)%equibdt%poollu_end(slitpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_end(slowpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_end(armpc14)
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_gain = &
+                    sib%g(i)%l(l)%equibdt%poollu_gain(slitpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_gain(slowpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_gain(armpc14)
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_loss = &
+                    sib%g(i)%l(l)%equibdt%poollu_loss(slitpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_loss(slowpc14) + &
+                    sib%g(i)%l(l)%equibdt%poollu_loss(armpc14)
+             if (sib%g(i)%l(l)%equibdt%deadsoil_c14_loss > dzero) then
+                    sib%g(i)%l(l)%equibdt%deadsoil_c14_ratio = &
+                        sib%g(i)%l(l)%equibdt%deadsoil_c14_gain / &
+                        sib%g(i)%l(l)%equibdt%deadsoil_c14_loss
+             else
+                   sib%g(i)%l(l)%equibdt%deadsoil_c14_ratio = 1.0
+             endif
+
+             pdiffrc14 = abs(sib%g(i)%l(l)%equibdt%deadsoil_c14_ratio - 1.0)
+             if (pdiffrc14 <= spinup_threshold) then
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_notdone = .false.
+             else
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_notdone = .true.
+             endif
+
 
              !--------------
              !--LIVE POOLS--
@@ -361,6 +427,9 @@ do i=1,subcount
                     sib%g(i)%l(l)%equibdt%deadsfc_c13_notdone = .false.
                     sib%g(i)%l(l)%equibdt%deadsoil_c13_notdone = .false.
 
+                    sib%g(i)%l(l)%equibdt%deadsfc_c14_notdone = .false.
+                    sib%g(i)%l(l)%equibdt%deadsoil_c14_notdone = .false.
+
                     sib%g(i)%l(l)%equiblt%poolpft_notdone(:) = .false.
                     sib%g(i)%l(l)%equiblt%poolpft_equib(:) = &
                            sib%g(i)%l(l)%equiblt%poolpft_end(:)
@@ -368,6 +437,7 @@ do i=1,subcount
   
                     sib%g(i)%l(l)%equiblt%live_notdone = .false.
                     sib%g(i)%l(l)%equiblt%live_c13_notdone = .false.
+                    sib%g(i)%l(l)%equiblt%live_c14_notdone = .false.
                 else
                     !...Calculate equilibrium PFT pools
                     do n=1,npoolpft
@@ -505,6 +575,47 @@ do i=1,subcount
                           sib%g(i)%l(l)%equiblt%live_c13_notdone = .true.
                     endif
 
+                    !...same as above but for C-14 pools
+                    !...determine if using total live carbon is spun-up
+                    sib%g(i)%l(l)%equiblt%live_c14_init = &
+                         sib%g(i)%l(l)%equiblt%poolpft_init(lpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_init(wpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_init(frpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_init(crpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_init(ppc14)
+                    sib%g(i)%l(l)%equiblt%live_c14_end  = &
+                         sib%g(i)%l(l)%equiblt%poolpft_end(lpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_end(wpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_end(frpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_end(crpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_end(ppc14)
+                    sib%g(i)%l(l)%equiblt%live_c14_gain = &
+                         sib%g(i)%l(l)%equiblt%poolpft_gain(lpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_gain(wpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_gain(frpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_gain(crpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_gain(ppc14)
+                    sib%g(i)%l(l)%equiblt%live_c14_loss = &
+                         sib%g(i)%l(l)%equiblt%poolpft_loss(lpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_loss(wpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_loss(frpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_loss(crpc14) + &
+                         sib%g(i)%l(l)%equiblt%poolpft_loss(ppc14)
+                    if (sib%g(i)%l(l)%equiblt%live_c14_loss > dzero) then
+                          sib%g(i)%l(l)%equiblt%live_c14_ratio = &
+                                 sib%g(i)%l(l)%equiblt%live_c14_gain / &
+                                 sib%g(i)%l(l)%equiblt%live_c14_loss
+                    else
+                          sib%g(i)%l(l)%equiblt%live_c14_ratio = 1.
+                    endif
+
+                    !...test for spinup determination
+                    pdiffrc14 = abs(sib%g(i)%l(l)%equiblt%live_c14_ratio - 1.0)
+                    if (pdiffrc14 < spinup_threshold) then
+                          sib%g(i)%l(l)%equiblt%live_c14_notdone = .false.
+                    else
+                          sib%g(i)%l(l)%equiblt%live_c14_notdone = .true.
+                    endif
 
                 endif !pft not bare
 
@@ -529,7 +640,17 @@ do i=1,subcount
                      sib%g(i)%l(l)%equibdt%poollu_notdone(strlpc13) .or. &
                      sib%g(i)%l(l)%equibdt%poollu_notdone(slitpc13) .or. &
                      sib%g(i)%l(l)%equibdt%poollu_notdone(slowpc13) .or. &
-                     sib%g(i)%l(l)%equibdt%poollu_notdone(armpc13)) then
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(armpc13) .or. &
+                     sib%g(i)%l(l)%equiblt%poolpft_notdone(lpc14)  .or. &
+                     sib%g(i)%l(l)%equiblt%poolpft_notdone(frpc14) .or. &
+                     sib%g(i)%l(l)%equiblt%poolpft_notdone(crpc14) .or. &
+                     sib%g(i)%l(l)%equiblt%poolpft_notdone(wpc14)  .or. &
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(cdbpc14) .or.  &
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(metlpc14) .or. &
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(strlpc14) .or. &
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(slitpc14) .or. &
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(slowpc14) .or. &
+                     sib%g(i)%l(l)%equibdt%poollu_notdone(armpc14)) then
                          sib%g(i)%l(l)%equibdt%lupft_spunup = .false.
                          sib%g(i)%gdiagt%gridcell_spunup = .false.
                          spinup_done = .false.
@@ -570,7 +691,9 @@ use module_poolinfo, only: &
    pool_indx_leaf, pool_indx_stwd, &
    pool_indx_prod, pool_indx_lay, &
    pool_indx_leaf_c13, pool_indx_stwd_c13, &
-   pool_indx_prod_c13
+   pool_indx_prod_c13, &
+   pool_indx_leaf_c14, pool_indx_stwd_c14, &
+   pool_indx_prod_c14
 
 implicit none
 
@@ -586,15 +709,20 @@ integer(byte) :: ptype, pgroup
 real(r8) :: poolrestart
 integer(i4) :: lp,wp,pp
 integer(i4) :: lpc13,wpc13,ppc13
+integer(i4) :: lpc14,wpc14,ppc14
 
 !-------Calculatae quasi-equlibrium pools------------
-lp =  pool_indx_leaf
+lp =  pool_indx_leaf !1,4,5
 wp =  pool_indx_stwd
 pp =  pool_indx_prod
 
-lpc13 =  pool_indx_leaf_c13-6
+lpc13 =  pool_indx_leaf_c13-6 !12,15,16 -> 6,9,10
 wpc13 =  pool_indx_stwd_c13-6
 ppc13 =  pool_indx_prod_c13-6
+
+lpc14 =  pool_indx_leaf_c14-12 !23,26,27 -> 11,14,15
+wpc14 =  pool_indx_stwd_c14-12
+ppc14 =  pool_indx_prod_c14-12
 
 !---------------------------
 !...Set local variables
@@ -604,7 +732,7 @@ poolpft_out(:,:) = 0.
 
 
 !...Set output PFT pools
-do n=1,npoolpft/2 !1,5
+do n=1,npoolpft/3 !1,5
     poolrestart = poolpft_equib(n)
 
     !if (.not. spinup) then
@@ -640,7 +768,8 @@ do n=1,npoolpft/2 !1,5
     enddo
 enddo
 
-do n=npoolpft/2+1,npoolpft !6,10
+!...same as above for C-13
+do n=npoolpft/3+1,2*npoolpft/3 !6,10
     poolrestart = poolpft_equib(n)
 
     !if (.not. spinup) then
@@ -670,12 +799,48 @@ do n=npoolpft/2+1,npoolpft !6,10
       endif
     !endif
 
-    do s=1,pool_indx_lay(n+npoolpft/2+1) !for 12,16 ntpool
+    do s=1,pool_indx_lay(n+npoolpft/3+1) !for 12,16 ntpool
        poolpft_out(n,s) = poolrestart * &
             poolpft_flay(n,s)
     enddo
 enddo
 
+!...same as above for C-14
+do n=2*npoolpft/3+1,npoolpft !11,15
+    poolrestart = poolpft_equib(n)
+
+    !if (.not. spinup) then
+      !For deciduous PFTs, set restart to end value
+      !for leaf and product pools
+      if (ptype == type_decid) then
+          if ((n == lpc14) .or. &
+              (n == ppc14)) then
+               poolrestart = MAX(dzero, poolpft_end(n))
+          endif
+      endif
+
+      !For grass PFTs, set restart to end value
+      ! for leaf, stem, and product pools
+      if (ptype == type_grass) then
+          if ((n == lpc14) .or. &
+              (n == wpc14) .or. &
+              (n == ppc14)) then
+               poolrestart = MAX(dzero, poolpft_end(n))
+          endif
+      endif
+
+      !For crop PFTs, set restart to end value
+      ! for all live pools
+      if (ptype == type_crop) then
+         poolrestart = MAX(dzero, poolpft_end(n))
+      endif
+    !endif
+
+    do s=1,pool_indx_lay(n+2*npoolpft/3+2) !for 23,27 ntpool
+       poolpft_out(n,s) = poolrestart * &
+            poolpft_flay(n,s)
+    enddo
+enddo
 
 end subroutine equipools_restart
 
@@ -776,7 +941,8 @@ use kinds
 use module_io, only: out_path, &
     rank, nchunks
 use module_pparams, only: &
-    mol_to_mg, molc13_to_mg
+    mol_to_mg, molc13_to_mg, &
+    molc14_to_mg
 use module_pftinfo, only: &
     pft_name, pft_num
 use module_poolinfo, only: pool_name
@@ -795,16 +961,18 @@ logical, parameter :: eq_pfmol=.false.
 ! Misc Variables
 integer :: i,l,n
 integer :: pref, pnum, nref
-real(r8) :: pool_convert, pool_convertc13
+real(r8) :: pool_convert, pool_convertc13, pool_convertc14
 character*120 :: filename
 
 ! Check for printed units
 IF (eq_pfmol) THEN
    pool_convert = 1.0
    pool_convertc13 = 1.0
+   pool_convertc14 = 1.0
 ELSE
    pool_convert = mol_to_mg
    pool_convertc13 = molc13_to_mg
+   pool_convertc14 = molc14_to_mg
 ENDIF
 
 ! Print Results
@@ -837,7 +1005,7 @@ do i=1, subcount
                             '   Min       Max      Input     Output     In/Out'
 
            !...print pft test messages
-           do n=1,npoolpft/2 ! 1,5 totalC live pools
+           do n=1,npoolpft/3 ! 1,5 totalC live pools ntpool
             nref=n !1,5 poolpft index
             write(12,'(i4,a12,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') &
                n, trim(pool_name(n)), &
@@ -851,9 +1019,26 @@ do i=1, subcount
             sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convert,  &
             sib%g(i)%l(l)%equiblt%poolpft_ratio(nref)
            enddo
+
            !...same as above but for C13 pools
-           do n=npoolpft+2,npoolpft+npoolpft/2+1 ! 12,16 C13 live pools
-            nref=n-npoolpft/2-1 !6,10 poolpft index
+           do n=2*npoolpft/3+2,npoolpft+1 ! 12,16 C13 live pools ntpool
+            nref=n-npoolpft/3-1 !6,10 poolpft index
+            write(12,'(i4,a12,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') &
+                    n, trim(pool_name(n)), &
+            (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc13), &
+            (sib%g(i)%l(l)%equiblt%poolpft_end(nref)*pool_convertc13), &
+            (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc13), &
+            '   ',(.not. sib%g(i)%l(l)%equiblt%poolpft_notdone(nref)),'  ', &
+            sib%g(i)%l(l)%equiblt%poolpft_min(nref)*pool_convertc13, &
+            sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc13, &
+            sib%g(i)%l(l)%equiblt%poolpft_gain(nref)*pool_convertc13, &
+            sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convertc13,  &
+            sib%g(i)%l(l)%equiblt%poolpft_ratio(nref)
+           enddo
+
+           !...same as above but for C14 pools
+           do n = npoollu+npoolpft/3,npoollu+2*npoolpft/3-1! 23,27 C14 live pools ntpool
+            nref=n-2*npoollu/3 !11,15 poolpft index
             write(12,'(i4,a12,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') &
                     n, trim(pool_name(n)), &
             (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc13), &
@@ -886,12 +1071,21 @@ do i=1, subcount
             sib%g(i)%l(l)%equiblt%live_c13_gain*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%live_c13_loss*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%live_c13_ratio
-
+           !...same as above but for C14 pools
+           write(12,'(a,2f10.4,a,l,a,2f12.4,1f9.4)') '-->Live C14 Tot:', &
+            sib%g(i)%l(l)%equiblt%live_c14_init*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%live_c14_end*pool_convertc14,   &
+            '             ', &
+            (.not. sib%g(i)%l(l)%equiblt%live_c14_notdone), &
+            '                      ', &
+            sib%g(i)%l(l)%equiblt%live_c14_gain*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%live_c14_loss*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%live_c14_ratio
 
           !...print land unit test messages
           write(12,'(a)') ''
-          do n=1+npoolpft/2,npoolpft/2+npoollu/2 !6,11 totalC dead pools
-           nref=n-npoolpft/2 !1,6 poollu index
+          do n=npoolpft/3+1,2*npoolpft/3+1 !6,11 totalC dead pools
+           nref=n-npoolpft/3 !1,6 poollu index
            write(12,'(i4,a8,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') & 
               n, trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convert, &
@@ -905,8 +1099,8 @@ do i=1, subcount
                sib%g(i)%l(l)%equibdt%poollu_ratio(nref)
           enddo
 
-          do n=1+npoolpft/2+npoolpft+1,npoolpft+npoollu !17,22 C13 dead pools
-           nref=n-npoolpft !7,12 poollu index
+          do n=npoolpft+2,npoollu+4 !17,22 C13 dead pools
+           nref=n-2*npoolpft/3 !7,12 poollu index
           write(12,'(i4,a8,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') & 
               n,trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc13, &
@@ -917,6 +1111,21 @@ do i=1, subcount
                sib%g(i)%l(l)%equibdt%poollu_max(nref)*pool_convertc13, &
                sib%g(i)%l(l)%equibdt%poollu_gain(nref)*pool_convertc13, &
                sib%g(i)%l(l)%equibdt%poollu_loss(nref)*pool_convertc13,  &
+               sib%g(i)%l(l)%equibdt%poollu_ratio(nref)
+          enddo
+
+          do n=npoollu+2*npoolpft/3,ntpool !28,33 C14 dead pools
+           nref=n-npoolpft !13,18 poollu index
+          write(12,'(i4,a8,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') &
+              n,trim(pool_name(n)), &
+              sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc14, &
+              sib%g(i)%l(l)%equibdt%poollu_end(nref)*pool_convertc14, &
+              sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc14, &
+              '   ',(.not. sib%g(i)%l(l)%equibdt%poollu_notdone(nref)),'  ', &
+               sib%g(i)%l(l)%equibdt%poollu_min(nref)*pool_convertc14, &
+               sib%g(i)%l(l)%equibdt%poollu_max(nref)*pool_convertc14, &
+               sib%g(i)%l(l)%equibdt%poollu_gain(nref)*pool_convertc14, &
+               sib%g(i)%l(l)%equibdt%poollu_loss(nref)*pool_convertc14,  &
                sib%g(i)%l(l)%equibdt%poollu_ratio(nref)
           enddo
 
@@ -957,6 +1166,26 @@ do i=1, subcount
                  sib%g(i)%l(l)%equibdt%deadsoil_c13_gain*pool_convertc13, &
                  sib%g(i)%l(l)%equibdt%deadsoil_c13_loss*pool_convertc13, &
                  sib%g(i)%l(l)%equibdt%deadsoil_c13_ratio
+
+          write(12,'(a,2f10.4,a,l,a,2f12.4,1f7.4)') '--> Sfc C14 Tot:', &
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_init*pool_convertc14, &
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_end*pool_convertc14,   &
+                 '               ',  &
+                 (.not. sib%g(i)%l(l)%equibdt%deadsfc_c14_notdone), &
+                 '   ', &
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_gain*pool_convertc14, &
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_loss*pool_convertc14, &
+                 sib%g(i)%l(l)%equibdt%deadsfc_c14_ratio
+          write(12,'(a,2f10.4,a,l,a,2f12.4,1f7.4)') '-->Soil C14 Tot:', &
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_init*pool_convertc14, &
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_end*pool_convertc14,   &
+                 '               ', &
+                 (.not. sib%g(i)%l(l)%equibdt%deadsoil_c14_notdone), &
+                 '   ', &
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_gain*pool_convertc14, &
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_loss*pool_convertc14, &
+                 sib%g(i)%l(l)%equibdt%deadsoil_c14_ratio
+
       endif !LU not spunup
    enddo !l=1,g_nlu
  endif  !Grid Cell not spunup
@@ -984,7 +1213,8 @@ use module_pftinfo, only: &
     pft_name, pft_num, pft_pmeth, pmeth_stg
 use module_poolinfo
 use module_pparams, only: &
-    mol_to_mg, molc13_to_mg
+    mol_to_mg, molc13_to_mg, &
+    molc14_to_mg
 use module_sib, only: sib
 use module_sibconst, only: & 
     subcount, &
@@ -999,19 +1229,11 @@ logical, parameter :: eq_psmol=.false.
 
 ! Misc Variables
 integer(i4) :: i,l,n,nref
-integer(i4) :: lp,wp,pp, lpc13, wpc13, ppc13
 integer(i4) :: pref, pnum
-real(r8) :: pool_convert, pool_convertc13
+real(r8) :: pool_convert, pool_convertc13, pool_convertc14
 character(len=12) :: pool_outputt
 
 !==============================
-! Set local variables
-lp=pool_indx_leaf
-wp=pool_indx_stwd
-pp=pool_indx_prod
-lpc13=pool_indx_leaf_c13
-wpc13=pool_indx_stwd_c13
-ppc13=pool_indx_prod_c13
 
 ! Check for printed units
 IF (eq_psmol) THEN
@@ -1022,6 +1244,7 @@ ELSE
    pool_outputt='Mg C/ha'
    pool_convert = mol_to_mg
    pool_convertc13 = molc13_to_mg
+   pool_convertc14 = molc14_to_mg
 ENDIF
 
 ! Print Results
@@ -1045,7 +1268,7 @@ do i=1, subcount
             '   Min       Max         Input       Output   In/Out'
 
      !...Print live pool test messages
-     do n=1,npoolpft/2 ! 1,5
+     do n=1,npoolpft/3 ! 1,5
       nref=n !1,5
         print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', &
             n, trim(pool_name(n)), &
@@ -1059,8 +1282,8 @@ do i=1, subcount
             sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convert,  &
             sib%g(i)%l(l)%equiblt%poolpft_ratio(nref)
      enddo
-     do n=npoolpft+2,npoolpft+npoolpft/2+1 ! 12,16
-      nref=n-npoolpft/2-1 !6,10
+     do n=2*npoolpft/3+2,npoolpft+1 ! 12,16
+      nref=n-npoolpft/3-1 !6,10
         print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', &
             n, trim(pool_name(n)), &
             (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc13), &
@@ -1071,6 +1294,21 @@ do i=1, subcount
             sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%poolpft_gain(nref)*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convertc13,  &
+            sib%g(i)%l(l)%equiblt%poolpft_ratio(nref)
+     enddo
+
+     do n = npoollu+npoolpft/3,npoollu+2*npoolpft/3-1! 23,27 C14 live pools ntpool
+       nref=n-2*npoollu/3 !11,15 poolpft index
+        print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', &
+            n, trim(pool_name(n)), &
+            (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc14), &
+            (sib%g(i)%l(l)%equiblt%poolpft_end(nref)*pool_convertc14), &
+            (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc14), &
+            '   ',(.not. sib%g(i)%l(l)%equiblt%poolpft_notdone(nref)),'  ', &
+            sib%g(i)%l(l)%equiblt%poolpft_min(nref)*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%poolpft_gain(nref)*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convertc14,  &
             sib%g(i)%l(l)%equiblt%poolpft_ratio(nref)
      enddo
 
@@ -1093,11 +1331,21 @@ do i=1, subcount
             sib%g(i)%l(l)%equiblt%live_c13_gain*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%live_c13_loss*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%live_c13_ratio
+     !...same as above except for C14 pools
+     print'(a,2f10.6,a,l,a,2f12.4,1f9.4)','--> LiveC14 Tot:', &
+            sib%g(i)%l(l)%equiblt%live_c14_init*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%live_c14_end*pool_convertc14,   &
+            '             ', &
+            (.not. sib%g(i)%l(l)%equiblt%live_c14_notdone), &
+            '                      ', &
+            sib%g(i)%l(l)%equiblt%live_c14_gain*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%live_c14_loss*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%live_c14_ratio
 
       !...Print dead pool test messages
       print*,''
-      do n=1+npoolpft/2,npoolpft/2+npoollu/2 !6,11
-          nref=n-npoolpft/2 !1,6
+      do n=npoolpft/3+1,2*npoolpft/3+1 !6,11 totalC dead pools
+          nref=n-npoolpft/3 !1,6 poollu index
           print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', n, trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convert, &
               sib%g(i)%l(l)%equibdt%poollu_end(nref)*pool_convert, &
@@ -1110,8 +1358,8 @@ do i=1, subcount
                sib%g(i)%l(l)%equibdt%poollu_ratio(nref)
        enddo
 
-      do n=1+npoolpft/2+npoolpft+1,npoolpft+npoollu !17,22
-          nref=n-npoolpft !7,12
+       do n=npoolpft+2,npoollu+4 !17,22 C13 dead pools
+          nref=n-2*npoolpft/3 !7,12 poollu index
           print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', n, trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc13, &
               sib%g(i)%l(l)%equibdt%poollu_end(nref)*pool_convertc13, &
@@ -1121,6 +1369,20 @@ do i=1, subcount
                sib%g(i)%l(l)%equibdt%poollu_max(nref)*pool_convertc13, &
                sib%g(i)%l(l)%equibdt%poollu_gain(nref)*pool_convertc13, &
                sib%g(i)%l(l)%equibdt%poollu_loss(nref)*pool_convertc13,  &
+               sib%g(i)%l(l)%equibdt%poollu_ratio(nref)
+       enddo
+
+       do n=npoollu+2*npoolpft/3,ntpool !28,33 C14 dead pools
+          nref=n-npoolpft !13,18 poollu index
+          print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', n, trim(pool_name(n)), &
+              sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc14, &
+              sib%g(i)%l(l)%equibdt%poollu_end(nref)*pool_convertc14, &
+              sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc14, &
+              '   ',(.not. sib%g(i)%l(l)%equibdt%poollu_notdone(nref)),'  ', &
+               sib%g(i)%l(l)%equibdt%poollu_min(nref)*pool_convertc14, &
+               sib%g(i)%l(l)%equibdt%poollu_max(nref)*pool_convertc14, &
+               sib%g(i)%l(l)%equibdt%poollu_gain(nref)*pool_convertc14, &
+               sib%g(i)%l(l)%equibdt%poollu_loss(nref)*pool_convertc14,  &
                sib%g(i)%l(l)%equibdt%poollu_ratio(nref)
        enddo
 
@@ -1161,6 +1423,26 @@ do i=1, subcount
              sib%g(i)%l(l)%equibdt%deadsoil_c13_gain*pool_convertc13, &
              sib%g(i)%l(l)%equibdt%deadsoil_c13_loss*pool_convertc13, &
              sib%g(i)%l(l)%equibdt%deadsoil_c13_ratio
+
+      !...same as above but for C14 pools
+      print'(a,2f10.6,a,l,a,2f12.4,1f9.4)','-->  SfcC14 Tot:', &
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_init*pool_convertc14, &
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_end*pool_convertc14,   &
+             '             ', &
+             (.not. sib%g(i)%l(l)%equibdt%deadsfc_c14_notdone), &
+             '                      ', &
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_gain*pool_convertc14, &
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_loss*pool_convertc14, &
+             sib%g(i)%l(l)%equibdt%deadsfc_c14_ratio
+      print'(a,2f10.6,a,l,a,2f12.4,1f9.4)','--> SoilC14 Tot:', &
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_init*pool_convertc14, &
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_end*pool_convertc14,   &
+             '             ', &
+             (.not. sib%g(i)%l(l)%equibdt%deadsoil_c14_notdone), &
+             '                      ', &
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_gain*pool_convertc14, &
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_loss*pool_convertc14, &
+             sib%g(i)%l(l)%equibdt%deadsoil_c14_ratio
 
       !...Print climatology information
       IF (pft_pmeth(pnum) .eq. pmeth_stg) THEN
@@ -1245,7 +1527,7 @@ if (.not. spinup_done) then
                sib%g(i)%l(l)%poollt%poolpftp(:) = sib%g(i)%l(l)%poollt%poolpft(:)
 
                !...reset dead pools
-               do n=1,npoollu/2 !1,6
+               do n=1,npoollu/3 !1,6
                   sib%g(i)%l(l)%equibdt%poollu_init(n) = &
                       sib%g(i)%l(l)%equibdt%poollu_equib(n)
                   sib%g(i)%l(l)%pooldt%poollu(n) = &
@@ -1255,7 +1537,7 @@ if (.not. spinup_done) then
                   sib%g(i)%l(l)%equibdt%poollu_max(n) = &
                       sib%g(i)%l(l)%equibdt%poollu_equib(n)
 
-                  do s=1,pool_indx_lay(n+npoolpft/2) !(6,11)->pool_indx_lay either 1 or 10
+                  do s=1,pool_indx_lay(n+npoolpft/3) !(6,11)->pool_indx_lay either 1 or 10
                   !pool_indx_lay(ntpool), poollu_lay(npoollu,nsoil)
                       sib%g(i)%l(l)%pooldt%poollu_lay(n,s) = &
                               sib%g(i)%l(l)%equibdt%poollu_equib(n) * &
@@ -1263,9 +1545,9 @@ if (.not. spinup_done) then
                    enddo
                    sib%g(i)%l(l)%equibdt%poollu_totgain(n) = dzero
                    sib%g(i)%l(l)%equibdt%poollu_totloss(n) = dzero
-               enddo !n=1,npoollu/2
+               enddo !n=1,npoollu/3
                !..same as above but for C13 pools
-               do n=npoollu/2+1,npoollu !7,12
+               do n=npoollu/3+1,2*npoollu/3 !7,12
                   sib%g(i)%l(l)%equibdt%poollu_init(n) = &
                       sib%g(i)%l(l)%equibdt%poollu_equib(n)
                   sib%g(i)%l(l)%pooldt%poollu(n) = &
@@ -1275,14 +1557,33 @@ if (.not. spinup_done) then
                   sib%g(i)%l(l)%equibdt%poollu_max(n) = &
                       sib%g(i)%l(l)%equibdt%poollu_equib(n)
 
-                  do s=1,pool_indx_lay(n+npoolpft) !(17,22)->pool_indx_lay either 1 or 10
+                  do s=1,pool_indx_lay(n+2*npoolpft/3) !(17,22)->pool_indx_lay either 1 or 10
                       sib%g(i)%l(l)%pooldt%poollu_lay(n,s) = &
                               sib%g(i)%l(l)%equibdt%poollu_equib(n) * &
                               sib%g(i)%l(l)%pooldt%poollu_flay(n,s)
                    enddo
                    sib%g(i)%l(l)%equibdt%poollu_totgain(n) = dzero
                    sib%g(i)%l(l)%equibdt%poollu_totloss(n) = dzero
-               enddo !n=1,npoollu
+                enddo !n=npoollu/3+1,2*npoollu/3
+               !..same as above but for C14 pools
+               do n=2*npoollu/3+1,npoollu !13,18
+                  sib%g(i)%l(l)%equibdt%poollu_init(n) = &
+                      sib%g(i)%l(l)%equibdt%poollu_equib(n)
+                  sib%g(i)%l(l)%pooldt%poollu(n) = &
+                      sib%g(i)%l(l)%equibdt%poollu_equib(n)
+                  sib%g(i)%l(l)%equibdt%poollu_min(n) = &
+                      sib%g(i)%l(l)%equibdt%poollu_equib(n)
+                  sib%g(i)%l(l)%equibdt%poollu_max(n) = &
+                      sib%g(i)%l(l)%equibdt%poollu_equib(n)
+
+                  do s=1,pool_indx_lay(n+npoolpft) !(28,33)->pool_indx_lay either 1 or 10
+                      sib%g(i)%l(l)%pooldt%poollu_lay(n,s) = &
+                              sib%g(i)%l(l)%equibdt%poollu_equib(n) * &
+                              sib%g(i)%l(l)%pooldt%poollu_flay(n,s)
+                   enddo
+                   sib%g(i)%l(l)%equibdt%poollu_totgain(n) = dzero
+                   sib%g(i)%l(l)%equibdt%poollu_totloss(n) = dzero
+                enddo !2*npoollu/3+1,npoollu
    
                sib%g(i)%l(l)%pooldt%poollup(:) = sib%g(i)%l(l)%pooldt%poollu(:)
        

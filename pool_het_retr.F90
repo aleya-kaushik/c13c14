@@ -20,13 +20,15 @@ use module_param, only: pool_param
 use module_poolinfo, only: &
      pool_indx_lay, pool_indx_sfc, &
      pool_indx_soil, &
-     pool_indx_sfcc13, pool_indx_soilc13
+     pool_indx_sfcc13, pool_indx_soilc13, &
+     pool_indx_sfcc14, pool_indx_soilc14
 use module_sib, only: &
      poold_type, fract_type
 use module_sibconst, only: &
      nsoil, npoolpft, npoollu, &
      npoolsfc, npoolsoil, &
-     npoolsfcc13, npoolsoilc13
+     npoolsfcc13, npoolsoilc13, &
+     npoolsfcc14, npoolsoilc14
 use module_time, only: dtsib
 
 implicit none
@@ -82,6 +84,9 @@ pooldt%resp_soilnr_lay = dzero
 pooldt%resp_hetc13 = dzero
 pooldt%resp_soilnrc13 = dzero
 pooldt%resp_soilnrc13_lay = dzero
+pooldt%resp_hetc14 = dzero
+pooldt%resp_soilnrc14 = dzero
+pooldt%resp_soilnrc14_lay = dzero
 
 !...Set Local Variables
 temp_loss_lay(:,:) = dzero
@@ -194,18 +199,18 @@ do n=1,npoolsfc
     nref = pool_indx_sfc(n) !6-8
     do s=1,pool_indx_lay(nref)
         !pooldt%kratert_lay(npoollu,nsoil)
-        pooldt%kratert_lay(nref-npoolpft/2,s) = & ! -5 (npoolpft=10), indexes 1-3
+        pooldt%kratert_lay(nref-npoolpft/3,s) = & ! -5 = indexes 1-3 dead pools
             pooldt%mhrt_sfc_scale*poolcont%k_rate(nref)
-        !k_rate is indexed as (ntpool)
+        !k_rate is indexed as (ntpool), npoolpft=15 with C14
      enddo
 enddo
 
 !...soil pools
 do n=1,npoolsoil
     nref=pool_indx_soil(n) ! 2,3 and 9-11
-    if (nref .gt. npoolpft/2) then ! gt 5
+    if (nref .gt. npoolpft/3) then ! gt 5 = dead soil pools
         do s=1,pool_indx_lay(nref)
-            pooldt%kratert_lay(nref-npoolpft/2,s) = & !4-6 dead pools
+            pooldt%kratert_lay(nref-npoolpft/3,s) = & !-5 = 4-6 dead pools
                 pooldt%mhrt_soil_scale_lay(s)*poolcont%k_rate(nref)
         enddo
     endif
@@ -215,7 +220,7 @@ enddo
 do n=1,npoolsfcc13
     nref = pool_indx_sfcc13(n) !17-19
     do s=1,pool_indx_lay(nref)
-        pooldt%kratert_lay(nref-npoolpft,s) = & ! -10, indexes 7-9 dead pools
+        pooldt%kratert_lay(nref-2*npoolpft/3,s) = & ! -10, indexes 7-9 dead pools
             pooldt%mhrt_sfc_scale*poolcont%k_rate(nref)
      enddo
 enddo
@@ -223,29 +228,55 @@ enddo
 !...soil C-13 pools
 do n=1,npoolsoilc13
     nref=pool_indx_soilc13(n) !13,14 and 20-22 
-    if (nref .gt. (npoolpft+6)) then !gt 16
+    if (nref .gt. (npoolpft+1)) then !gt 16 = dead soil C13 pools
         do s=1,pool_indx_lay(nref)
-            pooldt%kratert_lay(nref-npoolpft,s) = & !10-12 dead pools
+            pooldt%kratert_lay(nref-2*npoolpft/3,s) = & !-10, indexes 10-12 dead pools
                 pooldt%mhrt_soil_scale_lay(s)*poolcont%k_rate(nref)
         enddo
     endif
 enddo
 
+!...surface C14 pools
+do n=1,npoolsfcc14
+    nref = pool_indx_sfcc14(n) !28-30
+    do s=1,pool_indx_lay(nref)
+        pooldt%kratert_lay(nref-npoolpft,s) = & ! -15, indexes 13-15 dead pools
+            pooldt%mhrt_sfc_scale*poolcont%k_rate(nref)
+     enddo
+enddo
+
+!...soil C-14 pools
+do n=1,npoolsoilc14
+    nref=pool_indx_soilc14(n) !24,25 and 31-33
+    if (nref .gt. (npoolpft+12)) then !gt 27
+        do s=1,pool_indx_lay(nref)
+            pooldt%kratert_lay(nref-npoolpft,s) = & !-15, indexes 16-18 dead pools
+                pooldt%mhrt_soil_scale_lay(s)*poolcont%k_rate(nref)
+        enddo
+    endif
+enddo
+
+
 !----Surface/Soil Losses from Heterotrophic Respiration-----
-do n=1,npoollu/2 !npoollu=12 dead pools, 1-6 total C dead pools
-    do s=1,pool_indx_lay(npoolpft/2+n) !npoolpft=10, index 5+n: 6-11 ntpool
+do n=1,npoollu/3 !npoollu=18 dead pools, 1-6 total C dead pools
+    do s=1,pool_indx_lay(npoolpft/3+n) !npoolpft=15, index 5+n: 6-11 ntpool
         temp_loss_lay(n,s) = pooldt%poollu_lay(n,s) &
                            * pooldt%kratert_lay(n,s)
     enddo
 enddo
 
 !...loop through C-13 pools
-do n=npoollu/2+1,npoollu !12 dead pools, 7-12 C-13 dead pools
+do n=npoollu/3+1,2*npoollu/3 !18 dead pools, 7-12 C-13 dead pools
     tcref=n-6 !totC pools (1,6)
-    do s=1,pool_indx_lay(npoolpft+n) !index 10+n, pool_indx_lay(17-22) ntpool
-!        temp_loss_lay(n,s) = pooldt%poollu_lay(n,s) & !(npoollu,nsoil)
-!                           * pooldt%kratert_lay(n,s) !(npoollu,nsoil)
-        !temp_loss_lay(n,s) = fract%rcpoolfac * temp_loss_lay(tcref,s)
+    do s=1,pool_indx_lay(2*npoolpft/3+n) !index 10+n, pool_indx_lay(17-22) ntpool
+        temp_loss_lay(n,s) = pooldt%rcpoollu_lay(n,s) * temp_loss_lay(tcref,s)
+    enddo
+enddo
+
+!...loop through C-14 pools
+do n=2*npoollu/3+1,npoollu !18 dead pools, 13-18 C-13 dead pools
+    tcref=n-12 !totC pools (1,6)
+    do s=1,pool_indx_lay(npoolpft+n) !index 15+n, pool_indx_lay(28-33) ntpool
         temp_loss_lay(n,s) = pooldt%rcpoollu_lay(n,s) * temp_loss_lay(tcref,s)
     enddo
 enddo
@@ -253,11 +284,11 @@ enddo
 !-----Respiration Fluxes and Carbon Transfers-----
 !...j is the sending/from pool
 !...k is the recieving/to pool
-do j=1,npoollu/2 !npoollu=12, (1,6) dead pools
-   jref=j+npoolpft/2 ! npoolpft=10, (6,11) from ntpool 
+do j=1,npoollu/3 !npoollu=18, (1,6) dead pools
+   jref=j+npoolpft/3 ! npoolpft=15, +5=(6,11) from ntpool 
 
-    do k=1,npoollu/2 ! (1,6) dead pools
-       kref=k+npoolpft/2 ! (6,11) ntpool
+    do k=1,npoollu/3 ! (1,6) dead pools
+       kref=k+npoolpft/3 ! +5=(6,11) ntpool
        if (poolcont%pool_trans_frac(jref,kref) > dzero) then
           !.....transfer/respiration losses
          do s=1,pool_indx_lay(jref)
@@ -308,11 +339,11 @@ do j=1,npoollu/2 !npoollu=12, (1,6) dead pools
 enddo  !j=1,npoollu
 
 !...same calculations as above but for C-13 pools
-do j=npoollu/2+1,npoollu !(7,12) npoollu dead pools
-   jref=j+npoolpft !(17,22) ntpool
+do j=npoollu/3+1,2*npoollu/3 !(7,12) npoollu dead pools
+   jref=j+2*npoolpft/3 !(17,22) ntpool
 
-    do k=npoollu/2+1,npoollu !7,12 npoollu dead pools
-       kref=k+npoolpft !(17,22) ntpool
+    do k=npoollu/3+1,2*npoollu/3 !7,12 npoollu dead pools
+       kref=k+2*npoolpft/3 !(17,22) ntpool
        if (poolcont%pool_trans_frac(jref,kref) > dzero) then
           !.....transfer/respiration losses
          do s=1,pool_indx_lay(jref)
@@ -363,12 +394,68 @@ do j=npoollu/2+1,npoollu !(7,12) npoollu dead pools
 enddo  !j=1,npoollu
 ENDIF !respire/transfer only if pools > dzero
 
+!...same calculations as above but for C-14 pools
+do j=2*npoollu/3+1,npoollu !(13,18) npoollu dead pools
+   jref=j+npoolpft !(28,33) ntpool
+
+    do k=2*npoollu/3+1,npoollu !13,18 npoollu dead pools
+       kref=k+npoolpft !(28,33) ntpool
+       if (poolcont%pool_trans_frac(jref,kref) > dzero) then
+          !.....transfer/respiration losses
+         do s=1,pool_indx_lay(jref)
+             pooldt%loss_resp_lay(j,s) = & !loss_resp_lay(npoollu,nsoil)
+                 pooldt%loss_resp_lay(j,s) &
+                 + temp_loss_lay(j,s) & !temp_loss_lay(npoollu,nsoil)
+                 * poolcont%dresp_eff(j,k) & !dresp_eff(npoollu,npoollu)
+                 * poolcont%pool_trans_frac(jref,kref) !*frac(ntpool,ntpool)
+
+             pooldt%loss_trans_lay(j,s) = & !npoollu,nsoil
+                 pooldt%loss_trans_lay(j,s) &
+                  + temp_loss_lay(j,s) &
+                  * (1. - poolcont%dresp_eff(j,k)) &
+                  * poolcont%pool_trans_frac(jref,kref)
+          enddo
+
+         !.....transfer gains
+         if ((pool_indx_lay(jref) .eq. 1) .and. &
+             (pool_indx_lay(kref) .eq. 1)) then
+             pooldt%gain_transd_lay(k,1) = & !npoollu,nsoil
+                pooldt%gain_transd_lay(k,1) &
+                + temp_loss_lay(j,1)  &
+                 * (1. - poolcont%dresp_eff(j,k)) &
+                 * poolcont%pool_trans_frac(jref,kref)
+         elseif ((pool_indx_lay(jref) .eq. 1) .and. &
+                 (pool_indx_lay(kref) .eq. nsoil)) then
+                do s=1,nsoil
+                   pooldt%gain_transd_lay(k,s) =  &
+                      pooldt%gain_transd_lay(k,s) &
+                      + temp_loss_lay(j,1) * rootf_lay(s)  &
+                      * (1. - poolcont%dresp_eff(j,k)) &
+                      * poolcont%pool_trans_frac(jref,kref)
+                enddo
+         elseif ((pool_indx_lay(jref) .eq. nsoil) .and. &
+                 (pool_indx_lay(kref) .eq. nsoil)) then
+                 pooldt%gain_transd_lay(k,:) = &
+                      pooldt%gain_transd_lay(k,:) &
+                      + temp_loss_lay(j,:) &
+                      * (1. - poolcont%dresp_eff(j,k)) &
+                      * poolcont%pool_trans_frac(jref,kref)
+          else
+                print*,'Mismatching levels between C14 pool transfers.'
+                print*,'Stopping in c14 pool_resp_het.'
+                stop
+          endif !transfer gains
+        endif !trans frac > 0
+    enddo  !k=1,npoollu
+enddo  !j=1,npoollu
+ENDIF !respire/transfer only if pools > dzero
+
 !-----Accumulate/Combine Fluxes-----
 !...Total heterotrophic respiration
-do j=1,npoollu/2 !(1,6)
+do j=1,npoollu/3 !(1,6)
    pooldt%resp_het = pooldt%resp_het  &
           + sum(pooldt%loss_resp_lay(j,:))
-   IF (pool_indx_lay(j+npoolpft/2) .gt. 1) THEN !6,11
+   IF (pool_indx_lay(j+npoolpft/3) .gt. 1) THEN !6,11
       pooldt%resp_soil = pooldt%resp_soil &
           + sum(pooldt%loss_resp_lay(j,:))
       pooldt%resp_soil_lay(:) = pooldt%resp_soil_lay(:) &
@@ -381,10 +468,10 @@ do j=1,npoollu/2 !(1,6)
 enddo
 
 !...same calculations but for C-13 pools
-do j=npoollu/2+1,npoollu !(7,12)
+do j=npoollu/3+1,2*npoollu/3 !(7,12)
    pooldt%resp_hetc13 = pooldt%resp_hetc13  &
           + sum(pooldt%loss_resp_lay(j,:))
-   IF (pool_indx_lay(j+npoolpft) .gt. 1) THEN !17,22
+   IF (pool_indx_lay(j+2*npoolpft/3) .gt. 1) THEN !17,22
       pooldt%resp_soilc13 = pooldt%resp_soilc13 &
           + sum(pooldt%loss_resp_lay(j,:))
       pooldt%resp_soilc13_lay(:) = pooldt%resp_soilc13_lay(:) &
@@ -396,6 +483,21 @@ do j=npoollu/2+1,npoollu !(7,12)
    ENDIF
 enddo
 
+!...same calculations but for C-14 pools
+do j=2*npoollu/3+1,npoollu !(13,18)
+   pooldt%resp_hetc14 = pooldt%resp_hetc14  &
+          + sum(pooldt%loss_resp_lay(j,:))
+   IF (pool_indx_lay(j+npoolpft) .gt. 1) THEN !28,33
+      pooldt%resp_soilc14 = pooldt%resp_soilc14 &
+          + sum(pooldt%loss_resp_lay(j,:))
+      pooldt%resp_soilc14_lay(:) = pooldt%resp_soilc14_lay(:) &
+          + pooldt%loss_resp_lay(j,:)
+      pooldt%resp_soilnrc14 = pooldt%resp_soilnrc14 &
+          + sum(pooldt%loss_resp_lay(j,:))
+      pooldt%resp_soilnrc14_lay(:) = pooldt%resp_soilnrc14_lay(:) &
+          + pooldt%loss_resp_lay(j,:)
+   ENDIF
+enddo
 
 !...Accumulate losses for pool updates
 pooldt%poollu_dgain = pooldt%poollu_dgain & !(npoollu,nsoil)

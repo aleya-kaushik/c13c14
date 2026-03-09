@@ -3,7 +3,8 @@
 !!===========================================
 subroutine pool_update( &
     sibpt, siblon, siblat, pref, &
-    assimin, c13assimin, laiin, fparin, &
+    assimin, c13assimin, c14assimin, & 
+    laiin, fparin, &
     equibdt, pooldt, equiblt, poollt, grz_transfer, &
     co2t, fract)
 !!==========================================
@@ -21,7 +22,7 @@ implicit none
 !...input values
 integer(i4), intent(in) :: sibpt, pref
 real(r4), intent(in) :: siblon, siblat
-real(r8), intent(in) :: assimin, laiin, fparin, c13assimin
+real(r8), intent(in) :: assimin, laiin, fparin, c13assimin, c14assimin
 real(r4), dimension(npoollu+2), intent(in) :: grz_transfer
 
 type(equibd_type), intent(inout) :: equibdt
@@ -33,7 +34,7 @@ type(fract_type), intent(in) :: fract
 
 !...local variables
 integer(i4) :: p,tcref
-real(r8) :: tmptotc,tmpc13,tmpdiff
+real(r8) :: tmptotc,tmpc13,tmpdiff,tmpc14
 real(r8) :: dnrzero=1.D-10
 !------------------------------------------------
 !Update pools and equilibrium total gains/losses
@@ -43,26 +44,10 @@ real(r8) :: dnrzero=1.D-10
 
 !...dead pools
 
-do p=1,npoollu/2
+do p=1,npoollu
   pooldt%poollu_lay(p,:) = pooldt%poollu_lay(p,:) &
      + pooldt%poollu_dgain(p,:) - pooldt%poollu_dloss(p,:)
 enddo
-
-do p=npoollu/2+1,npoollu
-  pooldt%poollu_lay(p,:) = pooldt%poollu_lay(p,:) &
-     + pooldt%poollu_dgain(p,:) - pooldt%poollu_dloss(p,:)
-  !tcref=p-6
-  !tmptotc = sum(pooldt%poollu_lay(tcref,:)) &
-  !   + sum(pooldt%poollu_dgain(tcref,:)) - sum(pooldt%poollu_dloss(tcref,:))
-  !tmpc13 = sum(pooldt%poollu_lay(p,:)) &
-  !   + sum(pooldt%poollu_dgain(p,:)) - sum(pooldt%poollu_dloss(p,:))
-  !tmpdiff = abs((tmpc13/tmptotc) - pooldt%rcpoollu(p)) 
-  !if (tmpdiff .gt. dnrzero) then
-  !    pooldt%poollu_lay(p,:) = fract%rcpoolfac*(pooldt%poollu_lay(p,:) &
-  !         + pooldt%poollu_dgain(p,:) - pooldt%poollu_dloss(p,:))
-  !endif
-enddo
-
 
 do p=1,npoollu
    equibdt%poollu_totgain(p) = equibdt%poollu_totgain(p) &
@@ -78,25 +63,9 @@ do p=1,npoollu
 enddo
 
 !...live pools
-do p=1,npoolpft/2
+do p=1,npoolpft
   poollt%poolpft_lay(p,:) = poollt%poolpft_lay(p,:) &
    + poollt%poolpft_dgain(p,:) - poollt%poolpft_dloss(p,:)
-enddo
-
-do p=npoolpft/2+1,npoolpft
-  poollt%poolpft_lay(p,:) = poollt%poolpft_lay(p,:) &
-   + poollt%poolpft_dgain(p,:) - poollt%poolpft_dloss(p,:)
-
-!  tcref=p-5
-!  tmptotc = sum(poollt%poolpft_lay(tcref,:)) &
-!     + sum(poollt%poolpft_dgain(tcref,:)) - sum(poollt%poolpft_dloss(tcref,:))
-!  tmpc13 = sum(poollt%poolpft_lay(p,:)) &
-!     + sum(poollt%poolpft_dgain(p,:)) - sum(poollt%poolpft_dloss(p,:))
-!  tmpdiff = abs((tmpc13/tmptotc) - poollt%rcpoolpft(p)) 
-!  if ((tmpdiff .gt. dnrzero) .and. (fract%rcpoolfac .gt. dzero)) then
-!      poollt%poolpft_lay(p,:) = fract%rcpoolfac*(poollt%poolpft_lay(p,:) &
-!           + poollt%poolpft_dgain(p,:) - poollt%poolpft_dloss(p,:))
-!  endif
 enddo
 
 do p=1,npoolpft
@@ -112,8 +81,8 @@ do p=1,npoolpft
        poollt%poolpft(p))
 
 !if (sum(poollt%rcpoolpft_lay(p,:)) .gt. 1.) then
-if ( (sum(poollt%poolpft_dloss(p,:)) .gt. 10) .or. &
-     (sum(poollt%poolpft_dloss(p,:)) .lt. -10)) then
+!if ( (sum(poollt%poolpft_dloss(p,:)) .gt. 10) .or. &
+!     (sum(poollt%poolpft_dloss(p,:)) .lt. -10)) then
 !    print*,' '
 !    print*,'code: pool_update'
 !    print*,'p: ',p
@@ -122,14 +91,13 @@ if ( (sum(poollt%poolpft_dloss(p,:)) .gt. 10) .or. &
 !    print*,'poolpft(p,p+1) :',&
 !        sum(poollt%poolpft_lay(p,:)),sum(poollt%poolpft_lay(p+1,:))
 !    print*,' '
-endif
-
+!endif
 
 enddo
 
 !...check carbon balance
 call balan_carbon(sibpt, siblon, siblat, pref, &
-     assimin, c13assimin, laiin, fparin, &
+     assimin, c13assimin, c14assimin, laiin, fparin, &
      pooldt, poollt, grz_transfer, co2t, fract)
 
 !...reset
