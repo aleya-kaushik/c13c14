@@ -1025,6 +1025,30 @@ do v=1, sibr_nvar
           ENDIF
           deallocate(dvar2d)
 
+      case (51)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_hrvst
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
       case (60)
           CHECK( nf90_redef(ncid) )
           status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
@@ -3122,7 +3146,7 @@ do v=1, sibr_nvar
           dvar2d(:,:) = dzero
           do i=1,subcount
              do l=1,sib%g(i)%g_nlu
-                dvar2d(i,l) = sib%g(i)%l(l)%fract%rcpoolfire
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%rcpoolfirec13
              enddo
           enddo
           status = nf90_put_var(ncid,varid,dvar2d)
@@ -3315,6 +3339,590 @@ do v=1, sibr_nvar
           do i=1,subcount 
              do l=1,sib%g(i)%g_nlu
                 dvar2d(i,l) = sib%g(i)%l(l)%fract%c12resptot
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (175)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_hrvstc13
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+
+
+
+
+      case (188)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid,nppdid,nsdid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar4d(subcount,nlu,npoolpft,nsoil))
+          dvar4d(:,:,:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                do p=1,npoolpft
+                   dvar4d(i,l,p,:) = sib%g(i)%l(l)%poollt%loss_raddecay_lay(p,:)
+                enddo
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar4d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar4d)
+
+      case (189)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid,nlpdid,nsdid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar4d(subcount,nlu,npoollu,nsoil))
+          dvar4d(:,:,:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                do p=1,npoollu
+                   dvar4d(i,l,p,:) = sib%g(i)%l(l)%pooldt%loss_raddecay_lay(p,:)
+                enddo
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar4d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar4d)
+
+      case (190)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid,ncpdidc14/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar3d(subcount,nlu,npoolcanc14))
+          dvar3d(:,:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar3d(i,l,:) = sib%g(i)%l(l)%poollt%loss_grzc14(:)
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar3d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar3d)
+
+      case (191)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%rcpoolfirec14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (192)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%rcassimfacc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (193)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%poolemisc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (194)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%c14alpha
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (195)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%d14cca
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (196)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%rcassimc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (197)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%c14assim
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (198)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%c14assimd
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (199)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_nvegc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (200)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_leafc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (201)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_rootc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (202)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_growc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (203)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_mntnc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (204)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_autoc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (205)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%pooldt%resp_soilc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (206)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%pooldt%resp_hetc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (207)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_grzc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (208)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%poollt%resp_hrvstc14
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (209)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%c14ca
+             enddo
+          enddo
+          status = nf90_put_var(ncid,varid,dvar2d)
+          IF (status .ne. nf90_noerr) THEN
+             print*,'Error Putting Variable: ',sibr_vname(v)
+             stop
+          ENDIF
+          deallocate(dvar2d)
+
+      case (210)
+          CHECK( nf90_redef(ncid) )
+          status = nf90_def_var(ncid, trim(sibr_vname(v)), nf90_double, &
+                        (/nsibdid,nludid/), varid)
+          IF (status .ne. nf90_noerr) THEN
+              print*,'Error Defining Variable: ',sibr_vname(v)
+              stop
+          ENDIF
+
+          CHECK( nf90_enddef(ncid) )
+          allocate(dvar2d(subcount,nlu))
+          dvar2d(:,:) = dzero
+          do i=1,subcount
+             do l=1,sib%g(i)%g_nlu
+                dvar2d(i,l) = sib%g(i)%l(l)%fract%c14resptot
              enddo
           enddo
           status = nf90_put_var(ncid,varid,dvar2d)

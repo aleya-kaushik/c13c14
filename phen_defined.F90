@@ -79,8 +79,10 @@ pooldt%gain_hrvst_lay = dzero
 poollt%loss_hrvst_lay = dzero
 poollt%resp_hrvst = dzero
 poollt%resp_hrvstc13 = dzero
+poollt%resp_hrvstc14 = dzero
 poollt%rmvd_hrvst = dzero
 poollt%rmvd_hrvstc13 = dzero
+poollt%rmvd_hrvstc14 = dzero
 phent%phen_istage = phencont%npstg
 
 if ((phent%phenflag_gsspass) .and. &

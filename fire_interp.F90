@@ -58,7 +58,7 @@ real(r8) :: tfarea
 integer(i4), dimension(:), allocatable :: tsortref
 real(r8), dimension(:), allocatable :: flossb
 real(r8), dimension(:,:), allocatable :: flosspft, flosslu
-real(r8), dimension(:), allocatable :: flossbc13
+real(r8), dimension(:), allocatable :: flossbc13, flossbc14
 
 !...net balance variables
 logical :: fb_err
@@ -66,13 +66,16 @@ logical :: fb_err
 !...misc variables
 integer :: ido, idoc, l, p, s, myl
 integer :: loc_c3g, loc_c4g
-real(r8) :: myemis, tempemis, tempemisc13
+real(r8) :: myemis, tempemis, tempemisc13, tempemisc14
 real(r8) :: tmppooltot, tmppoolc13, tempemispoolc13, rcemispoolc13
+real(r8) :: tempemispoolc14, rcemispoolc14
 integer(i4), dimension(1) :: tempstore
 integer(i4) :: lp,frp,crp,wp,pp
 integer(i4) :: lpc13,frpc13,crpc13,wpc13,ppc13
+integer(i4) :: lpc14,frpc14,crpc14,wpc14,ppc14
 integer(i4) :: cdbp, metlp, strlp, slitp, slowp, armp
 integer(i4) :: cdbpc13, metlpc13, strlpc13, slitpc13, slowpc13, armpc13
+integer(i4) :: cdbpc14, metlpc14, strlpc14, slitpc14, slowpc14, armpc14
 !real(r8) :: rcpooltest
 
 !-------Calculatae quasi-equlibrium pools------------
@@ -82,25 +85,38 @@ crp = pool_indx_croot
 wp =  pool_indx_stwd
 pp =  pool_indx_prod
 
-lpc13 =  pool_indx_leaf_c13-6
-frpc13 = pool_indx_froot_c13-6
-crpc13 = pool_indx_croot_c13-6
-wpc13 =  pool_indx_stwd_c13-6
-ppc13 =  pool_indx_prod_c13-6
+lpc13 =  pool_indx_leaf_c13-npoollu/3
+frpc13 = pool_indx_froot_c13-npoollu/3
+crpc13 = pool_indx_croot_c13-npoollu/3
+wpc13 =  pool_indx_stwd_c13-npoollu/3
+ppc13 =  pool_indx_prod_c13-npoollu/3
 
-cdbp  = pool_indx_cdb-npoolpft/2
-metlp = pool_indx_metl-npoolpft/2
-strlp = pool_indx_strl-npoolpft/2
-slitp = pool_indx_slit-npoolpft/2
-slowp = pool_indx_slow-npoolpft/2
-armp  = pool_indx_arm-npoolpft/2
+lpc14 =  pool_indx_leaf_c14-(2*(npoollu/3)) !ntpool index 23, npoolpft index 11
+frpc14 = pool_indx_froot_c14-(2*(npoollu/3)) !ntpool index 24, npoolpft index 12
+crpc14 = pool_indx_croot_c14-(2*(npoollu/3)) !ntpool index 25, npoolpft index 13
+wpc14 =  pool_indx_stwd_c14-(2*(npoollu/3)) !ntpool index 26, npoolpft index 14
+ppc14 =  pool_indx_prod_c14-(2*(npoollu/3)) !ntpool index 27, npoolpft index 15
 
-cdbpc13  = pool_indx_cdb_c13 - npoolpft
-metlpc13  = pool_indx_metl_c13 - npoolpft
-strlpc13  = pool_indx_strl_c13 - npoolpft
-slitpc13  = pool_indx_slit_c13 - npoolpft
-slowpc13 = pool_indx_slow_c13 - npoolpft
-armpc13  = pool_indx_arm_c13 - npoolpft
+cdbp  = pool_indx_cdb-npoolpft/3
+metlp = pool_indx_metl-npoolpft/3
+strlp = pool_indx_strl-npoolpft/3
+slitp = pool_indx_slit-npoolpft/3
+slowp = pool_indx_slow-npoolpft/3
+armp  = pool_indx_arm-npoolpft/3
+
+cdbpc13  = pool_indx_cdb_c13 - (2*(npoolpft/3))
+metlpc13  = pool_indx_metl_c13 - (2*(npoolpft/3))
+strlpc13  = pool_indx_strl_c13 - (2*(npoolpft/3))
+slitpc13  = pool_indx_slit_c13 - (2*(npoolpft/3))
+slowpc13 = pool_indx_slow_c13 - (2*(npoolpft/3))
+armpc13  = pool_indx_arm_c13 - (2*(npoolpft/3))
+
+cdbpc14  = pool_indx_cdb_c14 - npoolpft !ntpool index 28, npoollu index 13
+metlpc14  = pool_indx_metl_c14 - npoolpft !ntpool index 29, npoollu index 14
+strlpc14  = pool_indx_strl_c14 - npoolpft !ntpool index 30, npoollu index 15
+slitpc14  = pool_indx_slit_c14 - npoolpft !ntpool index 31, npoollu index 16
+slowpc14 = pool_indx_slow_c14 - npoolpft !ntpool index 32, npoollu index 17
+armpc14  = pool_indx_arm_c14 - npoolpft !ntpool index 33, npoollu index 18
 
 
 !! print statements to check poolpft_loss and poolpft_lay
@@ -173,7 +189,7 @@ if (sibg%gprogt%firec .gt. dzero) then
 
    do l=1, ntpft
      !...calculate total above-ground biomass (m-2)
-      do p=1, npoolpft/2 ! 1,5 npoolpft
+      do p=1, npoolpft/3 ! 1,5 npoolpft
          if (pool_indx_lay(p) .eq. 1) then !1,5 ntpool
             tpagb(l) = tpagb(l) + tparea(l) &
                  * (sibg%l(l)%poollt%poolpft(p) &
@@ -181,7 +197,7 @@ if (sibg%gprogt%firec .gt. dzero) then
                  - poolcon(tpnum(l))%poolpft_min(p))
          endif
       enddo
-      do p=1, npoollu/2 !1,6 npoollu
+      do p=1, npoollu/3 !1,6 npoollu
          if (pool_indx_lay(p+npoolpft/2) .eq. 1) then ! 6,11 ntpool
             tpagb(l) = tpagb(l) + tparea(l) &
                  * (sibg%l(l)%pooldt%poollu(p) &
@@ -302,6 +318,9 @@ if (sibg%gprogt%firec .gt. dzero) then
   
    allocate(flossbc13(ntpft))
    flossbc13(:) = dzero
+
+   allocate(flossbc14(ntpft))
+   flossbc14(:) = dzero
  
    do l=ido,1,-1
       myl = tsortref(l)
@@ -310,13 +329,17 @@ if (sibg%gprogt%firec .gt. dzero) then
       tempemis = totemis*(tparea(myl)/tfarea)
       curemis = tempemis
 
-      tempemisc13 = sibg%l(myl)%fract%rcpoolfire*tempemis
+      tempemisc13 = sibg%l(myl)%fract%rcpoolfirec13*tempemis
       curemisc13 = tempemisc13
       
+      tempemisc14 = sibg%l(myl)%fract%rcpoolfirec14*tempemis
+      curemisc14 = tempemisc14
+
       !... Iniital pool totals come from c13_iso_calc 
       !... for sum of (lp+wp+cbdp+metlp+strlp)
       tmppooltot = sibg%l(myl)%fract%poolemistotC
       tmppoolc13 = sibg%l(myl)%fract%poolemisc13
+      tmppoolc14 = sibg%l(myl)%fract%poolemisc14
 
       !....remove C from leaf pool
       myemis = MIN(fire_leaff*tempemis, MAX(dzero, &
@@ -338,6 +361,14 @@ if (sibg%gprogt%firec .gt. dzero) then
            + sibg%l(myl)%poollt%rcpoolpft_lay(lpc13,1)*myemis
       curemisc13 = curemisc13 - sibg%l(myl)%poollt%rcpoolpft(lpc13)*myemis
 
+      flosspft(myl,lpc14) = sibg%l(myl)%poollt%rcpoolpft(lpc14)*myemis
+      sibg%l(myl)%poollt%loss_fire_lay(lpc14,1) = &
+           sibg%l(myl)%poollt%rcpoolpft_lay(lpc14,1)*myemis * dtisib
+      sibg%l(myl)%poollt%poolpft_dloss(lpc14,1) = &
+           sibg%l(myl)%poollt%poolpft_dloss(lpc14,1) &
+           + sibg%l(myl)%poollt%rcpoolpft_lay(lpc14,1)*myemis
+      curemisc14 = curemisc14 - sibg%l(myl)%poollt%rcpoolpft(lpc14)*myemis
+
       !....remove C from wood pool
       myemis = MIN(fire_stwdf*tempemis, MAX(dzero, &
            sibg%l(myl)%poollt%poolpft(wp) &
@@ -358,6 +389,14 @@ if (sibg%gprogt%firec .gt. dzero) then
            + sibg%l(myl)%poollt%rcpoolpft_lay(wpc13,1)*myemis
       curemisc13 = curemisc13 - sibg%l(myl)%poollt%rcpoolpft(wpc13)*myemis
 
+      flosspft(myl,wpc14) = sibg%l(myl)%poollt%rcpoolpft(wpc14)*myemis
+      sibg%l(myl)%poollt%loss_fire_lay(wpc14,1) = &
+           sibg%l(myl)%poollt%rcpoolpft_lay(wpc14,1)*myemis * dtisib
+      sibg%l(myl)%poollt%poolpft_dloss(wpc14,1) = &
+           sibg%l(myl)%poollt%poolpft_dloss(wpc14,1) &
+           + sibg%l(myl)%poollt%rcpoolpft_lay(wpc14,1)*myemis
+      curemisc14 = curemisc14 - sibg%l(myl)%poollt%rcpoolpft(wpc14)*myemis
+
       !....remove C from metabolic litter
       myemis = MIN(fire_metlf*tempemis, MAX(dzero, &
            sibg%l(myl)%pooldt%poollu(metlp) &
@@ -376,6 +415,14 @@ if (sibg%gprogt%firec .gt. dzero) then
            sibg%l(myl)%pooldt%poollu_dloss(metlpc13,1) &
            + sibg%l(myl)%pooldt%rcpoollu_lay(metlpc13,1)*myemis
       curemisc13 = curemisc13 - sibg%l(myl)%pooldt%rcpoollu(metlpc13)*myemis
+
+      flosslu(myl,metlpc14) = sibg%l(myl)%pooldt%rcpoollu(metlpc14)*myemis
+      sibg%l(myl)%pooldt%loss_fire_lay(metlpc14,1) = &
+           sibg%l(myl)%pooldt%rcpoollu_lay(metlpc14,1)*myemis * dtisib
+      sibg%l(myl)%pooldt%poollu_dloss(metlpc14,1) = &
+           sibg%l(myl)%pooldt%poollu_dloss(metlpc14,1) &
+           + sibg%l(myl)%pooldt%rcpoollu_lay(metlpc14,1)*myemis
+      curemisc14 = curemisc14 - sibg%l(myl)%pooldt%rcpoollu(metlpc14)*myemis
 
       !....remove C from structural litter
       myemis = MIN(fire_strlf*tempemis, MAX(dzero, &
@@ -396,6 +443,14 @@ if (sibg%gprogt%firec .gt. dzero) then
            + sibg%l(myl)%pooldt%rcpoollu_lay(strlpc13,1)*myemis
       curemisc13 = curemisc13 - sibg%l(myl)%pooldt%rcpoollu(strlpc13)*myemis
 
+      flosslu(myl,strlpc14) = sibg%l(myl)%pooldt%rcpoollu(strlpc14)*myemis
+      sibg%l(myl)%pooldt%loss_fire_lay(strlpc14,1) = &
+           sibg%l(myl)%pooldt%rcpoollu_lay(strlpc14,1)*myemis * dtisib
+      sibg%l(myl)%pooldt%poollu_dloss(strlpc14,1) = &
+           sibg%l(myl)%pooldt%poollu_dloss(strlpc14,1) &
+           + sibg%l(myl)%pooldt%rcpoollu_lay(strlpc14,1)*myemis
+      curemisc14 = curemisc14 - sibg%l(myl)%pooldt%rcpoollu(strlpc14)*myemis
+
       !....remove C from coarse dead biomass
       myemis = MIN(fire_cdbf*tempemis, MAX(dzero, &
            sibg%l(myl)%pooldt%poollu(cdbp) &
@@ -415,11 +470,20 @@ if (sibg%gprogt%firec .gt. dzero) then
            + sibg%l(myl)%pooldt%rcpoollu_lay(cdbpc13,1)*myemis
       curemisc13 = curemisc13 - sibg%l(myl)%pooldt%rcpoollu(cdbpc13)*myemis
 
+      flosslu(myl,cdbpc14) = sibg%l(myl)%pooldt%rcpoollu(cdbpc14)*myemis
+      sibg%l(myl)%pooldt%loss_fire_lay(cdbpc14,1) = &
+             sibg%l(myl)%pooldt%rcpoollu_lay(cdbpc14,1)*myemis * dtisib
+      sibg%l(myl)%pooldt%poollu_dloss(cdbpc14,1) = &
+           sibg%l(myl)%pooldt%poollu_dloss(cdbpc14,1) &
+           + sibg%l(myl)%pooldt%rcpoollu_lay(cdbpc14,1)*myemis
+      curemisc14 = curemisc14 - sibg%l(myl)%pooldt%rcpoollu(cdbpc14)*myemis
+
       !...remove C from product
       IF (curemis .gt. dnzero) THEN
 
          tmppooltot = tmppooltot + sibg%l(myl)%poollt%curpoolpft(pp)
          tmppoolc13 = tmppoolc13 + sibg%l(myl)%poollt%curpoolpft(ppc13)
+         tmppoolc14 = tmppoolc14 + sibg%l(myl)%poollt%curpoolpft(ppc14)
 
          myemis = MIN(curemis, MAX(dzero, &
               sibg%l(myl)%poollt%poolpft(pp) &
@@ -439,13 +503,22 @@ if (sibg%gprogt%firec .gt. dzero) then
              sibg%l(myl)%poollt%poolpft_dloss(ppc13,1) &
              + sibg%l(myl)%poollt%rcpoolpft_lay(ppc13,1)*myemis
          curemisc13 = curemisc13 - sibg%l(myl)%poollt%rcpoolpft(ppc13)*myemis
+
+         flosspft(myl,ppc14) = sibg%l(myl)%poollt%rcpoolpft(ppc14)*myemis
+         sibg%l(myl)%poollt%loss_fire_lay(ppc14,1) = &
+               sibg%l(myl)%poollt%rcpoolpft_lay(ppc14,1)*myemis * dtisib
+         sibg%l(myl)%poollt%poolpft_dloss(ppc14,1) = &
+             sibg%l(myl)%poollt%poolpft_dloss(ppc14,1) &
+             + sibg%l(myl)%poollt%rcpoolpft_lay(ppc14,1)*myemis
+         curemisc14 = curemisc14 - sibg%l(myl)%poollt%rcpoolpft(ppc14)*myemis
+
       ENDIF
       
       !...remove C from roots
       IF (curemis .gt. dnzero) THEN
-
          tmppooltot = tmppooltot + sibg%l(myl)%poollt%curpoolpft(frp)
          tmppoolc13 = tmppoolc13 + sibg%l(myl)%poollt%curpoolpft(frpc13)
+         tmppoolc14 = tmppoolc14 + sibg%l(myl)%poollt%curpoolpft(frpc14)
 
           myemis = MIN(curemis, MAX(dzero, &
                sibg%l(myl)%poollt%poolpft(frp) &
@@ -466,17 +539,27 @@ if (sibg%gprogt%firec .gt. dzero) then
                   sibg%l(myl)%poollt%poolpft_dloss(frpc13,s) &
                   + sibg%l(myl)%poollt%rcpoolpft_lay(frpc13,s)*myemis &
                   * sibg%l(myl)%poollt%poolpft_flay(frpc13,s)
+
+             sibg%l(myl)%poollt%loss_fire_lay(frpc14,s) = &
+                  sibg%l(myl)%poollt%rcpoolpft_lay(frpc14,s)*myemis &
+                  * dtisib * sibg%l(myl)%poollt%poolpft_flay(frpc14,s)
+             sibg%l(myl)%poollt%poolpft_dloss(frpc14,s) = &
+                  sibg%l(myl)%poollt%poolpft_dloss(frpc14,s) &
+                  + sibg%l(myl)%poollt%rcpoolpft_lay(frpc14,s)*myemis &
+                  * sibg%l(myl)%poollt%poolpft_flay(frpc14,s)
           ENDDO
           flosspft(myl,frp) = myemis
           flosspft(myl,frpc13) = sibg%l(myl)%poollt%rcpoolpft(frpc13)*myemis
+          flosspft(myl,frpc14) = sibg%l(myl)%poollt%rcpoolpft(frpc14)*myemis
           curemis = curemis - myemis
           curemisc13 = curemisc13 - sibg%l(myl)%poollt%rcpoolpft(frpc13)*myemis
+          curemisc14 = curemisc14 - sibg%l(myl)%poollt%rcpoolpft(frpc14)*myemis
        ENDIF
 
        IF (curemis .gt. dnzero) THEN        
-
          tmppooltot = tmppooltot + sibg%l(myl)%poollt%curpoolpft(crp)
          tmppoolc13 = tmppoolc13 + sibg%l(myl)%poollt%curpoolpft(crpc13)
+         tmppoolc14 = tmppoolc14 + sibg%l(myl)%poollt%curpoolpft(crpc14)
 
            myemis = MIN(curemis, MAX(dzero, &
                sibg%l(myl)%poollt%poolpft(crp) &
@@ -497,18 +580,28 @@ if (sibg%gprogt%firec .gt. dzero) then
                   sibg%l(myl)%poollt%poolpft_dloss(crpc13,s) &
                   + sibg%l(myl)%poollt%rcpoolpft_lay(crpc13,s)*myemis &
                   * sibg%l(myl)%poollt%poolpft_flay(crpc13,s)
+
+             sibg%l(myl)%poollt%loss_fire_lay(crpc14,s) = &
+                  sibg%l(myl)%poollt%rcpoolpft_lay(crpc14,s)*myemis &
+                  * dtisib * sibg%l(myl)%poollt%poolpft_flay(crpc14,s)
+             sibg%l(myl)%poollt%poolpft_dloss(crpc14,s) = &
+                  sibg%l(myl)%poollt%poolpft_dloss(crpc14,s) &
+                  + sibg%l(myl)%poollt%rcpoolpft_lay(crpc14,s)*myemis &
+                  * sibg%l(myl)%poollt%poolpft_flay(crpc14,s)
           ENDDO
           flosspft(myl,crp) = myemis
           flosspft(myl,crpc13) = sibg%l(myl)%poollt%rcpoolpft(crpc13)*myemis
+          flosspft(myl,crpc14) = sibg%l(myl)%poollt%rcpoolpft(crpc14)*myemis
           curemis = curemis - myemis
           curemisc13 = curemisc13 - sibg%l(myl)%poollt%rcpoolpft(crpc13)*myemis
+          curemisc14 = curemisc14 - sibg%l(myl)%poollt%rcpoolpft(crpc14)*myemis
        ENDIF
 
        !...remove C from soil litter
        IF (curemis .gt. dnzero) THEN
-
          tmppooltot = tmppooltot + sibg%l(myl)%pooldt%curpoollu(slitp)
          tmppoolc13 = tmppoolc13 + sibg%l(myl)%pooldt%curpoollu(slitpc13)
+         tmppoolc14 = tmppoolc14 + sibg%l(myl)%pooldt%curpoollu(slitpc14)
 
            myemis = MIN(curemis, MAX(dzero, &
                 sibg%l(myl)%pooldt%poollu(slitp) &
@@ -528,18 +621,28 @@ if (sibg%gprogt%firec .gt. dzero) then
                   sibg%l(myl)%pooldt%poollu_dloss(slitpc13,s) &
                   + sibg%l(myl)%pooldt%rcpoollu_lay(slitpc13,s)*myemis &
                   * sibg%l(myl)%pooldt%poollu_flay(slitpc13,s)
+
+             sibg%l(myl)%pooldt%loss_fire_lay(slitpc14,s) = &
+                  sibg%l(myl)%pooldt%rcpoollu_lay(slitpc14,s)*myemis &
+                  * dtisib * sibg%l(myl)%pooldt%poollu_flay(slitpc14,s)
+             sibg%l(myl)%pooldt%poollu_dloss(slitpc14,s) = &
+                  sibg%l(myl)%pooldt%poollu_dloss(slitpc14,s) &
+                  + sibg%l(myl)%pooldt%rcpoollu_lay(slitpc14,s)*myemis &
+                  * sibg%l(myl)%pooldt%poollu_flay(slitpc14,s)
           ENDDO
           flosslu(myl,slitp) = myemis
           flosslu(myl,slitpc13) = sibg%l(myl)%pooldt%rcpoollu(slitpc13)*myemis
+          flosslu(myl,slitpc14) = sibg%l(myl)%pooldt%rcpoollu(slitpc14)*myemis
           curemis = curemis - myemis
           curemisc13 = curemisc13 - sibg%l(myl)%pooldt%rcpoollu(slitpc13)*myemis
+          curemisc14 = curemisc14 - sibg%l(myl)%pooldt%rcpoollu(slitpc14)*myemis
       ENDIF
       
       !...remove C from soil slow
       IF (curemis .gt. dnzero) THEN
-
          tmppooltot = tmppooltot + sibg%l(myl)%pooldt%curpoollu(slowp)
          tmppoolc13 = tmppoolc13 + sibg%l(myl)%pooldt%curpoollu(slowpc13)
+         tmppoolc14 = tmppoolc14 + sibg%l(myl)%pooldt%curpoollu(slowpc14)
 
            myemis = MIN(curemis, MAX(dzero, &
                sibg%l(myl)%pooldt%poollu(slowp) &
@@ -559,18 +662,28 @@ if (sibg%gprogt%firec .gt. dzero) then
                   sibg%l(myl)%pooldt%poollu_dloss(slowpc13,s) &
                   + sibg%l(myl)%pooldt%rcpoollu_lay(slowpc13,s)*myemis &
                   * sibg%l(myl)%pooldt%poollu_flay(slowpc13,s)
+
+             sibg%l(myl)%pooldt%loss_fire_lay(slowpc14,s) = &
+                  sibg%l(myl)%pooldt%rcpoollu_lay(slowpc14,s)*myemis &
+                  * dtisib * sibg%l(myl)%pooldt%poollu_flay(slowpc14,s)
+             sibg%l(myl)%pooldt%poollu_dloss(slowpc14,s) = &
+                  sibg%l(myl)%pooldt%poollu_dloss(slowpc14,s) &
+                  + sibg%l(myl)%pooldt%rcpoollu_lay(slowpc14,s)*myemis &
+                  * sibg%l(myl)%pooldt%poollu_flay(slowpc14,s)
           ENDDO
           flosslu(myl,slowp) = myemis
           flosslu(myl,slowpc13) = sibg%l(myl)%pooldt%rcpoollu(slowpc13)*myemis
+          flosslu(myl,slowpc14) = sibg%l(myl)%pooldt%rcpoollu(slowpc14)*myemis
           curemis = curemis - myemis
           curemisc13 = curemisc13 - sibg%l(myl)%pooldt%rcpoollu(slowpc13)*myemis
+          curemisc14 = curemisc14 - sibg%l(myl)%pooldt%rcpoollu(slowpc14)*myemis
       ENDIF
 
       !...remove C from soil passive
       IF (curemis .gt. dnzero) THEN
-
          tmppooltot = tmppooltot + sibg%l(myl)%pooldt%curpoollu(armp)
          tmppoolc13 = tmppoolc13 + sibg%l(myl)%pooldt%curpoollu(armpc13)
+         tmppoolc14 = tmppoolc14 + sibg%l(myl)%pooldt%curpoollu(armpc14)
 
           myemis = MIN(curemis, MAX(dzero, &
                sibg%l(myl)%pooldt%poollu(armp) &
@@ -590,11 +703,21 @@ if (sibg%gprogt%firec .gt. dzero) then
                   sibg%l(myl)%pooldt%poollu_dloss(armpc13,s) &
                   + sibg%l(myl)%pooldt%rcpoollu_lay(armpc13,s)*myemis &
                   * sibg%l(myl)%pooldt%poollu_flay(armpc13,s)
+
+             sibg%l(myl)%pooldt%loss_fire_lay(armpc14,s) = &
+                  sibg%l(myl)%pooldt%rcpoollu_lay(armpc14,s)*myemis &
+                  * dtisib * sibg%l(myl)%pooldt%poollu_flay(armpc14,s)
+             sibg%l(myl)%pooldt%poollu_dloss(armpc14,s) = &
+                  sibg%l(myl)%pooldt%poollu_dloss(armpc14,s) &
+                  + sibg%l(myl)%pooldt%rcpoollu_lay(armpc14,s)*myemis &
+                  * sibg%l(myl)%pooldt%poollu_flay(armpc14,s)
           ENDDO
           flosslu(myl,armp) = myemis
           flosslu(myl,armpc13) = sibg%l(myl)%pooldt%rcpoollu(armpc13)*myemis
+          flosslu(myl,armpc14) = sibg%l(myl)%pooldt%rcpoollu(armpc14)*myemis
           curemis = curemis - myemis
           curemisc13 = curemisc13 - sibg%l(myl)%pooldt%rcpoollu(armpc13)*myemis
+          curemisc14 = curemisc14 - sibg%l(myl)%pooldt%rcpoollu(armpc14)*myemis
       ENDIF
 
       !...save what C was emitted but not removed
@@ -604,6 +727,9 @@ if (sibg%gprogt%firec .gt. dzero) then
 
       flossbc13(myl) = curemisc13
       sibg%l(myl)%poollt%rmmd_firec13 = flossbc13(myl)*dtisib
+
+      flossbc14(myl) = curemisc14
+      sibg%l(myl)%poollt%rmmd_firec14 = flossbc14(myl)*dtisib
 
       !... Orig. calculation based on GFED4 emissions & rcpoolfire only
       !sibg%l(myl)%poollt%resp_firec13 = tempemisc13 * dtisib
@@ -616,6 +742,11 @@ if (sibg%gprogt%firec .gt. dzero) then
    
           sibg%l(myl)%fract%d13cemisfire_pool = &
            (((1.0D0/((1.0D0/rcemispoolc13)-1.0D0))/pdb)-1.0D0)*1000.0D0
+
+          rcemispoolc14 = (tmppoolc14/tmppooltot)
+          tempemispoolc14 = rcemispoolc14*tempemis
+          sibg%l(myl)%poollt%resp_firec14 = tempemispoolc14 * dtisib
+
       !..notes: 1. post-processing weighting would be done with sum(fire_loss_lay)
       !........ 2. also in post-processing, assign NaN to this isotope value if
       !........    resp_fire < 0 for any timestep 
@@ -697,7 +828,7 @@ if (sibg%gprogt%firec .gt. dzero) then
 
    deallocate(tpref,tpnum,tparea)
    deallocate(tpagb,tpagbtemp)
-   deallocate(flosspft,flosslu,flossb,flossbc13)
+   deallocate(flosspft,flosslu,flossb,flossbc13,flossbc14)
 
 endif  !firec > 0
 
