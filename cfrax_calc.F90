@@ -18,7 +18,7 @@ use module_fractsib
 use module_param, only: &
     phys_param
 use module_pparams, only: &
-    p0_sfc, pdb, &     
+    p0_sfc, pdb, stdC14, &     
     kieclfbl, kiecstom, &
     kieclphas, kiecdis, &
     kiecrbsco, kiecphtrsp
@@ -68,7 +68,7 @@ logical :: cbad
     !real(r8) :: xco2c
     !real(r8) :: xco2m
     !real(r8) :: xco2gamma
-real(r8) :: rca
+real(r8) :: rcac13, rcac14, N
 real(r8) :: rcm
 real(r8) :: nzero=1.E-14
     
@@ -159,9 +159,13 @@ fract%co2m_cfrax=co2m
     ! and 12C by first calculating isotope ratios (13C/12C) of the
     ! canopy (ca) and mixed layer (m). 
 
-rca   = dble((dble(fract%d13cca * pdb) / 1000.0D0) + pdb) !0.0111472024
-fract%c13ca = (dble(rca) * dble(co2t%co2cas)) / (1.0D0 + dble(rca))
-fract%c12ca = dble(co2t%co2cas) / (1.0D0 + dble(rca))
+rcac13   = dble((dble(fract%d13cca * pdb) / 1000.0D0) + pdb) !0.0111472024
+fract%c13ca = (dble(rcac13) * dble(co2t%co2cas)) / (1.0D0 + dble(rcac13))
+fract%c12ca = dble(co2t%co2cas) / (1.0D0 + dble(rcac13))
+
+N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+fract%d13cca/1000.0D0)**2.0)
+rcac14 = (dble(fract%d14cca+1.0D0)*stdC14)/N
+
 !xx=co2cas-c13ca-c12ca
 !print *,'co2cas into cfrax :',co2cas
 !print *,'c13ca in cfrax :',c13ca
@@ -295,9 +299,9 @@ if (co2t%assim .GT. nzero) then
 !    rcassim=0.0109450328
 
     !C13 assim cals
-    fract%rcassim   =  rca*((fract%kiecps / &
+    fract%rcassim   =  rcac13*((fract%kiecps / &
                        1000.0D0) + 1.0D0)
-    fract%rcassim_nog   =  rca*((fract%kiecps_nog / &
+    fract%rcassim_nog   =  rcac13*((fract%kiecps_nog / &
                        1000.0D0) + 1.0D0)
     !!!    pdiagt%rcrespcan   =   rca*((pdiagt%kiecps_7d / &
     !!!        1000.0) + 1.)
@@ -308,7 +312,7 @@ if (co2t%assim .GT. nzero) then
                         1000.0D0
     !fract%d13cassimxassim =  fract%d13cassim * co2t%assim
 
-    fract%d13cassim_nog =  ( ((rca*((fract%kiecps_nog / 1000.0D0) &
+    fract%d13cassim_nog =  ( ((rcac13*((fract%kiecps_nog / 1000.0D0) &
                            + 1.D0))-pdb)/ pdb) * 1000.0D0
     fract%c13assim_nog  =  (fract%rcassim_nog * co2t%assim)/ &
                         (fract%rcassim_nog+1.0D0)
@@ -318,7 +322,7 @@ if (co2t%assim .GT. nzero) then
 
     !mostly same as above but for C14
     
-    fract%rcassimc14 = rca*fract%c14alpha
+    fract%rcassimc14 = rcac14*fract%c14alpha
     fract%rcassimfacc14 = fract%rcassimc14/(fract%rcassimc14+1.0D0)
     fract%c14assim  =  (fract%rcassimc14 * co2t%assim)/ &
                         (fract%rcassimc14+1.0D0)

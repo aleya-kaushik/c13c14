@@ -86,7 +86,7 @@ module module_pparams
 
        real(r8), parameter :: &
            pdb       = 0.0112372,  & ! 13C/12C ratio of Pee Dee Belemnite
-           RC14      = 1.176e-12,  & ! 14C Std, ratio of 14C/totalC
+           stdC14      = 1.176e-12,  & ! 14C Std, ratio of 14C/totalC
            kieclfbl  = -2.9,       & ! canopy air space to leaf boundary layer
            kiecstom  = -4.4,       & ! leaf boundary layer to stomatal cavity
            kieclphas = -0.7,       & ! liquid phase fractionation

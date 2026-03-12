@@ -17,7 +17,8 @@ subroutine restart_read()
        nsoil, nsnow, ntot, &
        subcount, subset, &
        spinup, spinup_default, &
-       npoolcanc13, spinup_continue
+       npoolcanc13, npoolcanc14, &
+       spinup_continue
     use module_sib, only: &
        sib, gprog_type
     use module_phosib, only: &
@@ -4205,14 +4206,14 @@ do v = 1, sibr_nvar
               endif
 
               do l=1,sib%g(i)%g_nlu
-                  sib%g(i)%l(l)%fract%rcpoolfire = dvar2d(gref,l)
+                  sib%g(i)%l(l)%fract%rcpoolfirec13 = dvar2d(gref,l)
               enddo
            enddo
            deallocate(dvar2d)
        else
            do i=1, subcount
               do l=1,sib%g(i)%g_nlu
-                 sib%g(i)%l(l)%fract%rcpoolfire = sibr_vd(v)
+                 sib%g(i)%l(l)%fract%rcpoolfirec13 = sibr_vd(v)
               enddo
            enddo
        endif
@@ -4453,6 +4454,746 @@ do v = 1, sibr_nvar
            do i=1, subcount
               do l=1,sib%g(i)%g_nlu
                  sib%g(i)%l(l)%fract%c12resptot = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (175)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_hrvstc13 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_hrvstc13 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+    case (188)
+       if (.not. var_exist) then
+          status = nf90_inq_varid(ncid, 'loss_raddecay_lay', varid)
+          var_exist = (status .eq. nf90_noerr)
+       endif
+
+       if (var_exist) then
+          allocate(dvar4d(nsibf,nlu,npoolpft,nsoil))
+          status = nf90_get_var(ncid, varid, dvar4d)
+          if (status .ne. nf90_noerr) then
+               print*,'Error reading loss_raddecay_lay.'
+               stop
+          endif
+
+          do i=1, subcount
+             if (nsibr_flag) then
+                 gref = subset(i)
+             else
+                 gref = i
+             endif
+
+             do l=1,sib%g(i)%g_nlu
+                do p=1,npoolpft
+                   sib%g(i)%l(l)%poollt%loss_raddecay_lay(p,:) = dvar4d(gref,l,p,:)
+                enddo
+             enddo
+           enddo
+           deallocate(dvar4d)
+
+       else  !var does not exist
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%loss_raddecay_lay(:,:) = sibr_vd(v)
+               enddo
+           enddo
+       endif
+
+    case (189)
+       if (.not. var_exist) then
+          status = nf90_inq_varid(ncid, 'loss_raddecay_lay', varid)
+          var_exist = (status .eq. nf90_noerr)
+       endif
+
+       if (var_exist) then
+           allocate(dvar4d(nsibf,nlu,npoollu,nsoil))
+           status = nf90_get_var(ncid, varid, dvar4d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading loss_raddecay_lay.'
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+               do l=1,sib%g(i)%g_nlu
+                  do p=1,npoollu
+                     sib%g(i)%l(l)%pooldt%loss_raddecay_lay(p,:) = &
+                              dvar4d(gref,l,p,:)
+                   enddo
+               enddo
+            enddo
+            deallocate(dvar4d)
+
+       else  !var does not exist
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                sib%g(i)%l(l)%pooldt%loss_raddecay_lay(:,:) = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+    case (190)
+       if (.not. var_exist) then
+          status = nf90_inq_varid(ncid, 'loss_grzc14', varid)
+          var_exist = (status .eq. nf90_noerr)
+       endif
+
+       if (var_exist) then
+          allocate(dvar3d(nsibf,nlu,npoolcanc14))
+          status = nf90_get_var(ncid, varid, dvar3d)
+          if (status .ne. nf90_noerr) then
+               print*,'Error reading loss_grzc14.'
+               stop
+          endif
+
+          do i=1, subcount
+             if (nsibr_flag) then
+                 gref = subset(i)
+             else
+                 gref = i
+             endif
+
+             do l=1,sib%g(i)%g_nlu
+                sib%g(i)%l(l)%poollt%loss_grzc14(:) = dvar3d(gref,l,:)
+             enddo
+           enddo
+           deallocate(dvar3d)
+
+       else  !var does not exist
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%loss_grzc14(:) = sibr_vd(v)
+               enddo
+           enddo
+       endif
+
+   case (191)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%rcpoolfirec14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%rcpoolfirec14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (192)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%rcassimfacc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%rcassimfacc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (193)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%poolemisc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%poolemisc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (194)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%c14alpha = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%c14alpha = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (195)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%d14cca = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%d14cca = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (196)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%rcassimc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%rcassimc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (197)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%c14assim = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%c14assim = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (198)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%c14assimd = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%c14assimd = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (199)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_nvegc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_nvegc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (200)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_leafc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_leafc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (201)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_rootc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_rootc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (202)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_growc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_growc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (203)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_mntnc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_mntnc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (204)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_autoc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_autoc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (205)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%pooldt%resp_soilc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%pooldt%resp_soilc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (206)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%pooldt%resp_hetc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%pooldt%resp_hetc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (207)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_grzc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_grzc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (208)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%poollt%resp_hrvstc14 = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%poollt%resp_hrvstc14 = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (209)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%c14ca = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%c14ca = sibr_vd(v)
+              enddo
+           enddo
+       endif
+
+   case (210)
+       if (var_exist) then
+           allocate(dvar2d(nsibf,nlu))
+           status = nf90_get_var(ncid, varid, dvar2d)
+           if (status .ne. nf90_noerr) then
+              print*,'Error reading restart variable: ', &
+                  trim(sibr_vname(v))
+              stop
+           endif
+
+           do i=1, subcount
+              if (nsibr_flag) then
+                  gref = subset(i)
+              else
+                  gref = i
+              endif
+
+              do l=1,sib%g(i)%g_nlu
+                  sib%g(i)%l(l)%fract%c14resptot = dvar2d(gref,l)
+              enddo
+           enddo
+           deallocate(dvar2d)
+       else
+           do i=1, subcount
+              do l=1,sib%g(i)%g_nlu
+                 sib%g(i)%l(l)%fract%c14resptot = sibr_vd(v)
               enddo
            enddo
        endif
