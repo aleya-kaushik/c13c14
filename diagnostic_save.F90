@@ -1481,93 +1481,93 @@ do i=1,nvars
       outsave(i,refsave) = outsave(i,refsave) + vmaxts*mol_to_umol
 
 !itb...potential ET diagnostics
-   case(750)
+   case (750)
       outsave(i,refsave) = outsave(i,refsave) + fluxt%et0
-   case(751)
+   case (751)
       outsave(i,refsave) = outsave(i,refsave) + fluxt%et0a
-   case(752)
+   case (752)
       outsave(i,refsave) = outsave(i,refsave) + fluxt%et1
-   case(753)
+   case (753)
       outsave(i,refsave) = outsave(i,refsave) + fluxt%et1a
 
 !itb...accumulated stress diagnostics
-   case(754)
+   case (754)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(1)
-   case(755)
+   case (755)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(2)
-   case(756)
+   case (756)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(3)
-   case(757)
+   case (757)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(4)
-   case(758)
+   case (758)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(5)
-   case(759)
+   case (759)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(6)
-   case(760)
+   case (760)
       outsave(i,refsave) = outsave(i,refsave) + co2t%gs_stress(7)
 
 
-    case(915)
+    case (915)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_s(1)
-    case(916)
+    case (916)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_s(2)
-    case(917)
+    case (917)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_s(3)
-    case(918)
+    case (918)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_s(4)
-    case(919)
+    case (919)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_s(5)
-    case(920)
+    case (920)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_s(10)
 
-    case(921)
+    case (921)
        outsave(i,refsave) = outsave(i,refsave) + cost%gsh2onew
-    case(922)
+    case (922)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_grnd_Ogee
-    case(923)
+    case (923)
        outsave(i,refsave) = outsave(i,refsave) + cost%cos_soil
-    case(924)
+    case (924)
        outsave(i,refsave) = outsave(i,refsave) + cost%cosm
-    case(925)
+    case (925)
        outsave(i,refsave) = outsave(i,refsave) + cost%badcos
 
     !!!C-13 Values !!!
-    case(930)
+    case (930)
        outsave(i,refsave) = outsave(i,refsave) + fract%d13cca
-    case(931)
+    case (931)
        outsave(i,refsave) = outsave(i,refsave) + fract%d13cm
-    case(932)
+    case (932)
        outsave(i,refsave) = outsave(i,refsave) + fract%c13ca*mol_to_umol
-    case(933)
+    case (933)
        outsave(i,refsave) = outsave(i,refsave) + fract%c12ca*mol_to_umol
-    case(934)
+    case (934)
        outsave(i,refsave) = outsave(i,refsave) + fract%c13cm*mol_to_umol
-    case(935)
+    case (935)
        outsave(i,refsave) = outsave(i,refsave) + fract%c12cm*mol_to_umol
-    case(936)
+    case (936)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps
-    case(937)
+    case (937)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps_nog
-    case(938)
+    case (938)
        outsave(i,refsave) = outsave(i,refsave) + fract%d13cassim
-    case(939)
+    case (939)
        outsave(i,refsave) = outsave(i,refsave) + fract%d13cassim_nog
-    case(940)
+    case (940)
        outsave(i,refsave) = outsave(i,refsave) + fract%c13assim*mol_to_umol
-    case(941)
+    case (941)
        outsave(i,refsave) = outsave(i,refsave) + fract%c13assimd*mol_to_umol
-    case(942)
+    case (942)
        outsave(i,refsave) = outsave(i,refsave) + fract%c12assim*mol_to_umol
 
-    case(943)
+    case (943)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps_k1
-    case(944)
+    case (944)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps_k2
-    case(945)
+    case (945)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps_k3
-    case(946)
+    case (946)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps_k4
-    case(947)
+    case (947)
        outsave(i,refsave) = outsave(i,refsave) + fract%kiecps_k5
     
     case(948)
@@ -1720,13 +1720,13 @@ do i=1,nvars
    !    outsave(i,refsave) = outsave(i,refsave) + fract%co2m_cfrax*mol_to_umol
    ! case(1014)
    !    outsave(i,refsave) = outsave(i,refsave) + cost%press_coscalc
-   case(1015)
+   case (1015)
       outsave(i,refsave) = outsave(i,refsave) + co2t%eyy_phosib
-   case(1016)
+   case (1016)
       outsave(i,refsave) = outsave(i,refsave) + gxco2
-   case(1017)
+   case (1017)
       outsave(i,refsave) = outsave(i,refsave) + co2t%icconv_phosib
-   case(1018)
+   case (1018)
       outsave(i,refsave) = outsave(i,refsave) + co2t%resp_casn*mol_to_umol
    !case(1019)
    !   outsave(i,refsave) = outsave(i,refsave) + cast%press_flxupdate
@@ -1794,13 +1794,13 @@ do i=1,nvars
    case (1039)
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * sum(poollt%loss_mresp_lay(ppc13,:))
+
    case (1040)
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * sum(poollt%poolpft_lay(lp,:))
    case (1041)
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * sum(poollt%poolpft_lay(lpc13,:))
-
    case (1042)
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * (poollt%poolpftmin(lp))
@@ -1829,7 +1829,6 @@ do i=1,nvars
       outsave(i,refsave) = outsave(i,refsave) + poollt%loss_fire_lay(lpc13,1)*mol_to_umol
    case (1051)
       outsave(i,refsave) = outsave(i,refsave) + poollt%loss_grzc13(1)*mol_to_umol
-
    case (1052)
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * sum(poollt%loss_trans_lay(lpc13,:))
@@ -1844,15 +1843,14 @@ do i=1,nvars
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * sum(poollt%pftavail_lay(lpc13,:))
 
-   case (1060)  !leaf_gain
+   case (1060)  !leaf_gain c13
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
            * (poollt%gain_assim(lpc13) + poollt%gain_seed(lpc13))
-   case (1061)  !leaf_loss
+   case (1061)  !leaf_loss c13
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
            * (poollt%loss_gresp(lpc13) + sum(poollt%loss_mresp_lay(lpc13,:)) &
               + sum(poollt%loss_trans_lay(lpc13,:)) + poollt%loss_grzc13(1) &
               + sum(poollt%loss_hrvst_lay(lpc13,:)) + sum(poollt%loss_fire_lay(lpc13,:)))
-
    case (1062)
       outsave(i,refsave) = outsave(i,refsave) + mol_to_umol &
             * sum(poollt%assim_dgain(lp,:))
@@ -2046,28 +2044,79 @@ do i=1,nvars
    case (1140)
       outsave(i,refsave) = outsave(i,refsave) + pooldt%curpoollu(arm)
 
-   !case (1141)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpleafxpleaf
-   !case (1142)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpfrootxpfroot
-   !case (1143)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpcrootxpcroot
-   !case (1144)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpstwdxpstwd
-   !case (1145)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpprodxpprod
-   !case (1146)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpcdbxpcdb
-   !case (1147)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpmetlxpmetl
-   !case (1148)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpstrlxpstrl
-   !case (1149)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpslitxpslit
-   !case (1150)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cpslowxpslow
-   !case (1151)
-   !   outsave(i,refsave) = outsave(i,refsave) + fract%d13cparmxparm
+
+   !!!!.... C14 variables
+
+   case (1150)
+       outsave(i,refsave) = outsave(i,refsave) + fract%d14cca
+   case (1151)
+       outsave(i,refsave) = outsave(i,refsave) + fract%c14alpha
+   case (1152)
+       outsave(i,refsave) = outsave(i,refsave) + fract%c14assim*mol_to_umol
+   case (1153)
+      outsave(i,refsave) = outsave(i,refsave) + fract%c14resptot*mol_to_umol
+
+   !...C14 respirations...
+   case (1154)
+     outsave(i,refsave) = outsave(i,refsave) + poollt%resp_autoc14*mol_to_umol
+   case (1155)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_growc14*mol_to_umol
+   case (1156)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_leafc14*mol_to_umol
+   case (1157)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_mntnc14*mol_to_umol
+   case (1158)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_rootc14*mol_to_umol
+   case (1159)
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%resp_hetc14*mol_to_umol
+   case (1160)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_firec14*mol_to_umol
+   case (1161)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_grzc14*mol_to_umol
+   case (1162)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_hrvstc14*mol_to_umol
+   case (1163)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%resp_nvegc14*mol_to_umol
+   case (1164)
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%resp_soilc14*mol_to_umol
+   case (1165)
+      outsave(i,refsave) = outsave(i,refsave) &
+           + (poollt%resp_autoc14 + pooldt%resp_hetc14 + poollt%resp_nvegc14 &
+           + poollt%resp_grzc14 + poollt%resp_hrvstc14)*mol_to_umol
+   case (1166)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%rmmd_firec14*mol_to_umol
+   case (1167)
+      outsave(i,refsave) = outsave(i,refsave) + sum(poollt%loss_grzc14)*mol_to_umol
+   case (1168)
+      outsave(i,refsave) = outsave(i,refsave) &
+                           + sum(poollt%loss_hrvst_lay(11:15,:))*mol_to_umol
+   case (1169)
+      outsave(i,refsave) = outsave(i,refsave) + poollt%rmvd_hrvstc14*mol_to_umol
+
+   !...Live C14 Biomass...
+   case (1170)  !leaf pool
+      outsave(i,refsave) = outsave(i,refsave) + poollt%poolpft(lpc14)*molc14_to_mg
+   case (1171)  !fine root pool
+      outsave(i,refsave) = outsave(i,refsave) + poollt%poolpft(frpc14)*molc14_to_mg
+   case (1172)  !coarse root pool
+      outsave(i,refsave) = outsave(i,refsave) + poollt%poolpft(crpc14)*molc14_to_mg
+   case (1173)  !stem/wood pool
+      outsave(i,refsave) = outsave(i,refsave) + poollt%poolpft(wpc14)*molc14_to_mg
+   case (1174)  !product pool
+      outsave(i,refsave) = outsave(i,refsave) + poollt%poolpft(ppc14)*molc14_to_mg
+   !...Dead C14 Biomass...
+   case (1175)  !coarse dead biomass pool
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(cdbc14)*molc14_to_mg
+   case (1176)  !metabolic litter pool
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(l1pc14)*molc14_to_mg
+   case (1177)  !structural litter pool
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(l2pc14)*molc14_to_mg
+   case (1178)  !soil litter pool
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(slpc14)*molc14_to_mg
+   case (1179)  !slow soil pool
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(slowc14)*molc14_to_mg
+   case (1180)  !armored/passive pool
+      outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(armc14)*molc14_to_mg
 
   end select
 
@@ -2206,51 +2255,108 @@ do i=1,nvars
 
 
    !!!Grid Cell Prognostic Variables!!!
-   case (850)
+   case (830)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%sw_dwn
-   case (851)
+   case (831)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%dlwbot
-   case (852)
+   case (832)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%tm
-   case (853)
+   case (833)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%sh
-   case (854)
+   case (834)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%ps
-   case (855)
+   case (835)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%cupr*3600.
-   case (856)
+   case (836)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%lspr*3600.
-   case (857)
+   case (837)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%spdm
 !   case (858)
 !      outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%pco2m*1.E6/p0_sfc
 !   case (858)
 !      outsave(i,refsave) = outsave(i,refsave) + dble(sibg%gprogt%pco2m)*1.0D6/pressure
-   case (858)
+   case (838)
       outsave(i,refsave) = outsave(i,refsave) + dble(sibg%gprogt%co2m)*mol_to_umol
-   case (859)
+   case (839)
       outsave(i,refsave) = outsave(i,refsave) + dble(sibg%gprogt%pco2m)
-   case (860)
+   case (840)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%pcosm*1.E12/pressure
-   case (861)
+   case (841)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%pcosm
-   case (862)
+   case (842)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%firec*mol_to_umol
-   case (863)
+   case (843)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%fireco2*mol_to_umol
-   case (864)
+   case (844)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%seas_precip
-   case (866)
+   case (845)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%seas_tm
-   case (867)
+   case (846)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%clim_cupr
-   case (868)
+   case (847)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%clim_precip
-   case (869)
+   case (848)
       outsave(i,refsave) = outsave(i,refsave) + sibg%gprogt%clim_tm
 
 
    !!!Grid-Cell Specialty Cases for Isotope code!!!
+
+   case (850)  !gppc14
+      assimc14 = dzero
+      do l=1,sibg%g_nlu
+         assimc14 = assimc14 + sibg%l(l)%fract%c14assim * mol_to_umol &
+                 * sibg%l(l)%larea
+      enddo
+      outsave(i,refsave) = outsave(i,refsave) + assimc14
+
+   case (851)  !recoc14
+      resptotc14 = dzero
+      do l=1,sibg%g_nlu
+         resptotc14 = resptotc14 + sibg%l(l)%fract%c14resptot * mol_to_umol &
+                 * sibg%l(l)%larea
+
+   case (852)  !firec14
+      firec14 = dzero
+      do l=1,sibg%g_nlu
+         firec14 = firec14 + sibg%l(l)%poollt%resp_firec14 * mol_to_umol !&
+                 !* sibg%l(l)%larea
+      enddo
+      outsave(i,refsave) = outsave(i,refsave) + firec14
+
+   case (853)  !total C14 pools
+      totpc14 = dzero
+      do l=1,sibg%g_nlu
+      totpc14 = totpc14 + mol_to_mg * &
+             sibg%l(l)%larea * (sibg%l(l)%poollt%poolpft(lpc14) &
+             + sibg%l(l)%poollt%poolpft(wpc14) + sibg%l(l)%poollt%poolpft(ppc14) &
+             + sibg%l(l)%poollt%poolpft(crpc14) + sibg%l(l)%poollt%poolpft(frpc14) &
+             + sibg%l(l)%pooldt%poollu(cdbc14) + sibg%l(l)%pooldt%poollu(l1pc14) &
+             + sibg%l(l)%pooldt%poollu(l2pc14) + sibg%l(l)%pooldt%poollu(slpc14) &
+             + sibg%l(l)%pooldt%poollu(slowc14) + sibg%l(l)%pooldt%poollu(armc14))
+      enddo
+      outsave(i,refsave) = outsave(i,refsave) + totpc14
+
+   case (854)  !live C14 pools
+      totlpc14 = dzero
+      do l=1,sibg%g_nlu
+      totlpc14 = totlpc14 + mol_to_mg * &
+             sibg%l(l)%larea * (sibg%l(l)%poollt%poolpft(lpc14) &
+             + sibg%l(l)%poollt%poolpft(wpc14) + sibg%l(l)%poollt%poolpft(ppc14) &
+             + sibg%l(l)%poollt%poolpft(crpc14) + sibg%l(l)%poollt%poolpft(frpc14))
+      enddo
+      outsave(i,refsave) = outsave(i,refsave) + totlpc14
+
+   case (855)  !dead C14 pools
+      totdpc14 = dzero
+      do l=1,sibg%g_nlu
+      totdpc14 = totdpc14 + mol_to_mg * &
+             sibg%l(l)%larea * &
+             (sibg%l(l)%pooldt%poollu(cdbc14) + sibg%l(l)%pooldt%poollu(l1pc14) &
+             + sibg%l(l)%pooldt%poollu(l2pc14) + sibg%l(l)%pooldt%poollu(slpc14) &
+             + sibg%l(l)%pooldt%poollu(slowc14) + sibg%l(l)%pooldt%poollu(armc14))
+      enddo
+      outsave(i,refsave) = outsave(i,refsave) + totdpc14
+
 
    case (870)  !gppc13
       assimc13 = dzero
