@@ -91,7 +91,8 @@ do l=1,sibg%g_nlu
             physcon(pnum)%hhti, physcon(pnum)%hlti, &
             physcon(pnum)%shti, physcon(pnum)%slti, &
             poolcon(pnum)%gr_frac, sibg%l(l)%co2t%assim, &
-            sibg%l(l)%fract%c13assim, sibg%l(l)%co2t%rstfac(2), &
+            sibg%l(l)%fract%c13assim, sibg%l(l)%fract%c14assim,&
+            sibg%l(l)%co2t%rstfac(2), &
             sibg%gprogt%tm, sibg%l(l)%poollt, sibg%l(l)%co2t, &
             sibg%l(l)%fract)
 

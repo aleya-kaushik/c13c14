@@ -6,13 +6,14 @@ use kinds
 use module_sibconst, only: &
     cornsoy_switch, &
     npft, ngroup, &
-    npoolpft, npoollu, ntpool
+    npoolpft, npoollu, ntpool, &
+    nisodatayr, varcisom_switch, &
+    varciso_switch, varco2_switch
 use module_io, only: &
     pool_file, poolid
 use module_pparams, only: &
     secs_per_day, days_per_year, &
-    drytoc, mwc, &
-    rc13poolinitc3, rc13poolinitc4
+    drytoc, mwc, pdb, stdC14
 use module_pftinfo, only: &
     clen,npft_gdd, &
     pft_mze, pft_soy, &
@@ -23,6 +24,11 @@ use module_poolinfo, only: &
     pool_indx_leaf_c14
 use module_param, only: &
     physcon, poolcon
+use module_time, only: &
+    year, startyear
+use module_isodata, only: &
+    isoyr, globc13, globc14
+
 !use module_phosib, only: c4
 
 implicit none
@@ -39,10 +45,14 @@ logical :: iscomment1, iscomment2
 real(r4), dimension(npoollu+2) :: graze_trans, harvest_trans
 
 !...misc variables
-integer(i4) :: i,j
+integer(i4) :: i,j,iiso
 integer(byte) :: groupref
 real(r8) :: poolval
 integer(i4) :: lp, lpc13, lpc14
+integer(i4) :: yrnow, loc
+real(r8) :: d_13cm, d_14cm, d_13cca, d_14cca
+real(r8) :: r_c13a, r_c13assim, r_c13poolinitc3, r_c13poolinitc4
+real(r8) :: r_c14a, r_c14assim, r_c14poolinitc3, r_c14poolinitc4
 
 !...alias the pool indices
 lp =  pool_indx_leaf
@@ -53,6 +63,8 @@ lpc14 =  pool_indx_leaf_c14-12
 !...Initialize the pool variables
 allocate(poolcon(npft))
 call init_poolcon(npft, npoolpft, npoollu, poolcon)
+
+!-------------------
 
 !...Open file
 print*,'Reading Pool Parameter File: '
@@ -312,14 +324,64 @@ do i=1,npft
      poolval = dble(physcon(i)%laimin / physcon(i)%sla &
                 / real(drytoc) / real(mwc))
      poolcon(i)%poolpft_min(lp) = dble(poolval)
-    
-     if (physcon(i)%c4flag .EQ. dzero) then
-       poolcon(i)%poolpft_min(lpc13) = dble(rc13poolinitc3*poolval) ! based on rcassim equiv to -26
-       poolcon(i)%poolpft_min(lpc14) = dble(rc14poolinitc3*poolval)
-     else
-       poolcon(i)%poolpft_min(lpc13) = dble(rc13poolinitc4*poolval) ! based on rcassim equiv to -12.4          
-       poolcon(i)%poolpft_min(lpc14) = dble(rc14poolinitc4*poolval)
-     endif
+
+       !...initialize the rpoolinit for c13 and c14
+       
+       if (varcisom_switch) then ! update the c13,c14 values from input file
+          !..Update d13cm,d14cm from isodata input
+          yrnow=year
+          !idx=findloc(isoyrtmp,yrnow+0.5)
+          do iiso=1,nisodatayr
+            if (floor(isoyr(iiso)) .eq. yrnow) then
+             loc=iiso
+             exit
+            endif
+          enddo
+         d_13cm = dble(globc13(loc))
+         d_14cm = dble(globc14(loc))
+       else ! use the startyear to find loc
+          do iiso=1,nisodatayr
+            if (floor(isoyr(iiso)) .eq. startyear) then
+             loc=iiso
+             exit
+            endif
+          enddo
+         d_13cm = dble(globc13(loc))
+         d_14cm = dble(globc14(loc))
+       endif
+       
+       if (varciso_switch .or. varco2_switch) then
+          d_13cca = d_13cm
+          d_14cca = d_14cm
+       else !use the startyear to find values
+          do iiso=1,nisodatayr
+            if (floor(isoyr(iiso)) .eq. startyear) then
+             loc=iiso
+             exit
+            endif
+          enddo
+         d_13cca = dble(globc13(loc))
+         d_14cca = dble(globc14(loc))
+       endif
+       
+       r_c13a = ((d_13cca/1000.0D0) + 1.0D0)*pdb
+       r_c14a = ((d_14cca/1000.0D0) + 1.0D0)*stdC14
+       
+       if (physcon(i)%c4flag .EQ. dzero) then !c3 plants
+          r_c13assim = r_c13a*((-18.0D0/1000.0D0) + 1.0D0)
+          r_c13poolinitc3 = (r_c13assim/(r_c13assim+1.0D0))
+          r_c14assim = r_c14a*(1.0D0+(-18.0D0/1000.0D0))**2
+          r_c14poolinitc3 = r_c14assim
+          poolcon(i)%poolpft_min(lpc13) = dble(r_c13poolinitc3*poolval) ! based on rcassim equiv to -26
+          poolcon(i)%poolpft_min(lpc14) = dble(r_c14poolinitc3*poolval)
+       else !c4 plants
+          r_c13assim = r_c13a*((-4.4D0/1000.0D0) + 1.0D0)
+          r_c13poolinitc4 = (r_c13assim/(r_c13assim+1.0D0))
+          r_c14assim = r_c14a*(1.0D0+(-4.4D0/1000.0D0))**2
+          r_c14poolinitc4 = r_c14assim
+          poolcon(i)%poolpft_min(lpc13) = dble(r_c13poolinitc4*poolval) ! based on rcassim equiv to -12.4          
+          poolcon(i)%poolpft_min(lpc14) = dble(r_c14poolinitc4*poolval)
+       endif
 
    !print*,'lp min from readpool :',poolcon(i)%poolpft_min(lp)
    !print*,'lpc13 min from readpool :',poolcon(i)%poolpft_min(lpc13)
@@ -333,10 +395,10 @@ if (cornsoy_switch) then
                  poolcon(pft_soy)%poolpft_min(1)))
    poolcon(pft_mze)%poolpft_min(lp) = dble(poolval)
    poolcon(pft_soy)%poolpft_min(lp) = dble(poolval)
-   poolcon(pft_mze)%poolpft_min(lpc13) = dble(rc13poolinitc4*poolval) ! same as above
-   poolcon(pft_soy)%poolpft_min(lpc13) = dble(rc13poolinitc3*poolval) ! same as above
-   poolcon(pft_mze)%poolpft_min(lpc14) = dble(rc14poolinitc4*poolval) ! same as above
-   poolcon(pft_soy)%poolpft_min(lpc14) = dble(rc14poolinitc3*poolval) ! same as above
+   poolcon(pft_mze)%poolpft_min(lpc13) = dble(r_c13poolinitc4*poolval) ! same as above
+   poolcon(pft_soy)%poolpft_min(lpc13) = dble(r_c13poolinitc3*poolval) ! same as above
+   poolcon(pft_mze)%poolpft_min(lpc14) = dble(r_c14poolinitc4*poolval) ! same as above
+   poolcon(pft_soy)%poolpft_min(lpc14) = dble(r_c14poolinitc3*poolval) ! same as above
 endif
 
 

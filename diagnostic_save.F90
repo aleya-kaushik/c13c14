@@ -140,12 +140,14 @@ use module_pparams, only: &
      mol_to_bu_wwt, mol_to_dw, &
      mol_to_mg, mol_to_pmol, &
      mol_to_umol, mwc, &
-     molc13_to_mg, mwc13
+     molc13_to_mg, mwc13, &
+     molc14_to_mg, mwc14
 use module_pftinfo, only: &
      pft_mze, pft_soy, pft_wwt
 use module_poolinfo
 use module_sibconst, only: &
-     npoolpft, nsnow, nsoil, ntot
+     npoolpft, npoollu, &
+     nsnow, nsoil, ntot
 use module_phosib
 use module_fractsib
 use module_sib
@@ -180,34 +182,49 @@ real(r8), intent(inout) :: outsave(nvars,nsave)
 integer(i4) :: i, k
 integer(i4) :: lp, frp, crp, wp, pp 
 integer(i4) :: lpc13, frpc13, crpc13, wpc13, ppc13
+integer(i4) :: lpc14, frpc14, crpc14, wpc14, ppc14
 integer(i4) :: cdb, l1p, l2p, slp, slow, arm
 integer(i4) :: cdbc13, l1pc13, l2pc13, slpc13, slowc13, armc13
+integer(i4) :: cdbc14, l1pc14, l2pc14, slpc14, slowc14, armc14
 
 !--------------------------------
 !...set local variables
 !... matches set-up in equipools_control.F90
-lp = pool_indx_leaf
+lp = pool_indx_leaf !live pool index 1,5
 frp  = pool_indx_froot
 crp  = pool_indx_croot
 wp   = pool_indx_stwd
 pp   = pool_indx_prod
-cdb  = pool_indx_cdb - npoolpft/2
-l1p  = pool_indx_metl - npoolpft/2
-l2p  = pool_indx_strl - npoolpft/2
-slp  = pool_indx_slit - npoolpft/2
-slow = pool_indx_slow - npoolpft/2
-arm  = pool_indx_arm - npoolpft/2
-lpc13 = pool_indx_leaf_c13-6
-frpc13  = pool_indx_froot_c13-6
-crpc13  = pool_indx_croot_c13-6
-wpc13   = pool_indx_stwd_c13-6
-ppc13   = pool_indx_prod_c13-6
-cdbc13  = pool_indx_cdb_c13 - npoolpft
-l1pc13  = pool_indx_metl_c13 - npoolpft
-l2pc13  = pool_indx_strl_c13 - npoolpft
-slpc13  = pool_indx_slit_c13 - npoolpft
-slowc13 = pool_indx_slow_c13 - npoolpft
-armc13  = pool_indx_arm_c13 - npoolpft
+cdb  = pool_indx_cdb - npoolpft/3 !ntpool 6,10 -> dead pool index 1,6
+l1p  = pool_indx_metl - npoolpft/3
+l2p  = pool_indx_strl - npoolpft/3
+slp  = pool_indx_slit - npoolpft/3
+slow = pool_indx_slow - npoolpft/3
+arm  = pool_indx_arm - npoolpft/3
+
+lpc13 = pool_indx_leaf_c13-npoollu/3 !ntpool 12,16 -> live pool index 6,10
+frpc13  = pool_indx_froot_c13-npoollu/3
+crpc13  = pool_indx_croot_c13-npoollu/3
+wpc13   = pool_indx_stwd_c13-npoollu/3
+ppc13   = pool_indx_prod_c13-npoollu/3
+cdbc13  = pool_indx_cdb_c13 - 2*npoolpft/3 !ntpool 17,22 -> dead pool index 7,12
+l1pc13  = pool_indx_metl_c13 - 2*npoolpft/3
+l2pc13  = pool_indx_strl_c13 - 2*npoolpft/3
+slpc13  = pool_indx_slit_c13 - 2*npoolpft/3
+slowc13 = pool_indx_slow_c13 - 2*npoolpft/3
+armc13  = pool_indx_arm_c13 - 2*npoolpft/3
+
+lpc14 = pool_indx_leaf_c14-2*npoollu/3 !ntpool 23,27 -> live pool index 11,15 
+frpc14  = pool_indx_froot_c14-2*npoollu/3
+crpc14  = pool_indx_croot_c14-2*npoollu/3
+wpc14   = pool_indx_stwd_c14-2*npoollu/3
+ppc14   = pool_indx_prod_c14-2*npoollu/3
+cdbc14  = pool_indx_cdb_c14 - npoolpft !ntpool 28,33 -> dead pool index 13,18
+l1pc14  = pool_indx_metl_c14 - npoolpft
+l2pc14  = pool_indx_strl_c14 - npoolpft
+slpc14  = pool_indx_slit_c14 - npoolpft
+slowc14 = pool_indx_slow_c14 - npoolpft
+armc14  = pool_indx_arm_c14 - npoolpft
 
 !--------------------------------
 !...loop through output
@@ -2118,6 +2135,31 @@ do i=1,nvars
    case (1180)  !armored/passive pool
       outsave(i,refsave) = outsave(i,refsave) + pooldt%poollu(armc14)*molc14_to_mg
 
+   !...radioactive decay
+   case (1181)
+      outsave(i,refsave) = outsave(i,refsave) + sum(poollt%loss_raddecay_lay(lpc14,:))*mol_to_umol
+   case (1182)
+      outsave(i,refsave) = outsave(i,refsave) + sum(poollt%loss_raddecay_lay(frpc14,:))*mol_to_umol
+   case (1183)
+      outsave(i,refsave) = outsave(i,refsave) + sum(poollt%loss_raddecay_lay(crpc14,:))*mol_to_umol
+   case (1184)
+      outsave(i,refsave) = outsave(i,refsave) + sum(poollt%loss_raddecay_lay(wpc14,:))*mol_to_umol
+   case (1185)
+      outsave(i,refsave) = outsave(i,refsave) + sum(poollt%loss_raddecay_lay(ppc14,:))*mol_to_umol
+
+   case (1186)
+      outsave(i,refsave) = outsave(i,refsave) + sum(pooldt%loss_raddecay_lay(cdbc14,:))*mol_to_umol
+   case (1187)
+      outsave(i,refsave) = outsave(i,refsave) + sum(pooldt%loss_raddecay_lay(l1pc14,:))*mol_to_umol
+   case (1188)
+      outsave(i,refsave) = outsave(i,refsave) + sum(pooldt%loss_raddecay_lay(l2pc14,:))*mol_to_umol
+   case (1189)
+      outsave(i,refsave) = outsave(i,refsave) + sum(pooldt%loss_raddecay_lay(slpc14,:))*mol_to_umol
+   case (1190)
+      outsave(i,refsave) = outsave(i,refsave) + sum(pooldt%loss_raddecay_lay(slowc14,:))*mol_to_umol
+   case (1191)
+      outsave(i,refsave) = outsave(i,refsave) + sum(pooldt%loss_raddecay_lay(armc14,:))*mol_to_umol
+
   end select
 
 enddo  !i=1,nvars
@@ -2137,14 +2179,15 @@ use module_pftinfo, only: &
     group_ndlfor, group_bdlfor
 use module_pparams, only: &
     mol_to_pmol, mol_to_umol, &
-    p0_sfc, tref, mol_to_mg
+    p0_sfc, tref, mol_to_mg, &
+    molc13_to_mg, molc14_to_mg
 use module_sib, only: &
     gridcell_type, gprog_type
 use module_phosib, only: &
     pressure
 use module_poolinfo
 use module_sibconst, only: &
-    npoolpft
+    npoolpft, npoollu
 
 implicit none
 
@@ -2163,43 +2206,60 @@ integer(i4) :: i,l
 integer(i4) :: pnum
 real(r8) :: assim, resp
 real(r8) :: assimc13, assimc13_nog, kiecpsxassim
-real(r8) :: femis, firec13, firetotc
-real(r8) :: resptotc13
+real(r8) :: assimc14
+real(r8) :: femis, firec13, firetotc, firec14
+real(r8) :: resptotc13, resptotc14
 real(r8) :: totp, totlp, totdp
 integer(i4) :: lp, frp, crp, wp, pp
 integer(i4) :: cdb, l1p, l2p, slp, slow, arm
 real(r8) :: nzero=1.E-14
 logical :: isgrass, isshrub, isfor
 real(r8) :: totpc13, totlpc13, totdpc13
+real(r8) :: totpc14, totlpc14, totdpc14
 integer(i4) :: lpc13, frpc13, crpc13, wpc13, ppc13
 integer(i4) :: cdbc13, l1pc13, l2pc13, slpc13, slowc13, armc13
+integer(i4) :: lpc14, frpc14, crpc14, wpc14, ppc14
+integer(i4) :: cdbc14, l1pc14, l2pc14, slpc14, slowc14, armc14
 real(r8) :: fgra_agb,fgra_bgb,fshb_agb,fshb_bgb,ffor_agb,ffor_bgb
 
 !--------------------------------
 !...set local variables
 !... matches set-up in equipools_control.F90
-lp = pool_indx_leaf
+lp = pool_indx_leaf !live pool index 1,5
 frp  = pool_indx_froot
 crp  = pool_indx_croot
 wp   = pool_indx_stwd
 pp   = pool_indx_prod
-cdb  = pool_indx_cdb - npoolpft/2
-l1p  = pool_indx_metl - npoolpft/2
-l2p  = pool_indx_strl - npoolpft/2
-slp  = pool_indx_slit - npoolpft/2
-slow = pool_indx_slow - npoolpft/2
-arm  = pool_indx_arm - npoolpft/2
-lpc13 = pool_indx_leaf_c13-6
-frpc13  = pool_indx_froot_c13-6
-crpc13  = pool_indx_croot_c13-6
-wpc13   = pool_indx_stwd_c13-6
-ppc13   = pool_indx_prod_c13-6
-cdbc13  = pool_indx_cdb_c13 - npoolpft
-l1pc13  = pool_indx_metl_c13 - npoolpft
-l2pc13  = pool_indx_strl_c13 - npoolpft
-slpc13  = pool_indx_slit_c13 - npoolpft
-slowc13 = pool_indx_slow_c13 - npoolpft
-armc13  = pool_indx_arm_c13 - npoolpft
+cdb  = pool_indx_cdb - npoolpft/3 !ntpool 6,10 -> dead pool index 1,6
+l1p  = pool_indx_metl - npoolpft/3
+l2p  = pool_indx_strl - npoolpft/3
+slp  = pool_indx_slit - npoolpft/3
+slow = pool_indx_slow - npoolpft/3
+arm  = pool_indx_arm - npoolpft/3
+
+lpc13 = pool_indx_leaf_c13-npoollu/3 !ntpool 12,16 -> live pool index 6,10
+frpc13  = pool_indx_froot_c13-npoollu/3
+crpc13  = pool_indx_croot_c13-npoollu/3
+wpc13   = pool_indx_stwd_c13-npoollu/3
+ppc13   = pool_indx_prod_c13-npoollu/3
+cdbc13  = pool_indx_cdb_c13 - 2*npoolpft/3 !ntpool 17,22 -> dead pool index 7,12
+l1pc13  = pool_indx_metl_c13 - 2*npoolpft/3
+l2pc13  = pool_indx_strl_c13 - 2*npoolpft/3
+slpc13  = pool_indx_slit_c13 - 2*npoolpft/3
+slowc13 = pool_indx_slow_c13 - 2*npoolpft/3
+armc13  = pool_indx_arm_c13 - 2*npoolpft/3
+
+lpc14 = pool_indx_leaf_c14-2*npoollu/3 !ntpool 23,27 -> live pool index 11,15 
+frpc14  = pool_indx_froot_c14-2*npoollu/3
+crpc14  = pool_indx_croot_c14-2*npoollu/3
+wpc14   = pool_indx_stwd_c14-2*npoollu/3
+ppc14   = pool_indx_prod_c14-2*npoollu/3
+cdbc14  = pool_indx_cdb_c14 - npoolpft !ntpool 28,33 -> dead pool index 13,18
+l1pc14  = pool_indx_metl_c14 - npoolpft
+l2pc14  = pool_indx_strl_c14 - npoolpft
+slpc14  = pool_indx_slit_c14 - npoolpft
+slowc14 = pool_indx_slow_c14 - npoolpft
+armc14  = pool_indx_arm_c14 - npoolpft
 
 pressure = dble(gprogt%ps) * 100.0D0
 !!!!!!!!!!!!!
@@ -2314,6 +2374,8 @@ do i=1,nvars
       do l=1,sibg%g_nlu
          resptotc14 = resptotc14 + sibg%l(l)%fract%c14resptot * mol_to_umol &
                  * sibg%l(l)%larea
+      enddo
+      outsave(i,refsave) = outsave(i,refsave) + resptotc14
 
    case (852)  !firec14
       firec14 = dzero
@@ -2326,7 +2388,7 @@ do i=1,nvars
    case (853)  !total C14 pools
       totpc14 = dzero
       do l=1,sibg%g_nlu
-      totpc14 = totpc14 + mol_to_mg * &
+      totpc14 = totpc14 + molc14_to_mg * &
              sibg%l(l)%larea * (sibg%l(l)%poollt%poolpft(lpc14) &
              + sibg%l(l)%poollt%poolpft(wpc14) + sibg%l(l)%poollt%poolpft(ppc14) &
              + sibg%l(l)%poollt%poolpft(crpc14) + sibg%l(l)%poollt%poolpft(frpc14) &
@@ -2339,7 +2401,7 @@ do i=1,nvars
    case (854)  !live C14 pools
       totlpc14 = dzero
       do l=1,sibg%g_nlu
-      totlpc14 = totlpc14 + mol_to_mg * &
+      totlpc14 = totlpc14 + molc14_to_mg * &
              sibg%l(l)%larea * (sibg%l(l)%poollt%poolpft(lpc14) &
              + sibg%l(l)%poollt%poolpft(wpc14) + sibg%l(l)%poollt%poolpft(ppc14) &
              + sibg%l(l)%poollt%poolpft(crpc14) + sibg%l(l)%poollt%poolpft(frpc14))
@@ -2349,7 +2411,7 @@ do i=1,nvars
    case (855)  !dead C14 pools
       totdpc14 = dzero
       do l=1,sibg%g_nlu
-      totdpc14 = totdpc14 + mol_to_mg * &
+      totdpc14 = totdpc14 + molc14_to_mg * &
              sibg%l(l)%larea * &
              (sibg%l(l)%pooldt%poollu(cdbc14) + sibg%l(l)%pooldt%poollu(l1pc14) &
              + sibg%l(l)%pooldt%poollu(l2pc14) + sibg%l(l)%pooldt%poollu(slpc14) &
@@ -2435,7 +2497,7 @@ do i=1,nvars
    case (878)  !total C13 pools
       totpc13 = dzero
       do l=1,sibg%g_nlu
-      totpc13 = totpc13 + mol_to_mg * &
+      totpc13 = totpc13 + molc13_to_mg * &
              sibg%l(l)%larea * (sibg%l(l)%poollt%poolpft(lpc13) &
              + sibg%l(l)%poollt%poolpft(wpc13) + sibg%l(l)%poollt%poolpft(ppc13) &
              + sibg%l(l)%poollt%poolpft(crpc13) + sibg%l(l)%poollt%poolpft(frpc13) &
@@ -2448,7 +2510,7 @@ do i=1,nvars
    case (879)  !live C13 pools
       totlpc13 = dzero
       do l=1,sibg%g_nlu
-      totlpc13 = totlpc13 + mol_to_mg * &
+      totlpc13 = totlpc13 + molc13_to_mg * &
              sibg%l(l)%larea * (sibg%l(l)%poollt%poolpft(lpc13) &
              + sibg%l(l)%poollt%poolpft(wpc13) + sibg%l(l)%poollt%poolpft(ppc13) &
              + sibg%l(l)%poollt%poolpft(crpc13) + sibg%l(l)%poollt%poolpft(frpc13))
@@ -2458,7 +2520,7 @@ do i=1,nvars
    case (880)  !dead C13 pools
       totdpc13 = dzero
       do l=1,sibg%g_nlu
-      totdpc13 = totdpc13 + mol_to_mg * &
+      totdpc13 = totdpc13 + molc13_to_mg * &
              sibg%l(l)%larea * &
              (sibg%l(l)%pooldt%poollu(cdbc13) + sibg%l(l)%pooldt%poollu(l1pc13) &
              + sibg%l(l)%pooldt%poollu(l2pc13) + sibg%l(l)%pooldt%poollu(slpc13) &

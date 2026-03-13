@@ -94,13 +94,6 @@ module module_pparams
            kiecrbsco = -28.2,      & ! C3 C-fixation enzyme rubisco
            kiecphtrsp = -12.0,     & ! photorespiration, Keeling2017: 12 +/- 4
                                      ! appropriate for leaves at 25 deg C
-           rc13poolinitc3 = 0.0108324381949482, &  ! initial c3 pool allocation based on d13C=-26
-                                     ! -26 = (R_spl/R_pdb -1)*1000.
-                                     ! -26 = (rc13poolinit/pdb-1)*1000.
-           rc13poolinitc4 = 0.0109808123837865   ! initial c4 pool allocation based on d13C=-12.4                 
-           rc14poolinitc3 = 
-
-           rc14poolinitc4 =
 
            c14taumean = 8267.0 
 

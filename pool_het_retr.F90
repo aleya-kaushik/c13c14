@@ -392,7 +392,6 @@ do j=npoollu/3+1,2*npoollu/3 !(7,12) npoollu dead pools
         endif !trans frac > 0
     enddo  !k=1,npoollu
 enddo  !j=1,npoollu
-ENDIF !respire/transfer only if pools > dzero
 
 !...same calculations as above but for C-14 pools
 do j=2*npoollu/3+1,npoollu !(13,18) npoollu dead pools

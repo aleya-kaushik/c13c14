@@ -34,7 +34,7 @@ type(poold_type), intent(inout) :: pooldt
 type(pooll_type), intent(inout) :: poollt
 type(pool_param), intent(inout) :: poolcont
 
-integer(i4) :: n,s,sref,tcref
+integer(i4) :: n,s,sref,tcref,nref
 
 integer(i4) :: lp,frp,crp,wp,pp
 integer(i4) :: lpc14,frpc14,crpc14,wpc14,ppc14
@@ -100,14 +100,14 @@ IF (.not. spinup) THEN
    enddo
    
    do n=npoolpft/3+1,2*npoolpft/3 !6,10 live C13
-      nref=p+npoolpft/3+1 !12,16 ntpool
+      nref=n+npoolpft/3+1 !12,16 ntpool
       do s=1,pool_indx_lay(nref) !ntpool
            poollt%loss_raddecay_lay(n,s) = dzero !npoolpft,nsoil
       enddo
    enddo
    
    do n=2*npoolpft/3+1,npoolpft !11,15 live C14
-      nref=p+2*npoolpft/3+2 !23,27 ntpool
+      nref=n+2*npoolpft/3+2 !23,27 ntpool
       do s=1,pool_indx_lay(nref) !ntpool
            poollt%loss_raddecay_lay(n,s) = &
                  (1.0D0/c14taumean)*poollt%poolpft_lay(n,s) !npoolpft,nsoil

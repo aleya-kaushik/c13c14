@@ -24,7 +24,7 @@ implicit none
        !.. same as above but for C13 pools
        pool_indx_canc13,  &  ! pool index numbers for all canopy pools
        pool_indx_sfcc13,  &  ! pool index numbers for all surface pools
-       pool_indx_soilc13     ! pool index numbers for all soil pools
+       pool_indx_soilc13, &  ! pool index numbers for all soil pools
 
        !.. same as above but for C14 pools
        pool_indx_canc14,  &  ! pool index numbers for all canopy pools

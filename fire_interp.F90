@@ -44,7 +44,7 @@ real(r8) :: dnzero=1.E-10
 !...interpolation variables
 real(r8) :: facsibdrv  ! scaling factor between driver data points
 real(r8) :: totemis, curemis, pcemis
-real(r8) :: curemisc13
+real(r8) :: curemisc13, curemisc14
 
 !...distribution variables
 integer(i4) :: ntpft
@@ -68,7 +68,7 @@ integer :: ido, idoc, l, p, s, myl
 integer :: loc_c3g, loc_c4g
 real(r8) :: myemis, tempemis, tempemisc13, tempemisc14
 real(r8) :: tmppooltot, tmppoolc13, tempemispoolc13, rcemispoolc13
-real(r8) :: tempemispoolc14, rcemispoolc14
+real(r8) :: tmppoolc14, tempemispoolc14, rcemispoolc14
 integer(i4), dimension(1) :: tempstore
 integer(i4) :: lp,frp,crp,wp,pp
 integer(i4) :: lpc13,frpc13,crpc13,wpc13,ppc13

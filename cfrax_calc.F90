@@ -82,8 +82,8 @@ fract%press_cfraxps = dble(gprogt%ps)
 !..reset this value
 !fract%d13cassimxassim = dzero
 
-if (varcisom_switch) then ! update the c13 values from input file
-   !..Update d13cm from isodata input
+if (varcisom_switch) then ! update the c13,c14 values from input file
+   !..Update d13cm,d14cm from isodata input
    yrnow=year
    !idx=findloc(isoyrtmp,yrnow+0.5)
    do i=1,nisodatayr

@@ -18,7 +18,7 @@ subroutine restart_write( equib )
         nsoil, nsnow, ntot, &
         subcount, sublatsib, sublonsib, &
         subsitename, subpref, sublarea, &
-        npoolcanc13
+        npoolcanc13, npoolcanc14
     use module_sib, only: sib
 
     implicit none
@@ -34,7 +34,7 @@ subroutine restart_write( equib )
                    nppdid, nlpdid, ncpdid, &
                    nsdid, nsnowdid, ntotdid, &
                    nclendid, nslendid, &
-                   ncpdidc13
+                   ncpdidc13, ncpdidc14
     integer(i4) :: lonid, latid, &
                    pnameid, prefid, snameid, &
                    areaid, pftrefid

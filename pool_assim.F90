@@ -2,7 +2,7 @@
 subroutine pool_assim( &
     sibpt, lonsib, latsib, pref, &
     hhti, hlti, shti, slti, gr_frac, &
-    assim, c13assim, rstfac2, tm, &
+    assim, c13assim, c14assim, rstfac2, tm, &
     poollt, co2t, fract)
 !==========================================================================
 ! -----------
@@ -205,7 +205,8 @@ real(r8), dimension(npoolpft), intent(inout) :: &
 integer(i4) :: lp,frp,crp,wp,pp,lpc13,frpc13,crpc13,wpc13,ppc13
 integer(i4) :: lpc14,frpc14,crpc14,wpc14,ppc14
 integer(i4) :: npallow, npallowc13, npallowc14
-real(r8) :: atot, atotc13, aadjust, aadjustc13, aadjustc14, aadd, aaddc13, aaddc14
+real(r8) :: atot, atotc13, aadjust, aadjustc13, aadd, aaddc13
+real(r8) :: atotc14,aadjustc14, aaddc14
 real(r8), dimension(npoolpft) :: alloc_now
 logical, dimension(npoolpft) :: alloc_allow
 
@@ -276,7 +277,7 @@ IF ((adj_temp) .AND. &
                   MAX(0.,alloc_now(lpc13)*(1.-leaf_grw_frz))
 
    aadjustc14 = MAX(0.,alloc_now(wpc14)*(1.-wood_grw_tot))  + &
-                  MAX(0.,alloc_now(crpc14*(1.-wood_grw_tot)) + &
+                  MAX(0.,alloc_now(crpc14)*(1.-wood_grw_tot)) + &
                   MAX(0.,alloc_now(lpc14)*(1.-leaf_grw_frz))
 
    if (aadjust >= aadjustmin) then
@@ -381,7 +382,6 @@ IF ((adj_temp) .AND. &
              ENDIF
          enddo
       endif
-
 
       !check totals
       atot = sum(alloc_temp(1:5))

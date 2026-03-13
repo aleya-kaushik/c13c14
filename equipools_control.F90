@@ -950,7 +950,7 @@ use module_sib, only: sib
 use module_sibconst, only: &
     subcount, &
     subset, sublatsib, sublonsib,  &
-    npoolpft, npoollu
+    npoolpft, npoollu, ntpool
 
 implicit none
 
@@ -1219,7 +1219,7 @@ use module_sib, only: sib
 use module_sibconst, only: & 
     subcount, &
     subset, sublatsib, sublonsib,  &
-    npoolpft, npoollu
+    npoolpft, npoollu, ntpool
 
 implicit none
 

@@ -340,6 +340,12 @@ subroutine init_fract(fract)
 
 use kinds
 use module_sib, only: fract_type
+use module_sibconst, only: &
+    nisodatayr
+use module_isodata, only: &
+    isoyr, globc13, globc14
+use module_time, only: &
+    year,startyear
 
 implicit none
 

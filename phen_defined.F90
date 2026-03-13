@@ -20,13 +20,13 @@ subroutine phen_defined( &
 
 use kinds
 use module_pftinfo, only: &
-     pft_c4c, pft_mze, pft_soy, &
-     pft_wwt, pft_ref
+    pft_c4c, pft_mze, pft_soy, &
+    pft_wwt, pft_ref
 use module_poolinfo, only: &
     pool_indx_lay, pool_name
 use module_pparams, only: &
     mwc, month_names, tffrz, &
-    rc13poolinitc3, rc13poolinitc4
+    pdb, stdC14
 use module_io, only: &
     npbp, pbp_gref, pbp_pref
 use module_param, only: &
@@ -39,10 +39,15 @@ use module_sibconst, only: &
     cornsoy_switch, &
     print_harvest, print_stop, &
     npoolpft, ntpool, &
-    subset, sublonsib, sublatsib, subpref
+    subset, sublonsib, sublatsib, subpref, &
+    nisodatayr, varcisom_switch, &
+    varciso_switch, varco2_switch
 use module_time, only: &
-     doy, day, month, year, &
-     steps_per_day, dtisib, dtsib
+    doy, day, month, year, &
+    steps_per_day, dtisib, dtsib, &
+    startyear
+use module_isodata, only: &
+    isoyr, globc13, globc14
 !use module_phosib, only: c4
 
 implicit none
@@ -64,13 +69,72 @@ type(phys_param), intent(in) :: physcont
 !...local variables
 integer(i4) :: i, k, m, mref, p, kref, tcref
 integer(i4) :: ips, icount
+integer(i4) :: yrnow, loc
 real(r8) :: deltac, hrvstc, hrvstc13, tempc, tempc13
 real(r8) :: hrvstt, hrvsttc13, ratio, ratioc13
 real(r8) :: tempc14, ratioc14, hrvstc14, hrvsttc14
 real(r8) :: c4_flag
 
+real(r8) :: d_13cm, d_14cm, d_13cca, d_14cca
+real(r8) :: r_c13a, r_c13assim, r_c13poolinitc3, r_c13poolinitc4 
+real(r8) :: r_c14a, r_c14assim, r_c14poolinitc3, r_c14poolinitc4
+
 !------set C4 flag------------
 c4_flag = dble(physcont%c4flag)
+
+!------initialize poolinit for c13,c14--------
+
+if (varcisom_switch) then ! update the c13,c14 values from input file
+   !..Update d13cm,d14cm from isodata input
+   yrnow=year
+   !idx=findloc(isoyrtmp,yrnow+0.5)
+   do i=1,nisodatayr
+     if (floor(isoyr(i)) .eq. yrnow) then
+      loc=i
+      exit
+     endif
+   enddo
+  d_13cm = dble(globc13(loc))
+  d_14cm = dble(globc14(loc))
+else ! use the startyear to find loc
+   do i=1,nisodatayr
+     if (floor(isoyr(i)) .eq. startyear) then
+      loc=i
+      exit
+     endif
+   enddo
+  d_13cm = dble(globc13(loc))
+  d_14cm = dble(globc14(loc))
+endif
+
+if (varciso_switch .or. varco2_switch) then
+   d_13cca = d_13cm
+   d_14cca = d_14cm
+else !use the startyear to find values
+   do i=1,nisodatayr
+     if (floor(isoyr(i)) .eq. startyear) then
+      loc=i
+      exit
+     endif
+   enddo
+  d_13cca = dble(globc13(loc))
+  d_14cca = dble(globc14(loc))
+endif
+
+r_c13a = ((d_13cca/1000.0D0) + 1.0D0)*pdb
+r_c14a = ((d_14cca/1000.0D0) + 1.0D0)*stdC14
+
+if (c4_flag .EQ. dzero) then !c3 plants
+   r_c13assim = r_c13a*((-18.0D0/1000.0D0) + 1.0D0)
+   r_c13poolinitc3 = (r_c13assim/(r_c13assim+1.0D0))
+   r_c14assim = r_c14a*(1.0D0+(-18.0D0/1000.0D0))**2
+   r_c14poolinitc3 = r_c14assim
+else !c4 plants
+   r_c13assim = r_c13a*((-4.4D0/1000.0D0) + 1.0D0)
+   r_c13poolinitc4 = (r_c13assim/(r_c13assim+1.0D0))
+   r_c14assim = r_c14a*(1.0D0+(-4.4D0/1000.0D0))**2
+   r_c14poolinitc4 = r_c14assim
+endif
 
 !------------------------------
 !Reset variables
@@ -197,6 +261,22 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
           tempc13 = poollt%rcpoolpft_lay(p,k)*tempc
           hrvstc13 = hrvstc13 + tempc13
           poollt%loss_hrvst_lay(p,k) = tempc13
+
+          !if ((poollt%rcpoolpft_lay(p,k) .gt. 1.)) then
+           if ( (poollt%poolpft_dloss(p,k) .gt. 10.) .or. &
+                (poollt%poolpft_dloss(p,k) .lt. -10.) ) then
+               print*,' '
+               print*,'code: phen_defined'
+               print*,'p,k: ',p,k
+               print*,'poolpft_dloss(p,k-1/k/k+1):',&
+                   poollt%poolpft_dloss(p,k-1),poollt%poolpft_dloss(p,k),poollt%poolpft_dloss(p,k+1)
+               print*,'poolpft_lay(p,k-1/k/k+1) :',&
+                   poollt%poolpft_lay(p,k-1),poollt%poolpft_lay(p,k),poollt%poolpft_lay(p,k+1)
+               print*,' '
+           endif
+
+       enddo
+    enddo
     !... same as above but for C-14 pools
     hrvstc14 = dzero
     do p=2*(npoolpft/3)+1,npoolpft !11,15 npoolpft
@@ -211,25 +291,8 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
           tempc14 = poollt%rcpoolpft_lay(p,k)*tempc
           hrvstc14 = hrvstc14 + tempc14
           poollt%loss_hrvst_lay(p,k) = tempc14
-
-
-!if ((poollt%rcpoolpft_lay(p,k) .gt. 1.)) then
-if ( (poollt%poolpft_dloss(p,k) .gt. 10.) .or. &
-     (poollt%poolpft_dloss(p,k) .lt. -10.) ) then
-    print*,' '
-    print*,'code: phen_defined'
-    print*,'p,k: ',p,k
-    print*,'poolpft_dloss(p,k-1/k/k+1):',&
-        poollt%poolpft_dloss(p,k-1),poollt%poolpft_dloss(p,k),poollt%poolpft_dloss(p,k+1)
-    print*,'poolpft_lay(p,k-1/k/k+1) :',&
-        poollt%poolpft_lay(p,k-1),poollt%poolpft_lay(p,k),poollt%poolpft_lay(p,k+1)
-    print*,' '
-endif
-
-
-        enddo
-     enddo
-
+       enddo
+    enddo
 
      poollt%poolpft_dloss = poollt%poolpft_dloss + &
           poollt%loss_hrvst_lay
@@ -400,13 +463,13 @@ IF ((phent%seed_pool .gt. dzero) .and. &
           if (poollt%rcpoolpft(p) .gt. dzero) then
              poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
           else
-             poollt%gain_seed(p) = rc13poolinitc3*deltac*phencont%allocp(p,ips) !based on d13c=-26
+             poollt%gain_seed(p) = r_c13poolinitc3*deltac*phencont%allocp(p,ips) !based on d13c=-26
           endif
        else !c4 plants
           if (poollt%rcpoolpft(p) .gt. dzero) then
              poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
           else
-             poollt%gain_seed(p) = rc13poolinitc4*deltac*phencont%allocp(p,ips) !based on d13c=-12.4              
+             poollt%gain_seed(p) = r_c13poolinitc4*deltac*phencont%allocp(p,ips) !based on d13c=-12.4              
           endif
        endif
 
@@ -423,13 +486,13 @@ IF ((phent%seed_pool .gt. dzero) .and. &
           if (poollt%rcpoolpft(p) .gt. dzero) then
              poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
           else
-             poollt%gain_seed(p) = rc14poolinitc3*deltac*phencont%allocp(p,ips) !based on d14c=???
+             poollt%gain_seed(p) = r_c14poolinitc3*deltac*phencont%allocp(p,ips) !based on d14c=???
           endif
        else !c4 plants
           if (poollt%rcpoolpft(p) .gt. dzero) then
              poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
           else
-             poollt%gain_seed(p) = rc14poolinitc4*deltac*phencont%allocp(p,ips) !based on d14c=???              
+             poollt%gain_seed(p) = r_c14poolinitc4*deltac*phencont%allocp(p,ips) !based on d14c=???              
           endif
        endif
 
