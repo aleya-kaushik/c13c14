@@ -1009,10 +1009,10 @@ type, public :: pooll_type
      real(r8) :: resp_grz !grazing respiration (mol C/m2/s)
      real(r8), dimension(:), allocatable :: &  !(npoolcan)
               loss_grz !loss from grazing (mol C/m2/s)
-     real(r8), dimension(:), allocatable :: &  !(npoolcan)
+     real(r8), dimension(:), allocatable :: &  !(npoolcanc13)
               loss_grzc13 !loss from grazing (mol C/m2/s)
      real(r8) :: resp_grzc13 !C13 grazing respiration for C-13 (mol C/m2/s)
-     real(r8), dimension(:), allocatable :: &  !(npoolcan)
+     real(r8), dimension(:), allocatable :: &  !(npoolcanc14)
               loss_grzc14 !loss from grazing (mol C/m2/s)
      real(r8) :: resp_grzc14 !C14 grazing respiration for C-13 (mol C/m2/s)
 
