@@ -305,6 +305,7 @@ if (co2t%assim .GT. nzero) then
                        1000.0D0) + 1.0D0)
     !!!    pdiagt%rcrespcan   =   rca*((pdiagt%kiecps_7d / &
     !!!        1000.0) + 1.)
+    ! factor = (R/(R+1)) to get something to multiply by totC
     fract%rcassimfac = fract%rcassim/(fract%rcassim+1.0D0)
 
     !put in rcassim = hard-coded # corresponding to d13cassim=-26
@@ -323,9 +324,9 @@ if (co2t%assim .GT. nzero) then
     !mostly same as above but for C14
     
     fract%rcassimc14 = rcac14*fract%c14alpha
-    fract%rcassimfacc14 = fract%rcassimc14/(fract%rcassimc14+1.0D0)
-    fract%c14assim  =  (fract%rcassimc14 * co2t%assim)/ &
-                        (fract%rcassimc14+1.0D0)
+    !factor is the same since cap-delta is in terms of totC already
+    fract%rcassimfacc14 = fract%rcassimc14
+    fract%c14assim  =  (fract%rcassimc14 * co2t%assim)
 
 
     if (fract%d13cca .lt. -1000. .or. fract%d13cassim .lt. -400.) then ! &

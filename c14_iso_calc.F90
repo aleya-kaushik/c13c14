@@ -58,11 +58,11 @@ crp = pool_indx_croot !ntpool index 3
 wp =  pool_indx_stwd !ntpool index 4
 pp =  pool_indx_prod !ntpool index 5
 
-lpc14 =  pool_indx_leaf_c14-12 !ntpool index 23, npoolpft index 11
-frpc14 = pool_indx_froot_c14-12 !ntpool index 24, npoolpft index 12
-crpc14 = pool_indx_croot_c14-12 !ntpool index 25, npoolpft index 13
-wpc14 =  pool_indx_stwd_c14-12 !ntpool index 26, npoolpft index 14
-ppc14 =  pool_indx_prod_c14-12 !ntpool index 27, npoolpft index 15
+lpc14 =  pool_indx_leaf_c14-(2*npoollu/3) !ntpool index 23, npoolpft index 11
+frpc14 = pool_indx_froot_c14-(2*npoollu/3) !ntpool index 24, npoolpft index 12
+crpc14 = pool_indx_croot_c14-(2*npoollu/3) !ntpool index 25, npoolpft index 13
+wpc14 =  pool_indx_stwd_c14-(2*npoollu/3) !ntpool index 26, npoolpft index 14
+ppc14 =  pool_indx_prod_c14-(2*npoollu/3) !ntpool index 27, npoolpft index 15
 
 cdbp  = pool_indx_cdb-npoolpft/3 !ntpool index 6, npoollu index 1
 metlp = pool_indx_metl-npoolpft/3 !ntpool index 7, npoollu index 2
