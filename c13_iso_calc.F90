@@ -62,26 +62,25 @@ crp = pool_indx_croot !ntpool index 3
 wp =  pool_indx_stwd !ntpool index 4
 pp =  pool_indx_prod !ntpool index 5
 
-lpc13 =  pool_indx_leaf_c13-6 !ntpool index 12, npoolpft index 6
-frpc13 = pool_indx_froot_c13-6 !ntpool index 13, npoolpft index 7
-crpc13 = pool_indx_croot_c13-6 !ntpool index 14, npoolpft index 8
-wpc13 =  pool_indx_stwd_c13-6 !ntpool index 15, npoolpft index 9
-ppc13 =  pool_indx_prod_c13-6 !ntpool index 16, npoolpft index 10
+lpc13 =  pool_indx_leaf_c13-npoollu/3 !ntpool index 12, npoolpft index 6
+frpc13 = pool_indx_froot_c13-npoollu/3 !ntpool index 13, npoolpft index 7
+crpc13 = pool_indx_croot_c13-npoollu/3 !ntpool index 14, npoolpft index 8
+wpc13 =  pool_indx_stwd_c13-npoollu/3 !ntpool index 15, npoolpft index 9
+ppc13 =  pool_indx_prod_c13-npoollu/3 !ntpool index 16, npoolpft index 10
 
-cdbp  = pool_indx_cdb-npoolpft/2 !ntpool index 6, npoollu index 1
-metlp = pool_indx_metl-npoolpft/2 !ntpool index 7, npoollu index 2
-strlp = pool_indx_strl-npoolpft/2 !ntpool index 8, npoollu index 3
-slitp = pool_indx_slit-npoolpft/2 !ntpool index 9, npoollu index 4
-slowp = pool_indx_slow-npoolpft/2 !ntpool index 10, npoollu index 5
-armp  = pool_indx_arm-npoolpft/2 !ntpool index 11, npoollu index 6
+cdbp  = pool_indx_cdb-npoolpft/3 !ntpool index 6, npoollu index 1
+metlp = pool_indx_metl-npoolpft/3 !ntpool index 7, npoollu index 2
+strlp = pool_indx_strl-npoolpft/3 !ntpool index 8, npoollu index 3
+slitp = pool_indx_slit-npoolpft/3 !ntpool index 9, npoollu index 4
+slowp = pool_indx_slow-npoolpft/3 !ntpool index 10, npoollu index 5
+armp  = pool_indx_arm-npoolpft/3 !ntpool index 11, npoollu index 6
 
-cdbpc13  = pool_indx_cdb_c13 - npoolpft !ntpool index 17, npoollu index 7
-metlpc13  = pool_indx_metl_c13 - npoolpft !ntpool index 18, npoollu index 8
-strlpc13  = pool_indx_strl_c13 - npoolpft !ntpool index 19, npoollu index 9
-slitpc13  = pool_indx_slit_c13 - npoolpft !ntpool index 20, npoollu index 10
-slowpc13 = pool_indx_slow_c13 - npoolpft !ntpool index 21, npoollu index 11
-armpc13  = pool_indx_arm_c13 - npoolpft !ntpool index 22, npoollu index 12
-
+cdbpc13  = pool_indx_cdb_c13 - (2*(npoolpft/3)) !ntpool index 17, npoollu index 7
+metlpc13  = pool_indx_metl_c13 - (2*(npoolpft/3)) !ntpool index 18, npoollu index 8
+strlpc13  = pool_indx_strl_c13 - (2*(npoolpft/3)) !ntpool index 19, npoollu index 9
+slitpc13  = pool_indx_slit_c13 - (2*(npoolpft/3)) !ntpool index 20, npoollu index 10
+slowpc13 = pool_indx_slow_c13 - (2*(npoolpft/3)) !ntpool index 21, npoollu index 11
+armpc13  = pool_indx_arm_c13 - (2*(npoolpft/3)) !ntpool index 22, npoollu index 12
 
 
 !! print statements to check poolpft_loss and poolpft_lay
@@ -307,10 +306,10 @@ resp_casc13 = poollt%resp_autoc13 + pooldt%resp_hetc13
 !...Calculate rcpool for each pool/layer
 !...uses tmpval to check for mass in total pools first
 
-do n=npoolpft/2+1,npoolpft !(6,10) C13 live pools
+do n=npoolpft/3+1,2*npoolpft/3 !(6,10) C13 live pools
    tcref=n-5 !(1,5) totC live pools
    !tsref=n-5 !ntpool for totC live pools
-   sref=n+npoolpft/2+1 !12,16 ntpool
+   sref=n+npoolpft/3+1 !12,16 ntpool
 
    !if (poollt%poolpft(tcref) .gt. nzero) then
    if (pool_indx_lay(sref) .eq. 1) then
@@ -468,7 +467,7 @@ endif
 !fract%d13cpstwdxpstwd = fract%d13cpool_stwdc13 * poollt%curpoolpft(wp)
 !fract%d13cpprodxpprod = fract%d13cpool_prodc13 * poollt%curpoolpft(pp)
 
-do n=npoollu/2+1,npoollu !(7,12) C13 dead pools
+do n=npoollu/3+1,2*npoollu/3 !(7,12) C13 dead pools
    tcref=n-6 !(1,6) totC dead pools
    !tsref=n !ntpool for totC dead pools
    sref=n+npoolpft !17,22 ntpool
@@ -587,8 +586,8 @@ endif
 !...Update poolpft_min for the isotope pools
 tmpmin = nzero
 !...Update poolpft_min for isotope pools based on current pool sizes
-do n=npoolpft/2+1,npoolpft !(6,10 live pools)
-   tcref=n-5
+do n=npoolpft/3+1,3*npoolpft/3 !(6,10 live pools)
+   tcref=n-5 !(1,5) totC live pools
    if (poollt%rcpoolpft(n) .gt. nzero) then
      tmpmin = (poollt%rcpoolpft(n)) * poolcont%poolpft_min(tcref)
    else

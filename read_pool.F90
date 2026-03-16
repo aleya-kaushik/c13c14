@@ -50,7 +50,7 @@ integer(byte) :: groupref
 real(r8) :: poolval
 integer(i4) :: lp, lpc13, lpc14
 integer(i4) :: yrnow, loc
-real(r8) :: d_13cm, d_14cm, d_13cca, d_14cca
+real(r8) :: d_13cm, d_14cm, d_13cca, d_14cca, N
 real(r8) :: r_c13a, r_c13assim, r_c13poolinitc3, r_c13poolinitc4
 real(r8) :: r_c14a, r_c14assim, r_c14poolinitc3, r_c14poolinitc4
 
@@ -234,7 +234,7 @@ do i=1,npft
    read(poolid,*) trash
    read(poolid,*) trash
    read(poolid,*) trash
-   do j=1, npoollu/2 !npoollu is 18, first 6 are C, next 6 are C-13, last 6 are C-14
+   do j=1, npoollu/3 !npoollu is 18, first 6 are C, next 6 are C-13, last 6 are C-14
      read(poolid,*) num, poolname(j), poolcon(i)%dresp_eff(1:6,j)
    enddo
    poolcon(i)%dresp_eff(7:12,7:12)=poolcon(i)%dresp_eff(1:6,1:6)
@@ -251,7 +251,7 @@ do i=1,npft
    read(poolid,*) trash
    read(poolid,*) trash
    read(poolid,*) trash
-   do j=1, ntpool/2 !ntpool is 22, first 11 are C, next 11 are C-13            
+   do j=1, ntpool/3 !ntpool is 33, first 11 are C, next 11 are C-13, last 11 are C-14            
      read(poolid,*) num, poolname(j), poolcon(i)%pool_trans_frac(1:11,j)
    enddo
    poolcon(i)%pool_trans_frac(12:22,12:22)=poolcon(i)%pool_trans_frac(1:11,1:11)
@@ -365,19 +365,23 @@ do i=1,npft
        endif
        
        r_c13a = ((d_13cca/1000.0D0) + 1.0D0)*pdb
-       r_c14a = ((d_14cca/1000.0D0) + 1.0D0)*stdC14
-       
+
+       N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+d_13cca/1000.0D0)**2.0)
+       r_c14a = (dble(d_14cca+1.0D0)*stdC14)/N
+
        if (physcon(i)%c4flag .EQ. dzero) then !c3 plants
           r_c13assim = r_c13a*((-18.0D0/1000.0D0) + 1.0D0)
           r_c13poolinitc3 = (r_c13assim/(r_c13assim+1.0D0))
-          r_c14assim = r_c14a*(1.0D0+(-18.0D0/1000.0D0))**2
+
+          r_c14assim = r_c14a*((1.0D0+(-18.0D0/1000.0D0))**2)
           r_c14poolinitc3 = r_c14assim
           poolcon(i)%poolpft_min(lpc13) = dble(r_c13poolinitc3*poolval) ! based on rcassim equiv to -26
           poolcon(i)%poolpft_min(lpc14) = dble(r_c14poolinitc3*poolval)
        else !c4 plants
           r_c13assim = r_c13a*((-4.4D0/1000.0D0) + 1.0D0)
           r_c13poolinitc4 = (r_c13assim/(r_c13assim+1.0D0))
-          r_c14assim = r_c14a*(1.0D0+(-4.4D0/1000.0D0))**2
+
+          r_c14assim = r_c14a*((1.0D0+(-4.4D0/1000.0D0))**2)
           r_c14poolinitc4 = r_c14assim
           poolcon(i)%poolpft_min(lpc13) = dble(r_c13poolinitc4*poolval) ! based on rcassim equiv to -12.4          
           poolcon(i)%poolpft_min(lpc14) = dble(r_c14poolinitc4*poolval)

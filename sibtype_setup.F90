@@ -565,7 +565,7 @@ enddo
 
 !...set pool vertical distribution and
 !...equilibrium information
-do p=1,npoollu/2 !1,6 dead pools
+do p=1,npoollu/3 !1,6 dead pools
    pooldt%poollup(p) = pooldt%poollu(p)
    if (sum(pooldt%poollu_lay(p,:)) .ne. pooldt%poollu(p)) then
        pooldt%poollu_lay(p,:) = pooldt%poollu(p) &

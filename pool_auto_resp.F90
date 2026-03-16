@@ -173,7 +173,7 @@ ENDDO
 
 !-----------------------------------------------------------------
 !-----Autotrophic Respiration Rate----
-do n=1,npoolpft/2 !1,5 live totC pools
+do n=1,npoolpft/3 !1,5 live totC pools
     isorefc13=n+5 !5,10 live C13 pools
     isorefc14=n+10 !11,15 live C14 pools
     !...only resp if above min pool value

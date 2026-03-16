@@ -78,7 +78,7 @@ if (.not. spinup_done) then
                    enddo
                    sib%g(i)%l(l)%equibdt%poollu_totgain(n) = dzero
                    sib%g(i)%l(l)%equibdt%poollu_totloss(n) = dzero
-               enddo !n=1,npoollu/2
+               enddo !n=1,npoollu/3
 
                !..same as above but for C13 pools
                do n=npoollu/3+1,2*(npoollu/3) !7,12 (npoollu=18 with C14)

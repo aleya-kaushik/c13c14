@@ -188,7 +188,7 @@ if (sibg%gprogt%firec .gt. dzero) then
    tpbiomass(:) = dzero
 
    do l=1, ntpft
-     !...calculate total above-ground biomass (m-2)
+     !...calculate total above-ground biomass (m-2) for total carbon
       do p=1, npoolpft/3 ! 1,5 npoolpft
          if (pool_indx_lay(p) .eq. 1) then !1,5 ntpool
             tpagb(l) = tpagb(l) + tparea(l) &
@@ -198,7 +198,7 @@ if (sibg%gprogt%firec .gt. dzero) then
          endif
       enddo
       do p=1, npoollu/3 !1,6 npoollu
-         if (pool_indx_lay(p+npoolpft/2) .eq. 1) then ! 6,11 ntpool
+         if (pool_indx_lay(p+npoolpft/3) .eq. 1) then ! 6,11 ntpool
             tpagb(l) = tpagb(l) + tparea(l) &
                  * (sibg%l(l)%pooldt%poollu(p) &
                     - sum(sibg%l(l)%pooldt%poollu_dloss(p,:)))

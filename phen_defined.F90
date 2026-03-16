@@ -75,7 +75,7 @@ real(r8) :: hrvstt, hrvsttc13, ratio, ratioc13
 real(r8) :: tempc14, ratioc14, hrvstc14, hrvsttc14
 real(r8) :: c4_flag
 
-real(r8) :: d_13cm, d_14cm, d_13cca, d_14cca
+real(r8) :: d_13cm, d_14cm, d_13cca, d_14cca, N
 real(r8) :: r_c13a, r_c13assim, r_c13poolinitc3, r_c13poolinitc4 
 real(r8) :: r_c14a, r_c14assim, r_c14poolinitc3, r_c14poolinitc4
 
@@ -122,7 +122,8 @@ else !use the startyear to find values
 endif
 
 r_c13a = ((d_13cca/1000.0D0) + 1.0D0)*pdb
-r_c14a = ((d_14cca/1000.0D0) + 1.0D0)*stdC14
+N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+d_13cca/1000.0D0)**2.0)
+r_c14a = (dble(d_14cca+1.0D0)*stdC14)/N
 
 if (c4_flag .EQ. dzero) then !c3 plants
    r_c13assim = r_c13a*((-18.0D0/1000.0D0) + 1.0D0)
@@ -448,7 +449,7 @@ IF ((phent%seed_pool .gt. dzero) .and. &
     endif
 
     !...add seed carbon to pools
-    do p=1, npoolpft/2 !1,5 npoolpft
+    do p=1, npoolpft/3 !1,5 npoolpft
        poollt%gain_seed(p) = deltac*phencont%allocp(p,ips)
        do k=1,pool_indx_lay(p) !1,5 ntpool
           poollt%poolpft_dgain(p,k) = poollt%poolpft_dgain(p,k) &
@@ -486,13 +487,13 @@ IF ((phent%seed_pool .gt. dzero) .and. &
           if (poollt%rcpoolpft(p) .gt. dzero) then
              poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
           else
-             poollt%gain_seed(p) = r_c14poolinitc3*deltac*phencont%allocp(p,ips) !based on d14c=???
+             poollt%gain_seed(p) = r_c14poolinitc3*deltac*phencont%allocp(p,ips) !based on d14c=equiv to d13c above
           endif
        else !c4 plants
           if (poollt%rcpoolpft(p) .gt. dzero) then
              poollt%gain_seed(p) = poollt%rcpoolpft(p)*deltac*phencont%allocp(p,ips)
           else
-             poollt%gain_seed(p) = r_c14poolinitc4*deltac*phencont%allocp(p,ips) !based on d14c=???              
+             poollt%gain_seed(p) = r_c14poolinitc4*deltac*phencont%allocp(p,ips) !based on d14c=equiv to d13c above              
           endif
        endif
 
