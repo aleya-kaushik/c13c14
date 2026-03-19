@@ -9,7 +9,7 @@ subroutine restart_read()
     use kinds
     use module_io
     use module_pparams, only:  &
-       bco2m, bcosm, p0_sfc, secs_per_day
+       bcosm, p0_sfc, secs_per_day
     use module_sibconst, only: &
        eqclear_switch,   &
        nsib, npft, nlu, &
@@ -23,6 +23,8 @@ subroutine restart_read()
        sib, gprog_type
     use module_phosib, only: &
         pressure
+    use module_time, only: &
+        startyear 
 
     implicit none
 
@@ -594,7 +596,7 @@ do v = 1, sibr_nvar
            if (sibr_vd(v) .lt. rzero) then
               do i=1, subcount
                  do l=1,sib%g(i)%g_nlu
-                    sib%g(i)%l(l)%co2t%co2m = dble(bco2m)
+                    sib%g(i)%l(l)%co2t%co2m = sib%g(i)%gprogt%co2m
                  enddo
               enddo
            else
@@ -605,6 +607,44 @@ do v = 1, sibr_nvar
               enddo
            endif
        endif
+
+   !case (20)
+   !    if (var_exist) then
+   !        allocate(dvar2d(nsibf,nlu))
+   !        status = nf90_get_var(ncid, varid, dvar2d)
+   !        if (status .ne. nf90_noerr) then
+   !           print*,'Error reading restart variable: ', &
+   !               trim(sibr_vname(v))
+   !           stop
+   !        endif
+
+   !        do i=1, subcount
+   !           if (nsibr_flag) then
+   !               gref = subset(i)
+   !           else
+   !               gref = i
+   !           endif
+
+   !           do l=1,sib%g(i)%g_nlu
+   !               sib%g(i)%l(l)%co2t%co2m = dvar2d(gref,l)
+   !           enddo
+   !        enddo
+   !        deallocate(dvar2d)
+   !    else
+   !        if (sibr_vd(v) .lt. rzero) then
+   !           do i=1, subcount
+   !              do l=1,sib%g(i)%g_nlu
+   !                 sib%g(i)%l(l)%co2t%co2m = dble(bco2m)
+   !              enddo
+   !           enddo
+   !        else
+   !           do i=1, subcount
+   !              do l=1,sib%g(i)%g_nlu
+   !                  sib%g(i)%l(l)%co2t%co2m = sibr_vd(v)
+   !              enddo
+   !           enddo
+   !        endif
+   !    endif
        
    !case (20)
    !    if (var_exist) then

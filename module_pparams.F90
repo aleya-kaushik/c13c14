@@ -81,7 +81,7 @@ module module_pparams
             mwc13  = 13.0,       & ! molecular weight of carbon-13 (g/mol)
             mwc14  = 14.0,       & ! molecular weight of carbon-14 (g/mol)
             po2m   = 20900.0,    & ! mixed layer O2 concentration
-            bco2m  = 340.0,      & ! mixed layer CO2 concentration (ppm)
+            !bco2m  = 340.0,      & ! mixed layer CO2 concentration (ppm)
             bcosm  = 500.0         ! mixed layer COS concentration (ppt)
 
        real(r8), parameter :: &

@@ -9,11 +9,13 @@
 subroutine set_co2( year, mon, gprogt )
 
     use module_pparams, only: &
-        p0_sfc, bco2m
+        p0_sfc
     use module_sib, only: &
         sib, gprog_type
     use module_sibconst, only: &
         subcount, varco2_switch
+    use module_time, only: &
+        startyear
     !use module_phosib, only: &
     !    pressure 
 
@@ -35,6 +37,8 @@ subroutine set_co2( year, mon, gprogt )
     real :: seas ! seasonal variation adjustment
     integer :: num1 ! southern flask number index for interpolation
     integer :: num2 ! northern flask number index for interpolation
+
+    !real(r8) :: bco2m
 
     !..Set CO2 global base value in ppmv
     !pressure = dble(gprogt%ps) * 100.0D0
@@ -135,7 +139,8 @@ subroutine set_co2( year, mon, gprogt )
       do n = 1,subcount
        !print*,'ppm gprogt%pco2m from co2_mod:',bco2m
        !sib%g(n)%gprogt%pco2m = dble(bco2m*pressure)/1.E6
-       sib%g(n)%gprogt%co2m = dble(bco2m)/1.0D6
+       sib%g(n)%gprogt%co2m = dble(280.+0.27*exp(0.019325329*(startyear-1700.)))/1.0D6
+       !sib%g(n)%gprogt%co2m = dble(bco2m)/1.0D6
        !print *,'Pa gprogt%pco2m from co2_mod:', sib%g(n)%gprogt%pco2m
       enddo
   endif
