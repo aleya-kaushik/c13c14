@@ -17,7 +17,7 @@ character(len=100) :: trash
 logical :: iscomment1, iscomment2
 
 !integer(i4), intent(in) :: nisodatayr
-real(r8), dimension(171) :: &
+real(r8), dimension(175) :: &
    isoyrtmp, nhc14tmp, tropc14tmp, &
    shc14tmp, globc13tmp, globc14tmp
 !real(r8), intent(in) :: &
@@ -53,6 +53,11 @@ open(unit=cisoid,file=trim(isodata_file),form='formatted')
 !...top line of file = # yrs data
 read(cisoid,*) nisodatayr
 !print('(a,i4)'),'nisodatayr: ', nisodatayr
+
+!... create arrays for iso data
+!real(r8), dimension(nisodatayr) :: &
+!   isoyrtmp, nhc14tmp, tropc14tmp, &
+!   shc14tmp, globc13tmp, globc14tmp
 
 !...ignore text in between lines of ***
 iscomment1=.true.

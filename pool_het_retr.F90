@@ -259,7 +259,8 @@ enddo
 
 !----Surface/Soil Losses from Heterotrophic Respiration-----
 do n=1,npoollu/3 !npoollu=18 dead pools, 1-6 total C dead pools
-    do s=1,pool_indx_lay(npoolpft/3+n) !npoolpft=15, index 5+n: 6-11 ntpool
+    do s=1,pool_indx_lay(n+npoolpft/3) !npoolpft=15, index n+5: 6-11 ntpool
+        !temp_loss_lay(npoollu,nsoil)
         temp_loss_lay(n,s) = pooldt%poollu_lay(n,s) &
                            * pooldt%kratert_lay(n,s)
     enddo
@@ -267,16 +268,16 @@ enddo
 
 !...loop through C-13 pools
 do n=npoollu/3+1,2*npoollu/3 !18 dead pools, 7-12 C-13 dead pools
-    tcref=n-6 !totC pools (1,6)
-    do s=1,pool_indx_lay(2*npoolpft/3+n) !index 10+n, pool_indx_lay(17-22) ntpool
+    tcref=n-6 !totC dead pools (1,6)
+    do s=1,pool_indx_lay(n+2*npoolpft/3) !index n+10, pool_indx_lay(17-22) ntpool
         temp_loss_lay(n,s) = pooldt%rcpoollu_lay(n,s) * temp_loss_lay(tcref,s)
     enddo
 enddo
 
 !...loop through C-14 pools
 do n=2*npoollu/3+1,npoollu !18 dead pools, 13-18 C-13 dead pools
-    tcref=n-12 !totC pools (1,6)
-    do s=1,pool_indx_lay(npoolpft+n) !index 15+n, pool_indx_lay(28-33) ntpool
+    tcref=n-12 !totC dead pools (1,6)
+    do s=1,pool_indx_lay(n+npoolpft) !index n+15, pool_indx_lay(28-33) ntpool
         temp_loss_lay(n,s) = pooldt%rcpoollu_lay(n,s) * temp_loss_lay(tcref,s)
     enddo
 enddo
@@ -291,6 +292,7 @@ do j=1,npoollu/3 !npoollu=18, (1,6) dead pools
        kref=k+npoolpft/3 ! +5=(6,11) ntpool
        if (poolcont%pool_trans_frac(jref,kref) > dzero) then
           !.....transfer/respiration losses
+          !pool_trans_frac is (ntpool,ntpool), dresp_eff is (npoollu,npoollu)
          do s=1,pool_indx_lay(jref)
              pooldt%loss_resp_lay(j,s) = &
                  pooldt%loss_resp_lay(j,s) &

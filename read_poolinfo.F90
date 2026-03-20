@@ -215,6 +215,7 @@ do i=1, ntpool
        iref = iref + bone
    endif
 enddo
+iref=bone
 do i=1, ntpool
    if (trim(pool_loc(i)) == 'surfacec14') then
        pool_indx_sfcc14(iref)=int(i,kind=byte)
@@ -240,6 +241,7 @@ do i=1, ntpool
       iref=iref+bone
    endif
 enddo
+iref=bone
 do i=1, ntpool
    if (trim(pool_loc(i)) == 'soilc14') then
       pool_indx_soilc14(iref)=int(i,kind=byte)

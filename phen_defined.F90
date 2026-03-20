@@ -336,7 +336,7 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
         endif
      enddo
      ! same as above but for C14
-     do m=5*npoolpft/3+3,ntpool ! goes from (28,33) ntpool to 13-18 dead pools
+     do m=ntpool-npoolpft/3,ntpool ! goes from (28,33) ntpool to 13-18 dead pools
         mref = m - npoolpft ! (m-15, 13-18 dead pools, with npoolpft=15)
         if (poolcont%harvest_trans(mref+2) .gt. rzero) then !15,20
            do k=1,pool_indx_lay(m) !28,33 ntpool

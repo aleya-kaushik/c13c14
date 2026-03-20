@@ -714,9 +714,26 @@ tempbc13 = abs(dcarbonbc13)/mol_to_umol
 !if (tempbc13 .GT. carbonb_threshc13) cb_errc13 = .true.
 IF (tempbc13 .GT. carbonb_threshc13) THEN
    print*,'!!Dead C13 Pool Store/In/Out Balance Error!!'
+   print*,'   '
+   print*,'   DPool_store: ',dcarbons
+   print*,'   DPool_gain:  ',dcarbonin
+   print*,'   DPool_loss:  ',dcarbonout
+   print*,'   '
+   print*,'   tempbc13: ',tempbc13
    print*,'   DPool_store C13: ',dcarbonsc13
    print*,'   DPool_gain C13:  ',dcarboninc13
    print*,'   DPool_loss C13:  ',dcarbonoutc13
+   print*,'   '
+   print*,'   dgaingrzc13: ',dgaingrzc13
+   print*,'   dgainhrvc13: ',dgaingrzc13
+   print*,'   dgaintdc13: ',dgaingrzc13
+   print*,'   dgaintlc13: ',dgaingrzc13
+   print*,'   '
+   print*,'   dlossrc13: ',dlossrc13
+   print*,'   dlosstdc13: ',dlosstdc13
+   print*,'   dlossfc13: ',dlossfc13
+   print*,'   dlossrddc13: ',dlossrddc13
+
    if (carbonb_stop) stop
 ENDIF
 

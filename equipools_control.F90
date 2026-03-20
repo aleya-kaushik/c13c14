@@ -1100,7 +1100,7 @@ do i=1, subcount
           enddo
 
           do n=npoolpft+2,npoollu+4 !17,22 C13 dead pools
-           nref=n-2*npoolpft/3 !7,12 poollu index
+           nref=n-(2*(npoolpft/3)) !7,12 poollu index
           write(12,'(i4,a8,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') & 
               n,trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc13, &
@@ -1359,7 +1359,7 @@ do i=1, subcount
        enddo
 
        do n=npoolpft+2,npoollu+4 !17,22 C13 dead pools
-          nref=n-2*npoolpft/3 !7,12 poollu index
+          nref=n-(2*(npoolpft/3)) !7,12 poollu index
           print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', n, trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc13, &
               sib%g(i)%l(l)%equibdt%poollu_end(nref)*pool_convertc13, &
