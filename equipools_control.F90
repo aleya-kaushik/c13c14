@@ -1299,7 +1299,7 @@ do i=1, subcount
 
      do n = npoollu+npoolpft/3,npoollu+2*npoolpft/3-1! 23,27 C14 live pools ntpool
        nref=n-2*npoollu/3 !11,15 poolpft index
-        print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', &
+        print'(i4,a12,g9.2,g9.2,g9.2,a,l,a,2g9.2,2g9.2,1f9.4)', &
             n, trim(pool_name(n)), &
             (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc14), &
             (sib%g(i)%l(l)%equiblt%poolpft_end(nref)*pool_convertc14), &
@@ -1332,7 +1332,7 @@ do i=1, subcount
             sib%g(i)%l(l)%equiblt%live_c13_loss*pool_convertc13, &
             sib%g(i)%l(l)%equiblt%live_c13_ratio
      !...same as above except for C14 pools
-     print'(a,2f10.6,a,l,a,2f12.4,1f9.4)','--> LiveC14 Tot:', &
+     print'(a,2g9.2,a,l,a,2g9.2,1f9.4)','--> LiveC14 Tot:', &
             sib%g(i)%l(l)%equiblt%live_c14_init*pool_convertc14, &
             sib%g(i)%l(l)%equiblt%live_c14_end*pool_convertc14,   &
             '             ', &
@@ -1374,7 +1374,7 @@ do i=1, subcount
 
        do n=npoollu+2*npoolpft/3,ntpool !28,33 C14 dead pools
           nref=n-npoolpft !13,18 poollu index
-          print'(i4,a12,f10.4,f10.6,f10.4,a,l,a,2f10.4,2f12.4,1f9.4)', n, trim(pool_name(n)), &
+          print'(i4,a12,g9.2,g9.2,g9.2,a,l,a,2g9.2,2g9.2,1f9.4)', n, trim(pool_name(n)), &
               sib%g(i)%l(l)%equibdt%poollu_init(nref)*pool_convertc14, &
               sib%g(i)%l(l)%equibdt%poollu_end(nref)*pool_convertc14, &
               sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc14, &
@@ -1425,7 +1425,7 @@ do i=1, subcount
              sib%g(i)%l(l)%equibdt%deadsoil_c13_ratio
 
       !...same as above but for C14 pools
-      print'(a,2f10.6,a,l,a,2f12.4,1f9.4)','-->  SfcC14 Tot:', &
+      print'(a,2g9.2,a,l,a,2g9.2,1f9.4)','-->  SfcC14 Tot:', &
              sib%g(i)%l(l)%equibdt%deadsfc_c14_init*pool_convertc14, &
              sib%g(i)%l(l)%equibdt%deadsfc_c14_end*pool_convertc14,   &
              '             ', &
@@ -1434,7 +1434,7 @@ do i=1, subcount
              sib%g(i)%l(l)%equibdt%deadsfc_c14_gain*pool_convertc14, &
              sib%g(i)%l(l)%equibdt%deadsfc_c14_loss*pool_convertc14, &
              sib%g(i)%l(l)%equibdt%deadsfc_c14_ratio
-      print'(a,2f10.6,a,l,a,2f12.4,1f9.4)','--> SoilC14 Tot:', &
+      print'(a,2g9.2,a,l,a,2g9.2,1f9.4)','--> SoilC14 Tot:', &
              sib%g(i)%l(l)%equibdt%deadsoil_c14_init*pool_convertc14, &
              sib%g(i)%l(l)%equibdt%deadsoil_c14_end*pool_convertc14,   &
              '             ', &

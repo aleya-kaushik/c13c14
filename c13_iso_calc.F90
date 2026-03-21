@@ -470,7 +470,7 @@ endif
 do n=npoollu/3+1,2*npoollu/3 !(7,12) C13 dead pools
    tcref=n-6 !(1,6) totC dead pools
    !tsref=n !ntpool for totC dead pools
-   sref=n+npoolpft !17,22 ntpool
+   sref=n+(2*npoolpft/3) !17,22 ntpool
    !if (pooldt%poollu(tcref) .gt. nzero) then
    if (pool_indx_lay(sref) .eq. 1) then
      tmpvdr = ( pooldt%poollu_lay(tcref,1) &

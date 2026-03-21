@@ -406,6 +406,11 @@ ENDIF !pools > 0
 gain_transl_lay = lutemp_gainl_lay
 poollu_dgain = poollu_dgain + lutemp_gainl_lay*dtsib
 
+! test prints for C14 dead pools
+!print*, 'pool_auto_tran poollu_dgain(1:6,:): ',poollu_dgain(1:6,:)
+!print*, 'pool_auto_tran poollu_dgain(7:12,:): ',poollu_dgain(7:12,:)
+!print*, 'pool_auto_tran poollu_dgain(13:18,:): ',poollu_dgain(13:18,:)
+
 !...Additional diagnostics
 poollt%autotran_dloss = poollt%poolpft_dloss
 

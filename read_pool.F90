@@ -268,9 +268,15 @@ do i=1,npft
 enddo
 
 !print*,'trans_frac (1,1:11): ',poolcon(2)%pool_trans_frac(1,1:11)
-!print*,'trans_frac (12,12:22): ',poolcon(2)%pool_trans_frac(12,12:22)
-!print*,'trans_frac (1,12:22): ',poolcon(2)%pool_trans_frac(1,12:22)
-!print*,'trans_frac (12,1:11): ',poolcon(2)%pool_trans_frac(12,1:11)
+!print*,'trans_frac (1,12:22): ',poolcon(2)%pool_trans_frac(1,12:22) !should be zeros
+!print*,'trans_frac (12,12:22): ',poolcon(2)%pool_trans_frac(12,12:22) !should be same as line1
+!print*,'trans_frac (23,23:33): ',poolcon(2)%pool_trans_frac(23,23:33) !should be same as line1
+
+!print*,'trans_frac (5,1:11): ',poolcon(2)%pool_trans_frac(5,1:11)
+!print*,'trans_frac (5,12:22): ',poolcon(2)%pool_trans_frac(5,12:22) ! should be zeros
+!print*,'trans_frac (16,12:22): ',poolcon(2)%pool_trans_frac(16,12:22) !should be same as line1
+!print*,'trans_frac (27,23:33): ',poolcon(2)%pool_trans_frac(27,23:33) !should be same as line1
+
 
 !.....Specialty transfers
 read(poolid,*) trash
@@ -366,8 +372,9 @@ do i=1,npft
        
        r_c13a = ((d_13cca/1000.0D0) + 1.0D0)*pdb
 
-       N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+d_13cca/1000.0D0)**2.0)
-       r_c14a = (dble(d_14cca+1.0D0)*stdC14)/N
+       N = (dble(1.0D0+(-0.025))**2.0) / (dble(1.0D0+d_13cca/1000.0D0)**2.0)
+       !N = (dble(1.0D0+(-25.0D0))**2.0) / (dble(1.0D0+d_13cca)**2.0)
+       r_c14a = (dble(1.0D0 + d_14cca/1000.0D0)*stdC14)/N
 
        if (physcon(i)%c4flag .EQ. dzero) then !c3 plants
           r_c13assim = r_c13a*((-18.0D0/1000.0D0) + 1.0D0)
@@ -389,6 +396,13 @@ do i=1,npft
 
    !print*,'lp min from readpool :',poolcon(i)%poolpft_min(lp)
    !print*,'lpc13 min from readpool :',poolcon(i)%poolpft_min(lpc13)
+   !print*,'lpc14 min from readpool :',poolcon(i)%poolpft_min(lpc14)
+   !print*,'r_c13assim :', r_c13assim
+   !print*,'r_c14assim :', r_c14assim
+   !print*,'r_c14a :',r_c14a
+   !print*,'r_c13a :',r_c13a
+   !print*,'N :',N
+
 
    endif !sla > 0
 
