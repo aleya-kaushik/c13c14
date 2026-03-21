@@ -108,13 +108,15 @@ IF (.not. spinup) THEN
    
    do n=2*npoolpft/3+1,npoolpft !11,15 live C14
       nref=n+2*npoolpft/3+2 !23,27 ntpool
-    !only decay if pool mass is non-zero
-    if (poollt%poolpft_lay(n,s) .gt. dzero) then 
       do s=1,pool_indx_lay(nref) !ntpool
+        !only decay if pool mass is non-zero
+        if (poollt%poolpft_lay(n,s) .gt. dzero) then
            poollt%loss_raddecay_lay(n,s) = &
                  k_raddecay*poollt%poolpft_lay(n,s) !npoolpft,nsoil
+        else
+           pooldt%loss_raddecay_lay(n,s) = dzero
+        endif !only decay if pool mass is non-zero
       enddo
-    endif !only decay if pool mass is non-zero
    enddo
    
    !... decay from dead pools
@@ -134,13 +136,15 @@ IF (.not. spinup) THEN
    
    do n=2*npoollu/3+1,npoollu !13,18 dead totC 
       nref=n+npoolpft !28,33 ntpool
-     !only decay if pool mass is non-zero
-     if (pooldt%poollu_lay(n,s) .gt. dzero) then
       do s=1,pool_indx_lay(nref) !ntpool
+         !only decay if pool mass is non-zero
+         if (pooldt%poollu_lay(n,s) .gt. dzero) then
            pooldt%loss_raddecay_lay(n,s) = & 
                 k_raddecay*pooldt%poollu_lay(n,s) !npoollu,nsoil
+         else
+            pooldt%loss_raddecay_lay(n,s) = dzero
+         endif !only decay if pool mass is non-zero
       enddo
-    endif !only decay if pool mass is non-zero
    enddo
 
 
