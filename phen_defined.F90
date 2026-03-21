@@ -123,7 +123,7 @@ endif
 
 r_c13a = ((d_13cca/1000.0D0) + 1.0D0)*pdb
 N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+d_13cca/1000.0D0)**2.0)
-r_c14a = (dble(d_14cca+1.0D0)*stdC14)/N
+r_c14a = (dble(1.0D0 + d_14cca/1000.0D0)*stdC14)/N
 
 if (c4_flag .EQ. dzero) then !c3 plants
    r_c13assim = r_c13a*((-18.0D0/1000.0D0) + 1.0D0)

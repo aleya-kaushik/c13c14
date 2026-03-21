@@ -164,7 +164,7 @@ fract%c13ca = (dble(rcac13) * dble(co2t%co2cas)) / (1.0D0 + dble(rcac13))
 fract%c12ca = dble(co2t%co2cas) / (1.0D0 + dble(rcac13))
 
 N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+fract%d13cca/1000.0D0)**2.0)
-rcac14 = (dble(fract%d14cca+1.0D0)*stdC14)/N
+rcac14 = (dble(1.0D0+fract%d14cca/1000.0D0)*stdC14)/N
 
 !xx=co2cas-c13ca-c12ca
 !print *,'co2cas into cfrax :',co2cas
