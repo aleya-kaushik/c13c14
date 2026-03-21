@@ -12,7 +12,7 @@ use module_sib, only: &
     pooll_type, poold_type, &
     fract_type
 use module_pparams,only: &
-    pdb, c14taumean
+    pdb, k_raddecay
 use module_time, only: &
     dtsib, wt_daily, year
 use module_poolinfo
@@ -112,7 +112,7 @@ IF (.not. spinup) THEN
     if (poollt%poolpft_lay(n,s) .gt. dzero) then 
       do s=1,pool_indx_lay(nref) !ntpool
            poollt%loss_raddecay_lay(n,s) = &
-                 (1.0D0/c14taumean)*poollt%poolpft_lay(n,s) !npoolpft,nsoil
+                 k_raddecay*poollt%poolpft_lay(n,s) !npoolpft,nsoil
       enddo
     endif !only decay if pool mass is non-zero
    enddo
@@ -138,7 +138,7 @@ IF (.not. spinup) THEN
      if (pooldt%poollu_lay(n,s) .gt. dzero) then
       do s=1,pool_indx_lay(nref) !ntpool
            pooldt%loss_raddecay_lay(n,s) = & 
-                (1.0D0/c14taumean)*pooldt%poollu_lay(n,s) !npoollu,nsoil
+                k_raddecay*pooldt%poollu_lay(n,s) !npoollu,nsoil
       enddo
     endif !only decay if pool mass is non-zero
    enddo

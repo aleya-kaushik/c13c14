@@ -95,7 +95,9 @@ module module_pparams
            kiecphtrsp = -12.0,     & ! photorespiration, Keeling2017: 12 +/- 4
                                      ! appropriate for leaves at 25 deg C
 
-           c14taumean = 8223.36173307  ! based on (tau_1/2)/ln2 where tau_1/2=5700 
+           k_raddecay = 1.0D0/(8223.36173307*60.*60.*24.*365.) ! in 1/s
+           !c14taumean = 8223.36173307 ! in s
+                                       ! based on (tau_1/2)/ln2 where tau_1/2=5700 yr
 
        integer(i4), parameter :: &
             eqnx  = 80, &             !  day of vernal equinox
