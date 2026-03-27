@@ -32,7 +32,7 @@ use module_sib, only: &
    soil_type, pooll_type, &
    fract_type
 use module_sibconst, only: &
-   npoolpft, nsoil
+   npoolpft, nsoil, ntpool
 use module_time, only: dtsib
 
 implicit none
@@ -62,6 +62,7 @@ real(r8) :: tmpv,tmpv1,tmpv2
 
 !...misc values
 integer(i4) :: n,s,nref,tcref,isorefc13,isorefc14
+integer(i4) :: isorefc13nt,isorefc14nt
 integer(i4) :: lp,frp,crp
 integer(i4) :: lpc13,frpc13,crpc13
 integer(i4) :: lpc14,frpc14,crpc14
@@ -176,6 +177,10 @@ ENDDO
 do n=1,npoolpft/3 !1,5 live totC pools
     isorefc13=n+5 !5,10 live C13 pools
     isorefc14=n+10 !11,15 live C14 pools
+
+    isorefc13nt=n+ntpool/3 !ntpool 12,16
+    isorefc14nt=n+2*ntpool/3 !ntpool 23,27
+
     !...only resp if above min pool value
     pool_valid = poolcont%poolpft_min(n)
 !    poollt%poolpftmin(n) = pool_valid
@@ -190,19 +195,25 @@ do n=1,npoolpft/3 !1,5 live totC pools
         poollt%krater_lay(n,1) = poollt%mcr_scale &
               * poolcont%k_rate(n)
         poollt%krater_lay(isorefc13,1) = poollt%mcr_scale &
-              * poolcont%k_rate(isorefc13)
+              * poolcont%k_rate(isorefc13nt) !k_rate is ntpool
         poollt%krater_lay(isorefc14,1) = poollt%mcr_scale &
-              * poolcont%k_rate(isorefc14)
+              * poolcont%k_rate(isorefc14nt)
     else
         do s=1,pool_indx_lay(n)
            poollt%krater_lay(n,s) = poollt%mrr_scale_lay(s) &
                * poolcont%k_rate(n)
            poollt%krater_lay(isorefc13,s) = poollt%mrr_scale_lay(s) &
-               * poolcont%k_rate(isorefc13)
+               * poolcont%k_rate(isorefc13nt)
            poollt%krater_lay(isorefc14,s) = poollt%mrr_scale_lay(s) &
-               * poolcont%k_rate(isorefc14)
+               * poolcont%k_rate(isorefc14nt)
         enddo
     endif
+
+!print*,'poollt%krater_lay:',poollt%krater_lay
+!print*,'poolcont%k_rate:',poolcont%k_rate
+!print*,'poollt%krater_lay(n,s):',poollt%krater_lay(n,s)
+!print*,'poollt%krater_lay(isorefc13,s):',poollt%krater_lay(isorefc13,s)
+!print*,'poollt%krater_lay(isorefc14,s):',poollt%krater_lay(isorefc14,s)
 
     !.....calculate/check maintenance resp
     do s=1,pool_indx_lay(n) !1,5 ntpool, indx_lay same for isorefc13
@@ -224,6 +235,18 @@ do n=1,npoolpft/3 !1,5 live totC pools
        poollt%loss_mresp_lay(isorefc14,s) = poollt%rcpoolpft_lay(isorefc14,s)*temp_mrespr
        poollt%poolpft_dloss(isorefc14,s) = poollt%rcpoolpft_lay(isorefc14,s)*temp_mrespl &
            + poollt%poolpft_dloss(isorefc14,s)
+
+!print*,'n,s:',n,s
+!print*,'poollt%loss_mresp_lay(n,s):',poollt%loss_mresp_lay(n,s)
+!print*,'poollt%loss_mresp_lay(isorefc13,s):',poollt%loss_mresp_lay(isorefc13,s)
+!print*,'poollt%loss_mresp_lay(isorefc14,s):',poollt%loss_mresp_lay(isorefc14,s)
+!print*,'poollt%rcpoolpft_lay(isorefc13,s):',poollt%rcpoolpft_lay(isorefc13,s)
+!print*,'poollt%rcpoolpft_lay(isorefc14,s):',poollt%rcpoolpft_lay(isorefc14,s)
+
+!print*,'poollt%poolpft_dloss(n,s):',poollt%poolpft_dloss(n,s)
+!print*,'poollt%poolpft_dloss(isorefc13,s):',poollt%poolpft_dloss(isorefc13,s)
+!print*,'poollt%poolpft_dloss(isorefc14,s):',poollt%poolpft_dloss(isorefc14,s)
+
 
        if ( (poollt%poolpft_dloss(isorefc13,s) .gt. 10.) .or. &
             (poollt%poolpft_dloss(isorefc13,s) .lt. -10.)) then
@@ -342,6 +365,33 @@ enddo !n=1,npoolpft
 !    enddo !s=1,pool_indx_lay
 !
 !enddo !n=1,npoolpft
+
+!debugging checks
+!print*,'pool_auto_resp ratio c13 dgain 7:',poollt%poolpft_dgain(7,:)/poollt%poolpft_dgain(2,:)
+!print*,'pool_auto_resp ratio c14 dgain 12:',poollt%poolpft_dgain(12,:)/poollt%poolpft_dgain(2,:)
+!
+!print*,'pool_auto_resp ratio c13 dloss 7:',poollt%poolpft_dloss(7,:)/poollt%poolpft_dloss(2,:)
+!print*,'pool_auto_resp ratio c14 dloss 12:',poollt%poolpft_dloss(12,:)/poollt%poolpft_dloss(2,:)
+!
+!print*,'pool_auto_resp ratio c13 dgain 8:',poollt%poolpft_dgain(8,:)/poollt%poolpft_dgain(3,:)
+!print*,'pool_auto_resp ratio c14 dgain 13:',poollt%poolpft_dgain(13,:)/poollt%poolpft_dgain(3,:)
+!
+!print*,'pool_auto_resp ratio c13 dloss 8:',poollt%poolpft_dloss(8,:)/poollt%poolpft_dloss(3,:)
+!print*,'pool_auto_resp ratio c14 dloss 13:',poollt%poolpft_dloss(13,:)/poollt%poolpft_dloss(3,:)
+!
+!print*,'pool_auto_resp ratio c13 dgain 9:',poollt%poolpft_dgain(9,:)/poollt%poolpft_dgain(4,:)
+!print*,'pool_auto_resp ratio c14 dgain 14:',poollt%poolpft_dgain(14,:)/poollt%poolpft_dgain(4,:)
+!
+!print*,'pool_auto_resp ratio c13 dloss 9:',poollt%poolpft_dloss(9,:)/poollt%poolpft_dloss(4,:)
+!print*,'pool_auto_resp ratio c14 dloss 14:',poollt%poolpft_dloss(14,:)/poollt%poolpft_dloss(4,:)
+!
+!print*,'pool_auto_resp ratio c13 dgain 10:',poollt%poolpft_dgain(10,:)/poollt%poolpft_dgain(5,:)
+!print*,'pool_auto_resp ratio c14 dgain 15:',poollt%poolpft_dgain(15,:)/poollt%poolpft_dgain(5,:)
+!
+!print*,'pool_auto_resp ratio c13 dloss 10:',poollt%poolpft_dloss(10,:)/poollt%poolpft_dloss(5,:)
+!print*,'pool_auto_resp ratio c14 dloss 15:',poollt%poolpft_dloss(15,:)/poollt%poolpft_dloss(5,:)
+
+
 ENDIF !pools are greater than required minimum
 
 !print*,'pool_valid lpc13: ',poollt%poolpftmin(6)

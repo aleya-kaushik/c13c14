@@ -197,6 +197,8 @@ ENDDO
 !...surface pools
 do n=1,npoolsfc
     nref = pool_indx_sfc(n) !6-8
+    !print*,'npoolsfc :',npoolsfc
+    !print*,'tot sfc pools nref :',nref
     do s=1,pool_indx_lay(nref)
         !pooldt%kratert_lay(npoollu,nsoil)
         pooldt%kratert_lay(nref-npoolpft/3,s) = & ! -5 = indexes 1-3 dead pools
@@ -208,6 +210,8 @@ enddo
 !...soil pools
 do n=1,npoolsoil
     nref=pool_indx_soil(n) ! 2,3 and 9-11
+    !print*,'npoolsoil :',npoolsoil
+    !print*,'tot soil pools nref :',nref
     if (nref .gt. npoolpft/3) then ! gt 5 = dead soil pools
         do s=1,pool_indx_lay(nref)
             pooldt%kratert_lay(nref-npoolpft/3,s) = & !-5 = 4-6 dead pools
@@ -219,6 +223,8 @@ enddo
 !...surface C13 pools
 do n=1,npoolsfcc13
     nref = pool_indx_sfcc13(n) !17-19
+    !print*,'npoolsfcc13 :',npoolsfcc13
+    !print*,'c13 sfc pools nref :',nref
     do s=1,pool_indx_lay(nref)
         pooldt%kratert_lay(nref-2*npoolpft/3,s) = & ! -10, indexes 7-9 dead pools
             pooldt%mhrt_sfc_scale*poolcont%k_rate(nref)
@@ -228,6 +234,8 @@ enddo
 !...soil C-13 pools
 do n=1,npoolsoilc13
     nref=pool_indx_soilc13(n) !13,14 and 20-22 
+    !print*,'npoolsoilc13 :',npoolsoilc13
+    !print*,'c13 soil pools nref :',nref
     if (nref .gt. (npoolpft+1)) then !gt 16 = dead soil C13 pools
         do s=1,pool_indx_lay(nref)
             pooldt%kratert_lay(nref-2*npoolpft/3,s) = & !-10, indexes 10-12 dead pools
@@ -239,6 +247,8 @@ enddo
 !...surface C14 pools
 do n=1,npoolsfcc14
     nref = pool_indx_sfcc14(n) !28-30
+    !print*,'npoolsfcc14 :',npoolsfcc14
+    !print*,'c14 sfc pools nref :',nref
     do s=1,pool_indx_lay(nref)
         pooldt%kratert_lay(nref-npoolpft,s) = & ! -15, indexes 13-15 dead pools
             pooldt%mhrt_sfc_scale*poolcont%k_rate(nref)
@@ -248,6 +258,8 @@ enddo
 !...soil C-14 pools
 do n=1,npoolsoilc14
     nref=pool_indx_soilc14(n) !24,25 and 31-33
+    !print*,'npoolsoilc14 :',npoolsoilc14
+    !print*,'c14 soil pools nref :',nref
     if (nref .gt. (npoolpft+12)) then !gt 27
         do s=1,pool_indx_lay(nref)
             pooldt%kratert_lay(nref-npoolpft,s) = & !-15, indexes 16-18 dead pools

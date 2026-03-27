@@ -113,6 +113,11 @@ DO p=1, npoolcan
    poollt%loss_grzc14(p) = poollt%rcpoolpft(cpc14) * poollt%loss_grz(p)
    poollt%poolpft_dloss(cpc14,1) = &
        poollt%poolpft_dloss(cpc14,1) + poollt%loss_grzc14(p)*dtsib
+
+!print*,'cp, cpc13, cpc14 :',cp,cpc13,cpc14
+!print*,'poollt%rcpoolpft(cpc13) :',poollt%rcpoolpft(cpc13)
+!print*,'poollt%rcpoolpft(cpc14) :',poollt%rcpoolpft(cpc14)
+
 ENDDO
 
 
@@ -167,7 +172,7 @@ enddo
 do m=ntpool-npoolpft/3,ntpool ! goes from (28,33) ntpool dead pools
    mref=m-npoolpft ! (m-15, 13-18 npoollu dead pools, with npoolpft=15)
    if (poolcont%graze_trans(mref+2) .gt. dzero) then !15-20
-       do s=1,pool_indx_lay(m) !pool_indx_lay(17,22) is ether 1 or 10
+       do s=1,pool_indx_lay(m) !pool_indx_lay(28,33) is ether 1 or 10
            pooldt%gain_grz_lay(mref,s) = grzc14 &
                  * poolcont%graze_trans(mref+2) &
                  * pooldt%poollu_flay(mref,s)
@@ -176,5 +181,8 @@ do m=ntpool-npoolpft/3,ntpool ! goes from (28,33) ntpool dead pools
                  + pooldt%gain_grz_lay(mref,:)*dtsib
     endif
 enddo
+
+!print*,'pool_graze ratios c13 :', (pooldt%poollu_dgain(7:12,:)/pooldt%poollu_dgain(1:6,:))
+!print*,'pool_graze ratios c14 :', (pooldt%poollu_dgain(13:18,:)/pooldt%poollu_dgain(1:6,:))
 
 end subroutine pool_graze

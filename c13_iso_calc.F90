@@ -19,9 +19,6 @@ use module_poolinfo
 use module_sibconst, only: &
     npoolpft, nsoil, npoollu, &
     varciso_switch, varco2_switch
-!    npoollu, &
-!    npoolsfc, npoolsoil, &
-!    npoolsfcc13, npoolsoilc13
 use module_phosib, only: &
     c4, gah2o, co2cap, &
     resp_cas!, &
@@ -694,5 +691,11 @@ if (tmpval .gt. nzero) then
 !else
 !  poollt%rcpoolfire = (fract%rcassim/(fract%rcassim+1.0D0))  
 endif
+
+
+!print*,'rcpoolpft from c13_iso_calc: ',poollt%rcpoolpft
+!print*,'rcpoollu from c13_iso_calc: ',pooldt%rcpoollu
+!print*,'rcpoolpft_lay from c13_iso_calc: ',poollt%rcpoolpft_lay
+!print*,'rcpoollu_lay from c13_iso_calc: ',pooldt%rcpoollu_lay
 
 end subroutine c13_iso_calc

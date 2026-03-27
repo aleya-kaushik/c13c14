@@ -249,7 +249,7 @@ enddo !n=1,npoolpft
 do n=2*npoolpft/3+1,npoolpft !11,15 live C13 pool
    tcref=n-10 !totC live pool
    nref=n+2*npoolpft/3+2 !23,27 ntpool, needed for pool_indx_lay
-   do s=1,pool_indx_lay(nref) !1,pool_indx_lay(12,16) either 1 or 10
+   do s=1,pool_indx_lay(nref) !1,pool_indx_lay(23,27) either 1 or 10
  !    if (poolpft_avail_lay(tcref,s) .gt. dzero) then
        poollt%loss_trans_lay(n,s) = tloss_lay(n,s) * dtisib
        poollt%poolpft_dloss(n,s) = &
@@ -410,6 +410,9 @@ poollu_dgain = poollu_dgain + lutemp_gainl_lay*dtsib
 !print*, 'pool_auto_tran poollu_dgain(1:6,:): ',poollu_dgain(1:6,:)
 !print*, 'pool_auto_tran poollu_dgain(7:12,:): ',poollu_dgain(7:12,:)
 !print*, 'pool_auto_tran poollu_dgain(13:18,:): ',poollu_dgain(13:18,:)
+
+!print*,'pool_auto_tran ratios c13 :', (poollu_dgain(7:12,:)/poollu_dgain(1:6,:))
+!print*,'pool_auto_tran ratios c14 :', (poollu_dgain(13:18,:)/poollu_dgain(1:6,:))
 
 !...Additional diagnostics
 poollt%autotran_dloss = poollt%poolpft_dloss

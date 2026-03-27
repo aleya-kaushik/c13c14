@@ -223,6 +223,11 @@ do i=1, ntpool
    endif
 enddo
 
+!debugging checks
+!print*,'pool_indx_sfc :',pool_indx_sfc(:)
+!print*,'pool_indx_sfcc13 :',pool_indx_sfcc13(:)
+!print*,'pool_indx_sfcc14 :',pool_indx_sfcc14(:)
+
 
 allocate(pool_indx_soil(npoolsoil))
 allocate(pool_indx_soilc13(npoolsoilc13))
@@ -248,6 +253,11 @@ do i=1, ntpool
       iref=iref+bone
    endif
 enddo
+
+!debugging checks
+!print*,'pool_indx_soil :',pool_indx_soil(:)
+!print*,'pool_indx_soilc13 :',pool_indx_soilc13(:)
+!print*,'pool_indx_soilc14 :',pool_indx_soilc14(:)
 
 !----------------------
 !...Print Information
