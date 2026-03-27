@@ -397,12 +397,16 @@ do i=1,npft
    !print*,'lp min from readpool :',poolcon(i)%poolpft_min(lp)
    !print*,'lpc13 min from readpool :',poolcon(i)%poolpft_min(lpc13)
    !print*,'lpc14 min from readpool :',poolcon(i)%poolpft_min(lpc14)
+   !print*,'r_c13poolinitc3 :',r_c13poolinitc3
+   !print*,'r_c13poolinitc4 :',r_c13poolinitc4
+   !print*,'r_c14poolinitc3 :',r_c14poolinitc3
+   !print*,'r_c14poolinitc4 :',r_c14poolinitc4
+
    !print*,'r_c13assim :', r_c13assim
    !print*,'r_c14assim :', r_c14assim
    !print*,'r_c14a :',r_c14a
    !print*,'r_c13a :',r_c13a
    !print*,'N :',N
-
 
    endif !sla > 0
 

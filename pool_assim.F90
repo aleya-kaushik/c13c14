@@ -238,11 +238,11 @@ crpc13 = pool_indx_croot_c13-6 !ntpool index 14, npoolpft index 8
 wpc13 =  pool_indx_stwd_c13-6 !ntpool index 15, npoolpft index 9
 ppc13 =  pool_indx_prod_c13-6 !ntpool index 16, npoolpft index 10
 
-lpc13 =  pool_indx_leaf_c13-12 !ntpool index 23, npoolpft index 11
-frpc13 = pool_indx_froot_c13-12 !ntpool index 24, npoolpft index 12
-crpc13 = pool_indx_croot_c13-12 !ntpool index 25, npoolpft index 13
-wpc13 =  pool_indx_stwd_c13-12 !ntpool index 26, npoolpft index 14
-ppc13 =  pool_indx_prod_c13-12 !ntpool index 27, npoolpft index 15
+lpc14 =  pool_indx_leaf_c14-12 !ntpool index 23, npoolpft index 11
+frpc14 = pool_indx_froot_c14-12 !ntpool index 24, npoolpft index 12
+crpc14 = pool_indx_croot_c14-12 !ntpool index 25, npoolpft index 13
+wpc14 =  pool_indx_stwd_c14-12 !ntpool index 26, npoolpft index 14
+ppc14 =  pool_indx_prod_c14-12 !ntpool index 27, npoolpft index 15
 
 !Reset allocations
 alloc_moist(:) = dzero

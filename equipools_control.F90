@@ -1459,9 +1459,50 @@ do i=1, subcount
          print'(a,f8.4)','    ClimP: ', &
             sib%g(i)%l(l)%phent%phenc_climp
       ENDIF
-      
+   
+!debugging prints
+print*, '------------------------------------------------'
+print*, '--------------check pool ratios-----------------'
+
+print*,'Live Pools'
+do n=2*npoolpft/3+2,npoolpft+1 ! 12,16
+  nref=n-npoolpft/3-1 !6,10
+   print'(i4,a12,f8.4)',n, trim(pool_name(n)),&
+          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc13)/ &
+          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref-5)*pool_convert)
+enddo
+
+do n = npoollu+npoolpft/3,npoollu+2*npoolpft/3-1! 23,27 C14 live pools ntpool
+  nref=n-2*npoollu/3 !11,15 poolpft index
+   print'(i4,a12,g9.2)',n, trim(pool_name(n)),&
+          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc14)/ &
+          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref-10)*pool_convert)
+enddo
+
+print*,' '
+print*,'Dead Pools'
+
+do n=npoolpft+2,npoollu+4 !17,22 C13 dead pools
+  nref=n-(2*(npoolpft/3)) !7,12 poollu index
+   print'(i4,a12,f8.4)', n, trim(pool_name(n)),&
+          (sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc13)/ &
+          (sib%g(i)%l(l)%equibdt%poollu_equib(nref-6)*pool_convert)
+enddo
+
+do n=npoollu+2*npoolpft/3,ntpool !28,33 C14 dead pools
+  nref=n-npoolpft !13,18 poollu index
+   print'(i4,a12,g9.2)',n, trim(pool_name(n)),&
+          (sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc14)/ &
+          (sib%g(i)%l(l)%equibdt%poollu_equib(nref-12)*pool_convert)
+enddo
+
+print*, '--------------check pool ratios-----------------'
+print*, '------------------------------------------------'
+
+   
   enddo !l=1,g_nlu
 enddo !i=1,subcount
+
 
 print*,'------------------------------------------------'
 print*,''
