@@ -62,6 +62,9 @@ IF (ialloc .ne. ione) THEN ! first 5 are total C, next 5 are C-13 live pools
   RETURN
 ENDIF
 
+!print*,'assim ratio c13 :',c13assim/assim
+!print*,'assim ratio c14 :',c14assim/assim
+
 !Calculate allocation fraction adjustments
 IF ((poollt%aadj_moist) .or. (poollt%aadj_temp)) THEN
     call pool_alloc( &
@@ -125,7 +128,7 @@ enddo
 
 !do the same calculations but for C-14 pools
 do p=2*npoolpft/3+1,npoolpft !11,15 C14 live pools
-    kref=p+npoolpft/3+1 !23,27 ntpool
+    kref=p+2*npoolpft/3+2 !23,27 ntpool
     deltac = fract%c14assim*poollt%alloc(p)
 !    deltac = fract%rcpoolfac*co2t%assim*poollt%alloc(p)
 !    deltac = (poollt%rcpoolpft(p))*assim*poollt%alloc(p)
@@ -161,6 +164,13 @@ poollt%resp_growc14 = sum(poollt%loss_gresp(11:15))
 !...Additional diagnostics
 poollt%assim_dgain = poollt%poolpft_dgain
 poollt%assim_dloss = poollt%poolpft_dloss
+
+
+!print*,'pool_assim ratios c13 dgain :', (poollt%poolpft_dgain(6:10,:)/poollt%poolpft_dgain(1:5,:))
+!print*,'pool_assim ratios c14 dgain :', (poollt%poolpft_dgain(11:15,:)/poollt%poolpft_dgain(1:5,:))
+
+!print*,'pool_assim ratios c13 dloss :', (poollt%poolpft_dloss(6:10,:)/poollt%poolpft_dloss(1:5,:))
+!print*,'pool_assim ratios c14 dloss :', (poollt%poolpft_dloss(11:15,:)/poollt%poolpft_dloss(1:5,:))
 
 end subroutine pool_assim
 

@@ -693,7 +693,7 @@ endif
 !print*,'poollt%poolpft_dloss(2,:):',poollt%poolpft_dloss(2,:)
 !print*,'poollt%poolpft_dloss(7,:):',poollt%poolpft_dloss(7,:)
 !print*,'poollt%poolpft_dloss(12,:):',poollt%poolpft_dloss(12,:)
-
+!
 !print*,'rcpoolpft_lay from c14_iso_calc (8,:): ',poollt%rcpoolpft_lay(8,:)
 !print*,'rcpoolpft_lay from c14_iso_calc (13,:): ',poollt%rcpoolpft_lay(13,:)
 
