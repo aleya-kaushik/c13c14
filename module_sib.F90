@@ -208,6 +208,7 @@ type, public :: fract_type
     real(r8) :: rcassim_nog    ! isotope ratio value of assimilation, no gamma term 
     real(r8) :: d13cassim   ! delta value of assimilation
     real(r8) :: d13cassim_nog   ! delta value of assimilation, no gamma term
+    real(r8) :: d14cassim   ! delta value of assimilation
     real(r8) :: c13assim    ! recently assimilated carbon-13 (mol C/m2/s)
     real(r8) :: c13assim_nog    ! recently assimilated carbon-13 (mol C/m2/s), no gamma
     real(r8) :: c12assim    ! recently assimilated carbon-12 (mol C/m2/s)

@@ -137,6 +137,11 @@ else !c4 plants
    r_c14poolinitc4 = r_c14assim
 endif
 
+   !print*,'r_c13poolinitc3 from phen_defined :',r_c13poolinitc3
+   !print*,'r_c13poolinitc4 from phen_defined :',r_c13poolinitc4
+   !print*,'r_c14poolinitc3 from phen_defined :',r_c14poolinitc3
+   !print*,'r_c14poolinitc4 from phen_defined :',r_c14poolinitc4
+
 !------------------------------
 !Reset variables
 poollt%gain_seed = dzero
@@ -282,7 +287,7 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
     hrvstc14 = dzero
     do p=2*(npoolpft/3)+1,npoolpft !11,15 npoolpft
        tcref=p-(2*npoolpft/3) !(p-10)
-       kref=p+npoolpft/3+1 !17,22 ntpool pool_indx_lay(12,16) 1 or 10
+       kref=p+2*npoolpft/3+2 !23,27 ntpool pool_indx_lay(23,27) 1 or 10
        do k=1,pool_indx_lay(kref)
           tempc = poollt%poolpft_lay(tcref,k) &
                - poolcont%poolpft_min(tcref) &
@@ -308,6 +313,32 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
      poollt%rmvd_hrvst = hrvstc * poolcont%harvest_trans(2)
      poollt%rmvd_hrvstc13 = hrvstc13 * poolcont%harvest_trans(2)
      poollt%rmvd_hrvstc14 = hrvstc14 * poolcont%harvest_trans(2)
+
+!print*,'phen_defined poollt%rcpoolpft_lay 6: ',poollt%rcpoolpft_lay(6,:)
+!print*,'phen_defined poollt%rcpoolpft_lay 11: ',poollt%rcpoolpft_lay(11,:)
+!
+!print*,'phen_defined poollt%rcpoolpft_lay 7: ',poollt%rcpoolpft_lay(7,:)
+!print*,'phen_defined poollt%rcpoolpft_lay 12: ',poollt%rcpoolpft_lay(12,:)
+!
+!print*,'phen_defined poollt%rcpoolpft_lay 10: ',poollt%rcpoolpft_lay(10,:)
+!print*,'phen_defined poollt%rcpoolpft_lay 15: ',poollt%rcpoolpft_lay(15,:)
+!
+!print*,'phen_defined ratio c13 loss_hrvst_lay 6:',poollt%loss_hrvst_lay(6,:)/poollt%loss_hrvst_lay(1,:)
+!print*,'phen_defined ratio c14 loss_hrvst_lay 11:',poollt%loss_hrvst_lay(11,:)/poollt%loss_hrvst_lay(1,:)
+!
+!print*,'phen_defined ratio c13 loss_hrvst_lay 7:',poollt%loss_hrvst_lay(7,:)/poollt%loss_hrvst_lay(2,:)
+!print*,'phen_defined ratio c14 loss_hrvst_lay 12:',poollt%loss_hrvst_lay(12,:)/poollt%loss_hrvst_lay(2,:)
+!
+!print*,'phen_defined ratio c13 loss_hrvst_lay 8:',poollt%loss_hrvst_lay(8,:)/poollt%loss_hrvst_lay(3,:)
+!print*,'phen_defined ratio c14 loss_hrvst_lay 13:',poollt%loss_hrvst_lay(13,:)/poollt%loss_hrvst_lay(3,:)
+!
+!print*,'phen_defined ratio c13 loss_hrvst_lay 9:',poollt%loss_hrvst_lay(9,:)/poollt%loss_hrvst_lay(4,:)
+!print*,'phen_defined ratio c14 loss_hrvst_lay 14:',poollt%loss_hrvst_lay(14,:)/poollt%loss_hrvst_lay(4,:)
+!
+!print*,'phen_defined ratio c13 loss_hrvst_lay 10:',poollt%loss_hrvst_lay(10,:)/poollt%loss_hrvst_lay(5,:)
+!print*,'phen_defined ratio c14 loss_hrvst_lay 15:',poollt%loss_hrvst_lay(15,:)/poollt%loss_hrvst_lay(5,:)
+
+
 
      !...transfer harvested carbon to dead pools
      do m=npoolpft/3+1,ntpool/3 ! goes from (6,11) ntpool to 1-6 dead pools
@@ -359,8 +390,8 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
        ratioc13 = hrvsttc13/sum(pooldt%gain_hrvst_lay(7:12,:))
      endif
      hrvsttc14 = hrvstc14 * sum(poolcont%harvest_trans(15:20))
-     if (sum(pooldt%gain_hrvst_lay(15:20,:)) .gt. dzero) then
-       ratioc14 = hrvsttc14/sum(pooldt%gain_hrvst_lay(15:20,:))
+     if (sum(pooldt%gain_hrvst_lay(13:18,:)) .gt. dzero) then
+       ratioc14 = hrvsttc14/sum(pooldt%gain_hrvst_lay(13:18,:))
      endif
 
 
@@ -370,6 +401,29 @@ if ((phent%phen_pi .ge. phencont%threshp(phencont%npstg-1)) .or. &
      pooldt%gain_hrvst_lay(7:12,:) = pooldt%gain_hrvst_lay(7:12,:)*dtisib
      pooldt%gain_hrvst_lay(13:18,:) = pooldt%gain_hrvst_lay(13:18,:)*ratioc14
      pooldt%gain_hrvst_lay(13:18,:) = pooldt%gain_hrvst_lay(13:18,:)*dtisib
+
+
+!print*,'phen_defined ratio: ',ratio
+!print*,'phen_defined ratioc13: ',ratioc13
+!print*,'phen_defined ratioc14: ',ratioc14
+!
+!print*,'phen_defined ratio c13 gain_hrvst_lay 7:',pooldt%gain_hrvst_lay(7,:)/pooldt%gain_hrvst_lay(1,:)
+!print*,'phen_defined ratio c14 gain_hrvst_lay 13:',pooldt%gain_hrvst_lay(13,:)/pooldt%gain_hrvst_lay(1,:)
+!
+!print*,'phen_defined ratio c13 gain_hrvst_lay 8:',pooldt%gain_hrvst_lay(8,:)/pooldt%gain_hrvst_lay(2,:)
+!print*,'phen_defined ratio c14 gain_hrvst_lay 14:',pooldt%gain_hrvst_lay(14,:)/pooldt%gain_hrvst_lay(2,:)
+!
+!print*,'phen_defined ratio c13 gain_hrvst_lay 9:',pooldt%gain_hrvst_lay(9,:)/pooldt%gain_hrvst_lay(3,:)
+!print*,'phen_defined ratio c14 gain_hrvst_lay 15:',pooldt%gain_hrvst_lay(15,:)/pooldt%gain_hrvst_lay(3,:)
+!
+!print*,'phen_defined ratio c13 gain_hrvst_lay 10:',pooldt%gain_hrvst_lay(10,:)/pooldt%gain_hrvst_lay(4,:)
+!print*,'phen_defined ratio c14 gain_hrvst_lay 16:',pooldt%gain_hrvst_lay(16,:)/pooldt%gain_hrvst_lay(4,:)
+!
+!print*,'phen_defined ratio c13 gain_hrvst_lay 11:',pooldt%gain_hrvst_lay(11,:)/pooldt%gain_hrvst_lay(5,:)
+!print*,'phen_defined ratio c14 gain_hrvst_lay 17:',pooldt%gain_hrvst_lay(17,:)/pooldt%gain_hrvst_lay(5,:)
+!
+!print*,'phen_defined ratio c13 gain_hrvst_lay 12:',pooldt%gain_hrvst_lay(12,:)/pooldt%gain_hrvst_lay(6,:)
+!print*,'phen_defined ratio c14 gain_hrvst_lay 18:',pooldt%gain_hrvst_lay(18,:)/pooldt%gain_hrvst_lay(6,:)
 
      !...reset growing season variables
      phent%nd_gs = dzero
@@ -505,6 +559,15 @@ IF ((phent%seed_pool .gt. dzero) .and. &
 
     poollt%gain_seed = poollt%gain_seed / dble(steps_per_day) * dtisib
 ENDIF
+
+!print*,'phen_defined ratio c13 poollt%gain_seed 6: ', poollt%gain_seed(6)/poollt%gain_seed(1)
+!print*,'phen_defined ratio c14 poollt%gain_seed 11: ', poollt%gain_seed(11)/poollt%gain_seed(1)
+!
+!print*,'phen_defined ratio c13 poollt%gain_seed 7: ', poollt%gain_seed(7)/poollt%gain_seed(2)
+!print*,'phen_defined ratio c14 poollt%gain_seed 12: ', poollt%gain_seed(12)/poollt%gain_seed(2)
+!
+!print*,'phen_defined ratio c13 poollt%gain_seed 10: ', poollt%gain_seed(10)/poollt%gain_seed(5)
+!print*,'phen_defined ratio c14 poollt%gain_seed 15: ', poollt%gain_seed(15)/poollt%gain_seed(5)
 
 
 end subroutine phen_defined

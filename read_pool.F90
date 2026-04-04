@@ -394,6 +394,11 @@ do i=1,npft
           poolcon(i)%poolpft_min(lpc14) = dble(r_c14poolinitc4*poolval)
        endif
 
+   !print*,'r_c13poolinitc3 from readpool :',r_c13poolinitc3
+   !print*,'r_c13poolinitc4 from readpool :',r_c13poolinitc4
+   !print*,'r_c14poolinitc3 from readpool :',r_c14poolinitc3
+   !print*,'r_c14poolinitc4 from readpool :',r_c14poolinitc4
+
    !print*,'lp min from readpool :',poolcon(i)%poolpft_min(lp)
    !print*,'lpc13 min from readpool :',poolcon(i)%poolpft_min(lpc13)
    !print*,'lpc14 min from readpool :',poolcon(i)%poolpft_min(lpc14)

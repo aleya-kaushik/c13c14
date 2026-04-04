@@ -1041,14 +1041,14 @@ do i=1, subcount
             nref=n-2*npoollu/3 !11,15 poolpft index
             write(12,'(i4,a12,3f10.4,a,l,a,2f10.4,2f12.4,1f9.4)') &
                     n, trim(pool_name(n)), &
-            (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc13), &
-            (sib%g(i)%l(l)%equiblt%poolpft_end(nref)*pool_convertc13), &
-            (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc13), &
+            (sib%g(i)%l(l)%equiblt%poolpft_init(nref)*pool_convertc14), &
+            (sib%g(i)%l(l)%equiblt%poolpft_end(nref)*pool_convertc14), &
+            (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc14), &
             '   ',(.not. sib%g(i)%l(l)%equiblt%poolpft_notdone(nref)),'  ', &
-            sib%g(i)%l(l)%equiblt%poolpft_min(nref)*pool_convertc13, &
-            sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc13, &
-            sib%g(i)%l(l)%equiblt%poolpft_gain(nref)*pool_convertc13, &
-            sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convertc13,  &
+            sib%g(i)%l(l)%equiblt%poolpft_min(nref)*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%poolpft_gain(nref)*pool_convertc14, &
+            sib%g(i)%l(l)%equiblt%poolpft_loss(nref)*pool_convertc14,  &
             sib%g(i)%l(l)%equiblt%poolpft_ratio(nref)
            enddo
 

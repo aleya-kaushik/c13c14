@@ -328,6 +328,7 @@ if (co2t%assim .GT. nzero) then
     fract%rcassimfacc14 = fract%rcassimc14
     fract%c14assim  =  (fract%rcassimc14 * co2t%assim)
 
+    fract%d14cassim = (((fract%rcassimc14/stdC14)-1.0D0)*1000.0D0)
 
     if (fract%d13cca .lt. -1000. .or. fract%d13cassim .lt. -400.) then ! &
        ! fract%d13cca .gt. 10. .or. fract%d13cassim .lt. -400.) then
@@ -432,10 +433,18 @@ fract%c14assimd = dble(fract%c14assim*(1.0D0 - wt_daily) &
     !!!pdiagt%flux12c = ( pprogt%c12ca - pprogt%c12cm) / pdiagt%ra
     !!!pdiagt%flux_turb = pdiagt%flux13c + pdiagt%flux12c
 
-
-!print*,' '
-!print*,'d13cassim: ',fract%d13cassim
-!print*,' '
+print*,'assim: ',co2t%assim
+print*,'c13cassim: ',fract%c13assim
+print*,'c14cassim: ',fract%c14assim
+print*,' '
+print*,'ratio c13 assim :',fract%c13assim/co2t%assim
+print*,'ratio c14 assim :',fract%c14assim/co2t%assim
+print*,' '
+print*,'fract%d13cca :',fract%d13cca
+print*,'d13cassim: ',fract%d13cassim
+print*,' '
+print*,'fract%d14cca :',fract%d14cca
+print*,'d14cassim: ',fract%d14cassim
 
 end subroutine cfrax_calc
 
