@@ -394,11 +394,13 @@ integer(i4) :: yrnow, i, loc
     fract%rcassimc14 = dzero
     fract%rcassimfacc14 = dzero
     fract%d14cassim = dzero
+    fract%D_14cassim = dzero
     fract%c14assim = dzero
     fract%c14assimd = dzero
     fract%c14resptot = dzero
 
     fract%c14alpha = dzero
+    fract%normfac = dzero
 
     fract%kiecps_k1 = dzero
     fract%kiecps_k2 = dzero

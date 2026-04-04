@@ -166,6 +166,8 @@ fract%c12ca = dble(co2t%co2cas) / (1.0D0 + dble(rcac13))
 N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+fract%d13cca/1000.0D0)**2.0)
 rcac14 = (dble(1.0D0+fract%d14cca/1000.0D0)*stdC14)/N
 
+fract%normfac = N
+
 !xx=co2cas-c13ca-c12ca
 !print *,'co2cas into cfrax :',co2cas
 !print *,'c13ca in cfrax :',c13ca
@@ -329,6 +331,7 @@ if (co2t%assim .GT. nzero) then
     fract%c14assim  =  (fract%rcassimc14 * co2t%assim)
 
     fract%d14cassim = (((fract%rcassimc14/stdC14)-1.0D0)*1000.0D0)
+    fract%D_14cassim = ((N*(fract%rcassimc14/stdC14)-1.0D0)*1000.0D0)
 
     if (fract%d13cca .lt. -1000. .or. fract%d13cassim .lt. -400.) then ! &
        ! fract%d13cca .gt. 10. .or. fract%d13cassim .lt. -400.) then
@@ -433,18 +436,34 @@ fract%c14assimd = dble(fract%c14assim*(1.0D0 - wt_daily) &
     !!!pdiagt%flux12c = ( pprogt%c12ca - pprogt%c12cm) / pdiagt%ra
     !!!pdiagt%flux_turb = pdiagt%flux13c + pdiagt%flux12c
 
-print*,'assim: ',co2t%assim
-print*,'c13cassim: ',fract%c13assim
-print*,'c14cassim: ',fract%c14assim
-print*,' '
-print*,'ratio c13 assim :',fract%c13assim/co2t%assim
-print*,'ratio c14 assim :',fract%c14assim/co2t%assim
-print*,' '
-print*,'fract%d13cca :',fract%d13cca
-print*,'d13cassim: ',fract%d13cassim
-print*,' '
-print*,'fract%d14cca :',fract%d14cca
-print*,'d14cassim: ',fract%d14cassim
+!if (co2t%assim .gt. dzero) then
+!   print*,' '
+!   print*,'assim: ',co2t%assim
+!   print*,'c13cassim: ',fract%c13assim
+!   print*,'c14cassim: ',fract%c14assim
+!   print*,' '
+!   print*,'ratio c13 assim :',fract%c13assim/co2t%assim
+!   print*,'ratio c14 assim :',fract%c14assim/co2t%assim
+!   print*,' '
+!   print*,'fract%d13cca :',fract%d13cca
+!   print*,'d13cassim: ',fract%d13cassim
+!   print*,' '
+!   print*,'fract%d14cca :',fract%d14cca
+!   print*,'d14cassim: ',fract%d14cassim
+!   print*,'D_14cassim: ',fract%D_14cassim
+!   !N = dble((1+dble(-0.025))**2.0) / (dble(1.0D0+fract%d13cca/1000.0D0)**2.0)
+!   print*,'N :',N
+!
+!   !rcac14 = (dble(1.0D0+fract%d14cca/1000.0D0)*stdC14)/N
+!   print*,'rcac14 :',rcac14
+!   !    fract%c14alpha = (1.0D0+fract%kiecps/1000.0D0)**2.
+!   print*,'rcac14 :',rcac14
+!   print*,'fract%kiecps :',fract%kiecps
+!   print*,'fract%c14alpha :',fract%c14alpha
+!   !    fract%rcassimc14 = rcac14*fract%c14alpha
+!   print*,'fract%rcassimc14 :',fract%rcassimc14
+!   print*,' '
+!endif
 
 end subroutine cfrax_calc
 
