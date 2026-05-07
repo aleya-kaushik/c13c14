@@ -16,6 +16,8 @@ use module_sib, only: &
     fract_type
 use module_sibconst, only: npoolpft
 use module_time, only: dtsib
+use module_pparams, only: &
+    stdC14, pdb
 
 implicit none
 
@@ -171,6 +173,17 @@ poollt%assim_dloss = poollt%poolpft_dloss
 
 !print*,'pool_assim ratios c13 dloss :', (poollt%poolpft_dloss(6:10,:)/poollt%poolpft_dloss(1:5,:))
 !print*,'pool_assim ratios c14 dloss :', (poollt%poolpft_dloss(11:15,:)/poollt%poolpft_dloss(1:5,:))
+
+!print*,'fract%D_14cassim :',fract%D_14cassim
+!print*,'fract%normfac :',fract%normfac
+!print*,'D_14c for poolpft_dgain :'
+!print*,((fract%normfac*(((poollt%poolpft_dgain(11:15,:)/0.14)/(poollt%poolpft_dgain(1:5,:)/0.12))/stdC14)-1.0D0)*1000.0D0)
+!print*,'D_14c for poolpft_dloss :'
+!print*,((fract%normfac*(((poollt%poolpft_dloss(11:15,:)/0.14)/(poollt%poolpft_dloss(1:5,:)/0.12))/stdC14)-1.0D0)*1000.0D0)
+!print*,'d13c for poolpft_dgain :'
+!print*,(((((poollt%poolpft_dgain(6:10,:)/0.13)/((poollt%poolpft_dgain(1:5,:)/0.12)-(poollt%poolpft_dgain(6:10,:)/0.13)))/pdb)-1.0D0)*1000.0D0)
+!print*,'d13c for poolpft_dloss :'
+!print*,(((((poollt%poolpft_dloss(6:10,:)/0.13)/((poollt%poolpft_dloss(1:5,:)/0.12)-(poollt%poolpft_dloss(6:10,:)/0.13)))/pdb)-1.0D0)*1000.0D0)
 
 end subroutine pool_assim
 

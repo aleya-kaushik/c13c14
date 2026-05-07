@@ -1230,10 +1230,23 @@ logical, parameter :: eq_psmol=.false.
 ! Misc Variables
 integer(i4) :: i,l,n,nref
 integer(i4) :: pref, pnum
+integer(i4) :: lp,wp,pp, lpc13, wpc13, ppc13
+integer(i4) :: lpc14, wpc14, ppc14
 real(r8) :: pool_convert, pool_convertc13, pool_convertc14
 character(len=12) :: pool_outputt
 
 !==============================
+
+! Set local variables
+lp=pool_indx_leaf
+wp=pool_indx_stwd
+pp=pool_indx_prod
+lpc13=pool_indx_leaf_c13
+wpc13=pool_indx_stwd_c13
+ppc13=pool_indx_prod_c13
+lpc14=pool_indx_leaf_c14
+wpc14=pool_indx_stwd_c14
+ppc14=pool_indx_prod_c14
 
 ! Check for printed units
 IF (eq_psmol) THEN
@@ -1464,36 +1477,35 @@ do i=1, subcount
 print*, '------------------------------------------------'
 print*, '--------------check pool ratios-----------------'
 
-print*,'Live Pools'
+print*,'Live Pools (pool max)'
 do n=2*npoolpft/3+2,npoolpft+1 ! 12,16
   nref=n-npoolpft/3-1 !6,10
    print'(i4,a12,f8.4)',n, trim(pool_name(n)),&
-          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc13)/ &
-          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref-5)*pool_convert)
+          (sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc13)/ &
+          (sib%g(i)%l(l)%equiblt%poolpft_max(nref-5)*pool_convert)
 enddo
 
 do n = npoollu+npoolpft/3,npoollu+2*npoolpft/3-1! 23,27 C14 live pools ntpool
   nref=n-2*npoollu/3 !11,15 poolpft index
    print'(i4,a12,g9.2)',n, trim(pool_name(n)),&
-          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref)*pool_convertc14)/ &
-          (sib%g(i)%l(l)%equiblt%poolpft_equib(nref-10)*pool_convert)
+          (sib%g(i)%l(l)%equiblt%poolpft_max(nref)*pool_convertc14)/ &
+          (sib%g(i)%l(l)%equiblt%poolpft_max(nref-10)*pool_convert)
 enddo
 
 print*,' '
-print*,'Dead Pools'
-
+print*,'Dead Pools (pool max)'
 do n=npoolpft+2,npoollu+4 !17,22 C13 dead pools
   nref=n-(2*(npoolpft/3)) !7,12 poollu index
    print'(i4,a12,f8.4)', n, trim(pool_name(n)),&
-          (sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc13)/ &
-          (sib%g(i)%l(l)%equibdt%poollu_equib(nref-6)*pool_convert)
+          (sib%g(i)%l(l)%equibdt%poollu_max(nref)*pool_convertc13)/ &
+          (sib%g(i)%l(l)%equibdt%poollu_max(nref-6)*pool_convert)
 enddo
 
 do n=npoollu+2*npoolpft/3,ntpool !28,33 C14 dead pools
   nref=n-npoolpft !13,18 poollu index
    print'(i4,a12,g9.2)',n, trim(pool_name(n)),&
-          (sib%g(i)%l(l)%equibdt%poollu_equib(nref)*pool_convertc14)/ &
-          (sib%g(i)%l(l)%equibdt%poollu_equib(nref-12)*pool_convert)
+          (sib%g(i)%l(l)%equibdt%poollu_max(nref)*pool_convertc14)/ &
+          (sib%g(i)%l(l)%equibdt%poollu_max(nref-12)*pool_convert)
 enddo
 
 print*, '--------------check pool ratios-----------------'

@@ -14,7 +14,7 @@ program sibdrive
     integer(i4) :: i,n,pnum
     integer(long) :: t
     integer(i4), external :: iargc
-    character(len=200) :: namel_name
+    character(len=250) :: namel_name
     character(len=16) :: buf
 
     ! variables for timing

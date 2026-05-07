@@ -9,7 +9,7 @@ use module_time
 implicit none
 
 !...input variables
-character(len=200) :: namel_name
+character(len=250) :: namel_name
 
 !...local variables
 character(len=256) :: dr_path, fr_path

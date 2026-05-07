@@ -47,6 +47,8 @@ real(r8) :: tmpval,tmpvdr
 real(r8) :: resp_casc14, resp_casc12
 real(r8) :: nzero=1.E-14
 
+real(r8) :: nlim = 5.0e-12
+
 !...reset variables
 poollt%loss_raddecay_lay(:,:) = dzero
 pooldt%loss_raddecay_lay(:,:) = dzero
@@ -291,7 +293,7 @@ do n=2*npoolpft/3+1,npoolpft !(11,15) C14 live pools
             ( poollt%poolpft_lay(tcref,1) &
               + poollt%poolpft_dgain(tcref,1) &
               - poollt%poolpft_dloss(tcref,1) )
-         if ((tmpval .lt. 1.2e-12) .and. (tmpval .gt. 0.)) then
+         if ((tmpval .lt. nlim) .and. (tmpval .gt. 0.)) then
             poollt%rcpoolpft_lay(n,1) = tmpval
 
             poollt%rcpoolpft(n) = poollt%rcpoolpft_lay(n,1)
@@ -305,7 +307,7 @@ do n=2*npoolpft/3+1,npoolpft !(11,15) C14 live pools
                   - poollt%poolpft_dloss(n,1) )
      !else
      !   poollt%rcpoolpft(n) = (fract%rcassim/(fract%rcassim+1.0D0))
-         endif !tmpval <1.2e-12 and >0
+         endif !tmpval <nlim and >0
        endif ! tmpvdr ne 0
    else
        do s=1,pool_indx_lay(sref) 
@@ -319,7 +321,7 @@ do n=2*npoolpft/3+1,npoolpft !(11,15) C14 live pools
               ( poollt%poolpft_lay(tcref,s) &
                 + poollt%poolpft_dgain(tcref,s) &
                 - poollt%poolpft_dloss(tcref,s) )
-           if ((tmpval .lt. 1.2e-12) .and. (tmpval .gt. 0.)) then      
+           if ((tmpval .lt. nlim) .and. (tmpval .gt. 0.)) then      
            !pool_indx_lay the same sref for live pools in sequence
              poollt%rcpoolpft_lay(n,s) = tmpval
  
@@ -368,7 +370,7 @@ do n=2*npoolpft/3+1,npoolpft !(11,15) C14 live pools
 
         !else 
          !  poollt%rcpoolpft_lay(n,s) = (fract%rcassim/(fract%rcassim+1.0D0))
-           endif !tmpval <1.2e-12 and >0
+           endif !tmpval <nlim and >0
          endif ! tmpvdr ne 0
        enddo !soil layers
 
@@ -382,7 +384,7 @@ do n=2*npoolpft/3+1,npoolpft !(11,15) C14 live pools
               ( sum(poollt%poolpft_lay(tcref,:)) &
                 + sum(poollt%poolpft_dgain(tcref,:)) &
                 - sum(poollt%poolpft_dloss(tcref,:)) )
-         if ((tmpval .lt. 1.2e-12) .and. (tmpval .gt. 0.)) then
+         if ((tmpval .lt. nlim) .and. (tmpval .gt. 0.)) then
              poollt%rcpoolpft(n) = tmpval
              poollt%curpoolpft(tcref) = &
                  ( sum(poollt%poolpft_lay(tcref,:)) &
@@ -394,7 +396,7 @@ do n=2*npoolpft/3+1,npoolpft !(11,15) C14 live pools
                   - sum(poollt%poolpft_dloss(n,:)) )
            !else
            !  poollt%rcpoolpft(n) = (fract%rcassim/(fract%rcassim+1.0D0))
-         endif !tmpval <1.2e-12 and >0
+         endif !tmpval <nlim and >0
        endif ! tmpvdr ne 0
    endif ! pool_indx_lay
 enddo !poolpft loop
@@ -451,7 +453,7 @@ do n=2*npoollu/3+1,npoollu !(13,18) C14 dead pools
             ( pooldt%poollu_lay(tcref,1) &
               + pooldt%poollu_dgain(tcref,1) &
               - pooldt%poollu_dloss(tcref,1) )
-         if ((tmpval .lt. 1.2e-12) .and. (tmpval .gt. 0.)) then
+         if ((tmpval .lt. nlim) .and. (tmpval .gt. 0.)) then
            pooldt%rcpoollu_lay(n,1) = tmpval
            pooldt%rcpoollu(n) = pooldt%rcpoollu_lay(n,1)
            pooldt%curpoollu(tcref) = ( pooldt%poollu_lay(tcref,1) &
@@ -462,7 +464,7 @@ do n=2*npoollu/3+1,npoollu !(13,18) C14 dead pools
                 + pooldt%poollu_dgain(n,1) &
                 - pooldt%poollu_dloss(n,1) )
          !else
-         endif !tmpval <1.2e-12 and >0
+         endif !tmpval <nlim and >0
      endif !tmpvdr ne 0
    else
        do s=1,pool_indx_lay(sref)
@@ -477,9 +479,9 @@ do n=2*npoollu/3+1,npoollu !(13,18) C14 dead pools
             ( pooldt%poollu_lay(tcref,s) &
               + pooldt%poollu_dgain(tcref,s) &
               - pooldt%poollu_dloss(tcref,s) )
-           if ((tmpval .lt. 1.2e-12) .and. (tmpval .gt. 0.)) then
+           if ((tmpval .lt. nlim) .and. (tmpval .gt. 0.)) then
              pooldt%rcpoollu_lay(n,s) = tmpval
-           endif !tmpval < 1.2e-12 and >0
+           endif !tmpval < nlim and >0
          !else
          !  pooldt%rcpoollu_lay(n,s) = (fract%rcassim/(fract%rcassim+1.0D0))
          endif !tmpvdr ne 0
@@ -495,7 +497,7 @@ do n=2*npoollu/3+1,npoollu !(13,18) C14 dead pools
             ( sum(pooldt%poollu_lay(tcref,:)) &
               + sum(pooldt%poollu_dgain(tcref,:)) &
               - sum(pooldt%poollu_dloss(tcref,:)) )
-         if ((tmpval .lt. 1.2e-12) .and. (tmpval .gt. 0.)) then
+         if ((tmpval .lt. nlim) .and. (tmpval .gt. 0.)) then
            pooldt%rcpoollu(n) = tmpval
            pooldt%curpoollu(tcref) = ( sum(pooldt%poollu_lay(tcref,:)) &
                 + sum(pooldt%poollu_dgain(tcref,:)) &
@@ -505,7 +507,7 @@ do n=2*npoollu/3+1,npoollu !(13,18) C14 dead pools
                 + sum(pooldt%poollu_dgain(n,:)) &
                 - sum(pooldt%poollu_dloss(n,:)) )           
        !else
-         endif !tmpval <1.2e-12 and >0
+         endif !tmpval <nlim and >0
        !   pooldt%rcpoollu(n) = (fract%rcassim/(fract%rcassim+1.0D0))  
        endif !tmpvdr ne 0
    endif !pool_indx_lay
