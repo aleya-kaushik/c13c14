@@ -53,7 +53,7 @@ real(r8) :: tmpval,tmpvdr
 real(r8) :: resp_casc13, resp_casc12
 real(r8) :: nzero=1.E-14
 
-real(r8) :: 0.011
+real(r8) :: nlim=0.011
 
 lp =  pool_indx_leaf !ntpool index 1
 frp = pool_indx_froot !ntpool index 2
